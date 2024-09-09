@@ -1,6 +1,6 @@
 {
   "name": "ondemandenv-contracts-base",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "bin": {
     "cdk": "bin/cdk.js"
   },
