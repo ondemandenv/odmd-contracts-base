@@ -1,0 +1,44 @@
+{
+  "name": "@ondemandenv/odmd-contracts",
+  "version": "0.0.1",
+  "bin": {
+    "cdk": "bin/cdk.js"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.154.1",
+    "constructs": "^10.0.0",
+    "js-yaml": "^4.1.0",
+    "source-map-support": "^0.5.21"
+  },
+  "devDependencies": {
+    "aws-cdk": "2.154.1",
+    "@types/node": "^22.5.4",
+    "@types/jest": "^29.5.12",
+    "@types/js-yaml": "^4.0.9",
+    "cross-env": "^7.0.3",
+    "neo4j-driver": "^5.23.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.1.6",
+    "cdk8s": "2.68.107",
+    "cdk8s-plus-29": "2.5.4",
+    "cdk8s-cli": "2.198.212",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2"
+  },
+  "peerDependencies": {
+    "constructs": "^10.0.0",
+    "aws-cdk-lib": "2.154.1"
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "watch": "tsc --build -w",
+    "clean": "tsc --build --clean",
+    "audit": "npm audit fix",
+    "test": "tsc --build --clean && tsc --build && cross-env target_rev_ref=b..odmdSbxUsw1 CDK_DEFAULT_ACCOUNT=123 CDK_DEFAULT_REGION=us-west-1 CDK_CLI_VERSION=2.154.1  jest",
+    "buildversion": "tsc --build && npm version patch",
+    "cdk-ls": "tsc --build --clean && tsc --build && cross-env target_rev_ref=b..main cdk ls -v --profile sandbox-workspace3",
+    "pubpub": "npm run test && npm publish --access=public",
+    "login": "npm login",
+    "cdk8s-import": "cdk8s import/* && ts-node imports/remove-readonly.ts*/"
+  }
+}
