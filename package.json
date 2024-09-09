@@ -1,11 +1,8 @@
 {
-  "name": "ondemandenv-contracts-base",
+  "name": "@ondemandenv/ondemandenv-contracts-base",
   "version": "0.0.1",
-  "bin": {
-    "cdk": "bin/cdk.js"
-  },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://npm.pkg.github.com/"
   },
   "dependencies": {
     "aws-cdk-lib": "2.154.1",
