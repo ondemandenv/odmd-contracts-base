@@ -4,8 +4,11 @@ import {ContractsCrossRefProducer, OdmdNames} from "../lib/odmd-model/contracts-
 import {App, Stack} from "aws-cdk-lib";
 import {PgSchemaUsers} from "../lib/odmd-model/contracts-pg-schema-usrs";
 import {Repository, RepositoryProps} from "aws-cdk-lib/aws-ecr";
+import {OdmdConfigOdmdContractsNpm} from "../lib/repos/__contracts/odmd-build-odmd-contracts-npm";
 
+class tmp1OdmdContracts extends OndemandContracts {
 
+}
 
 
 test('make_sense1', () => {
@@ -13,7 +16,7 @@ test('make_sense1', () => {
     process.env.CDK_DEFAULT_ACCOUNT = 'aaaaaa'
     process.env.CDK_DEFAULT_REGION = 'us-west-1'
     const app = new App()
-    new OndemandContracts( app)
+    new tmp1OdmdContracts(app, OdmdConfigOdmdContractsNpm)
 
     const buildRegion = process.env.CDK_DEFAULT_REGION;
     const buildAccount = process.env.CDK_DEFAULT_ACCOUNT
@@ -45,7 +48,7 @@ test('make_sense1', () => {
                     } catch (e) {
                         throw e
                     }
-                    if( !imgToProdcr[imgName] ){
+                    if (!imgToProdcr[imgName]) {
                         console.warn()
                     }
                 }

@@ -6,6 +6,15 @@
       "es2020",
       "dom"
     ],
+//    "outDir": "dist",
+//    "rootDir": "src",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "types": [
+      "node",
+      "jest"
+    ],
     "declaration": true,
     "strict": true,
     "noImplicitAny": true,

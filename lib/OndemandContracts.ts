@@ -27,7 +27,7 @@ export type Accounts = {
     workplace2: string,
 };
 
-export class OndemandContracts extends Construct implements OdmdContractsCentralView {
+export abstract class OndemandContracts extends Construct implements OdmdContractsCentralView {
 
     static readonly RES_PREFIX = "odmd-"
     static readonly REGEX_DBClusterIdentifier = /^[a-z](?:(?![-]{2,})[a-z0-9-]){1,62}(?<!-)$/
@@ -47,7 +47,6 @@ export class OndemandContracts extends Construct implements OdmdContractsCentral
     public readonly defaultEcrEks
 
     public readonly DEFAULTS_SVC
-
 
 
     public readonly accounts: Accounts
@@ -79,6 +78,8 @@ export class OndemandContracts extends Construct implements OdmdContractsCentral
     }
 
     constructor(app: App,
+                contractsBuildClass: new (scope: OndemandContracts
+                ) => OdmdConfigOdmdContractsNpm,
                 accountOverriding: AccountsCentralView | undefined = undefined,
                 srcReposOverriding: GithubReposCentralView | undefined = undefined) {
         super(app, 'ondemandenv');
@@ -159,7 +160,7 @@ export class OndemandContracts extends Construct implements OdmdContractsCentral
         }
 
         this.allAccounts = Object.values(this.accounts)
-        this.odmdConfigOdmdContractsNpm = new OdmdConfigOdmdContractsNpm(this)
+        this.odmdConfigOdmdContractsNpm = new contractsBuildClass(this)
 
         this.networking = new OdmdConfigNetworking(this)
 

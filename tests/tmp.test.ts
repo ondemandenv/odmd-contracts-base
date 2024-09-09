@@ -12,6 +12,8 @@ import {IConstruct} from "constructs";
 import {PgSchemaUsersProps} from "../lib/odmd-model/contracts-pg-schema-usrs";
 import {WithRds} from "../lib/odmd-model/contracts-rds-cluster";
 import * as fs from "node:fs";
+import {OdmdConfigOdmdContractsNpm} from "../lib/repos/__contracts/odmd-build-odmd-contracts-npm";
+import {describe} from "node:test";
 
 
 function checkVpcEnver(enver: WithVpc) {
@@ -91,16 +93,22 @@ try replace(/[^A-Za-z0-9_$]/g,'_')`
 
 }
 
-test('make_sense', () => {
+class tmpOdmdContracts extends OndemandContracts {
+
+}
+
+describe('mkss1', () => {
 
     const allEnvers = new Set<AnyContractsEnVer>();
 
-    new OndemandContracts(new App())
+    let app = new App();
+    new tmpOdmdContracts(app, OdmdConfigOdmdContractsNpm)
 
-    if (JSON.parse(fs.readFileSync('package.json').toString()).name !=
-        OndemandContracts.myInst.odmdConfigOdmdContractsNpm.packageName) {
-        throw new Error('package name not right')
-    }
+    it("package name wrong", () => {
+        expect(JSON.parse(fs.readFileSync('package.json').toString()).name)
+            .toBe(OndemandContracts.myInst.odmdConfigOdmdContractsNpm.packageName)
+    })
+
 
     OndemandContracts.myInst.odmdBuilds.forEach((buildConfig: ContractsBuild<AnyContractsEnVer>) => {
 

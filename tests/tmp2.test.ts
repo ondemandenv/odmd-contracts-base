@@ -1,14 +1,19 @@
 import {OndemandContracts} from "../lib/OndemandContracts";
 import {App} from "aws-cdk-lib";
 import {ContractsEnverCtnImg} from "../lib/odmd-model/contracts-enver-ctn-img";
+import {OdmdConfigOdmdContractsNpm} from "../lib/repos/__contracts/odmd-build-odmd-contracts-npm";
 
+
+class tmp2OdmdContracts extends OndemandContracts {
+
+}
 
 test('make_sense2', () => {
 
     process.env.CDK_DEFAULT_ACCOUNT = 'aaaaaa'
     process.env.CDK_DEFAULT_REGION = 'us-west-1'
     const app = new App()
-    new OndemandContracts(app)
+    new tmp2OdmdContracts(app, OdmdConfigOdmdContractsNpm)
 
 
     process.env['target_build_id'] = OndemandContracts.myInst.networking.buildId
@@ -27,7 +32,6 @@ test('make_sense2', () => {
     if (nwEnvr != nwEnvr1) {
         throw new Error("No!")
     }
-
 
 
     OndemandContracts.myInst.odmdBuilds.forEach(b => {

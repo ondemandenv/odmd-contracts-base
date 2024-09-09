@@ -12,7 +12,7 @@ export class OdmdConfigOdmdContractsNpm extends OdmdBuildOdmdContracts<Contracts
 
     public readonly packageName = '@ondemandenv/odmd-contracts'
 
-    constructor(scope: Construct) {
+    constructor(scope: OndemandContracts) {
         super(scope, 'odmd-contracts-npm');
 
         const srcRevREF = new SRC_Rev_REF("b", "odmd_us_west_1__sandbox");
@@ -32,8 +32,7 @@ export class OdmdConfigOdmdContractsNpm extends OdmdBuildOdmdContracts<Contracts
        */
         const paramPath = `/odmd-contracts-latest-version/${this.gitHubRepo.owner}/${this.gitHubRepo.name}/${srcRevREF.value}`
         this.theOne.buildCmds.push(
-            // `PKG_NAME=$(jq -r '.name' package.json) && [[ "$PKG_NAME" != "${this.packageName}" ]] && exit 444`,
-            `PKG_NAME=$(jq -r '.name' package.json) && test "$PKG_NAME" != "@ondemandenv/odmd-contracts" || echo $PKG_NAME is good`,
+            `PKG_NAME=$(jq -r '.name' package.json) && test "$PKG_NAME" != "${this.packageName}" || echo $PKG_NAME is good`,
             `npm install`,
             `npm run test`,
             `npm publish`,

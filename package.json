@@ -4,6 +4,9 @@
   "bin": {
     "cdk": "bin/cdk.js"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "dependencies": {
     "aws-cdk-lib": "2.154.1",
     "constructs": "^10.0.0",
