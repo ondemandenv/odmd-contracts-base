@@ -1,5 +1,5 @@
 {
-  "name": "@ondemandenv/ondemandenv-contracts-base",
+  "name": "@ondemandenv/contracts-lib-base",
   "version": "0.0.1",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"

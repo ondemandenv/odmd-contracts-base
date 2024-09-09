@@ -1,7 +1,6 @@
 import {OdmdBuildOdmdContracts} from "./odmd-build-odmd-contracts";
 import {ContractsEnverNpm} from "../../odmd-model/contracts-enver-npm";
 import {OndemandContracts} from "../../OndemandContracts";
-import {Construct} from "constructs";
 import {SRC_Rev_REF} from "../../odmd-model/contracts-build";
 
 
@@ -10,7 +9,9 @@ export class OdmdConfigOdmdContractsNpm extends OdmdBuildOdmdContracts<Contracts
     readonly envers: Array<ContractsEnverNpm>
     readonly theOne: ContractsEnverNpm
 
-    public readonly packageName = '@ondemandenv/ondemandenv-contracts-base'
+    public get packageName(): string {
+        return '@ondemandenv/contracts-lib-base'
+    }
 
     constructor(scope: OndemandContracts) {
         super(scope, 'odmd-contracts-npm');
