@@ -10,7 +10,7 @@ export class OdmdConfigOdmdContractsNpm extends OdmdBuildOdmdContracts<Contracts
     readonly envers: Array<ContractsEnverNpm>
     readonly theOne: ContractsEnverNpm
 
-    public readonly packageName = 'ondemandenv-contracts-base'
+    public readonly packageName = '@ondemandenv/ondemandenv-contracts-base'
 
     constructor(scope: OndemandContracts) {
         super(scope, 'odmd-contracts-npm');
