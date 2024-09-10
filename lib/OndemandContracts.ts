@@ -61,10 +61,10 @@ export abstract class OndemandContracts extends Construct implements OdmdContrac
     public readonly odmdBuilds: Array<ContractsBuild<AnyContractsEnVer>>;
 
 
-    private static _myInst: OdmdContractsCentralView;
+    private static _inst: OdmdContractsCentralView;
 
     public static get inst(): OdmdContractsCentralView {
-        return this._myInst
+        return this._inst
     }
 
     public static readonly REV_REF_name = 'target_rev_ref'
@@ -79,10 +79,10 @@ export abstract class OndemandContracts extends Construct implements OdmdContrac
                 accountOverriding: AccountsCentralView | undefined = undefined,
                 srcReposOverriding: GithubReposCentralView | undefined = undefined) {
         super(app, 'ondemandenv');
-        if (OndemandContracts._myInst) {
+        if (OndemandContracts._inst) {
             throw new Error(`can't init twice`)
         }
-        OndemandContracts._myInst = this
+        OndemandContracts._inst = this
         Aspects.of(app).add(new ContractsAspect())
 
         this.accounts = {
