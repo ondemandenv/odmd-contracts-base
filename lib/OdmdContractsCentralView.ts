@@ -5,7 +5,6 @@ import {OdmdConfigNetworking} from "./repos/__networking/odmd-config-networking"
 import {OdmdBuildEksCluster} from "./repos/__eks/odmd-build-eks-cluster";
 import {OdmdBuildDefaultVpcRds} from "./repos/_default-vpc-rds/odmd-build-default-vpc-rds";
 import {OdmdBuildDefaultKubeEks} from "./repos/_default-kube-eks/odmd-build-default-kube-eks";
-import {Accounts} from "./OndemandContracts";
 
 export type GithubReposCentralView = {
 
@@ -25,7 +24,7 @@ export interface OdmdContractsCentralView {
 
     readonly accounts: AccountsCentralView
 
-    getAccountName(accId: string): keyof Accounts
+    getAccountName(accId: string): keyof AccountsCentralView
 
     getTargetEnver(): AnyContractsEnVer | undefined
 

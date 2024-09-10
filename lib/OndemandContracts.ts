@@ -3,7 +3,7 @@ import {OdmdConfigNetworking} from "./repos/__networking/odmd-config-networking"
 import {OdmdBuildEksCluster} from "./repos/__eks/odmd-build-eks-cluster";
 import {OdmdBuildDefaultVpcRds} from "./repos/_default-vpc-rds/odmd-build-default-vpc-rds";
 import {AnyContractsEnVer} from "./odmd-model/contracts-enver";
-import {ContractsBuild, GithubRepo, SRC_Rev_REF} from "./odmd-model/contracts-build";
+import {ContractsBuild, SRC_Rev_REF} from "./odmd-model/contracts-build";
 import {OdmdBuildDefaultKubeEks} from "./repos/_default-kube-eks/odmd-build-default-kube-eks";
 import {App, Aspects} from "aws-cdk-lib";
 import {ContractsAspect} from "./odmd-model/contracts-aspect";
@@ -11,20 +11,6 @@ import {OdmdConfigOdmdContractsNpm} from "./repos/__contracts/odmd-build-odmd-co
 import {execSync} from "child_process";
 import {AccountsCentralView, GithubReposCentralView, OdmdContractsCentralView} from "./OdmdContractsCentralView";
 
-
-export type GithubRepos = GithubReposCentralView & {
-    sample: GithubRepo
-    sample1: GithubRepo
-    CoffeeShopFoundationCdk: GithubRepo
-    CoffeeShopOrderProcessorCdk: GithubRepo
-    CoffeeShopOrderManagerCdk: GithubRepo
-}
-
-export type Accounts = {
-    central: string,
-    networking: string,
-    workspace0: string
-};
 
 export abstract class OndemandContracts extends Construct implements OdmdContractsCentralView {
 
@@ -48,15 +34,15 @@ export abstract class OndemandContracts extends Construct implements OdmdContrac
     public readonly DEFAULTS_SVC
 
 
-    public readonly accounts: Accounts
+    public readonly accounts: AccountsCentralView
 
     public getAccountName(accId: string) {
-        return Object.entries(this.accounts).find(([k, v]) => v == accId)![0] as keyof Accounts
+        return Object.entries(this.accounts).find(([k, v]) => v == accId)![0] as keyof AccountsCentralView
     }
 
     public readonly allAccounts: string[]
 
-    public readonly githubRepos: GithubRepos
+    public readonly githubRepos: GithubReposCentralView
 
     public readonly odmdBuilds: Array<ContractsBuild<AnyContractsEnVer>>;
 
@@ -93,7 +79,7 @@ export abstract class OndemandContracts extends Construct implements OdmdContrac
 
         if (!accountOverriding && process.env.ODMD_ACCOUNTS) {
             let accountsJsonStr = Buffer.from(process.env.ODMD_ACCOUNTS!, 'base64').toString('utf-8');
-            accountOverriding = JSON.parse(accountsJsonStr) as Accounts
+            accountOverriding = JSON.parse(accountsJsonStr) as AccountsCentralView
             console.log(`accountsJsonStr>>>
             
             ${accountsJsonStr}
@@ -125,7 +111,7 @@ export abstract class OndemandContracts extends Construct implements OdmdContrac
                 if (!keys.includes(ovr[0])) {
                     throw new Error(`wrong account overriding: ${ovr[0]}:  ${ovr[1]}`)
                 }
-                this.accounts[ovr[0] as keyof Accounts] = ovr[1] as string
+                this.accounts[ovr[0] as keyof AccountsCentralView] = ovr[1] as string
             })
         }
 
@@ -135,22 +121,16 @@ export abstract class OndemandContracts extends Construct implements OdmdContrac
         }
 
         if (srcReposOverriding) {
-            this.githubRepos = srcReposOverriding as GithubRepos
+            this.githubRepos = srcReposOverriding
         } else if (process.env.ODMD_GH_REPOS) {
-            this.githubRepos = JSON.parse(Buffer.from(process.env.ODMD_GH_REPOS, 'base64').toString("utf-8")) as GithubRepos
+            this.githubRepos = JSON.parse(Buffer.from(process.env.ODMD_GH_REPOS, 'base64').toString("utf-8")) as GithubReposCentralView
         } else {
             this.githubRepos = {
-                CoffeeShopFoundationCdk: {owner: 'odmd', name: 'CoffeeShopFoundation', ghAppInstallID: 1234},
-                CoffeeShopOrderManagerCdk: {owner: 'odmd', name: 'CoffeeShopOrderManager', ghAppInstallID: 1234},
-                CoffeeShopOrderProcessorCdk: {owner: 'odmd', name: 'CoffeeShopOrderProcessor', ghAppInstallID: 1234},
                 __contracts: {owner: 'odmd', name: 'contracts', ghAppInstallID: 1234},
                 __eks: {owner: 'odmd', name: 'eks', ghAppInstallID: 1234},
                 __networking: {owner: 'odmd', name: 'networking', ghAppInstallID: 1234},
                 _defaultKubeEks: {owner: 'odmd', name: 'defaultKubeEks', ghAppInstallID: 1234},
-                _defaultVpcRds: {owner: 'odmd', name: 'defaultVpcRds', ghAppInstallID: 1234},
-                sample: {owner: 'odmd', name: 'sample', ghAppInstallID: 1234},
-                sample1: {owner: 'odmd', name: 'sample1', ghAppInstallID: 1234}
-
+                _defaultVpcRds: {owner: 'odmd', name: 'defaultVpcRds', ghAppInstallID: 1234}
             }
         }
 

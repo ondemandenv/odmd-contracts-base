@@ -7,8 +7,9 @@ import {ContractsCrossRefConsumer, ContractsCrossRefProducer} from "../../odmd-m
 import {AnyContractsEnVer} from "../../odmd-model/contracts-enver";
 import {PgSchemaUsersProps} from "../../odmd-model/contracts-pg-schema-usrs";
 import {SRC_Rev_REF} from "../../odmd-model/contracts-build";
-import {Accounts, OndemandContracts} from "../../OndemandContracts";
+import { OndemandContracts} from "../../OndemandContracts";
 import {IPAM_AB} from "../__networking/odmd-config-networking";
+import {AccountsCentralView} from "../../OdmdContractsCentralView";
 
 export class ContractsEnverCdkDefaultVpc extends ContractsEnverCdk implements WithVpc {
 
@@ -20,7 +21,7 @@ export class ContractsEnverCdkDefaultVpc extends ContractsEnverCdk implements Wi
     readonly rdsTrustCentralRoleName: string
     readonly clientEnvers: Set<AnyContractsEnVer> = new Set()
 
-    constructor(owner: OdmdBuildDefaultVpcRds, clientAWSRegion: string, accountKey: keyof Accounts,
+    constructor(owner: OdmdBuildDefaultVpcRds, clientAWSRegion: string, accountKey: keyof AccountsCentralView,
                 vpc: SimpleVpc, defaultRev: SRC_Rev_REF = new SRC_Rev_REF("b", `${clientAWSRegion}_${accountKey}_${vpc.vpcName}`
             .replace(/[^a-zA-Z0-9_]/g, '_'))) {
         super(owner, OndemandContracts.inst.accounts[accountKey]!, clientAWSRegion, defaultRev);
