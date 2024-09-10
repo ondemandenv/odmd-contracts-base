@@ -5,10 +5,8 @@ import {App, Stack} from "aws-cdk-lib";
 import {PgSchemaUsers} from "../lib/odmd-model/contracts-pg-schema-usrs";
 import {Repository, RepositoryProps} from "aws-cdk-lib/aws-ecr";
 import {OdmdConfigOdmdContractsNpm} from "../lib/repos/__contracts/odmd-build-odmd-contracts-npm";
-
-class tmp1OdmdContracts extends OndemandContracts {
-
-}
+import {AccountsCentralView, GithubReposCentralView} from "../lib/OdmdContractsCentralView";
+import {TmpTstContracts} from "./tmp-tst-contracts";
 
 
 test('make_sense1', () => {
@@ -16,7 +14,7 @@ test('make_sense1', () => {
     process.env.CDK_DEFAULT_ACCOUNT = 'aaaaaa'
     process.env.CDK_DEFAULT_REGION = 'us-west-1'
     const app = new App()
-    new tmp1OdmdContracts(app, OdmdConfigOdmdContractsNpm)
+    new TmpTstContracts(app)
 
     const buildRegion = process.env.CDK_DEFAULT_REGION;
     const buildAccount = process.env.CDK_DEFAULT_ACCOUNT

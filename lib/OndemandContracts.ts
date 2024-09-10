@@ -12,7 +12,8 @@ import {execSync} from "child_process";
 import {AccountsCentralView, GithubReposCentralView, OdmdContractsCentralView} from "./OdmdContractsCentralView";
 
 
-export abstract class OndemandContracts extends Construct implements OdmdContractsCentralView {
+export abstract class OndemandContracts<A extends AccountsCentralView,
+    G extends GithubReposCentralView, C extends OdmdConfigOdmdContractsNpm<A, G>> extends Construct implements OdmdContractsCentralView<A, G, C> {
 
     static readonly RES_PREFIX = "odmd-"
     static readonly REGEX_DBClusterIdentifier = /^[a-z](?:(?![-]{2,})[a-z0-9-]){1,62}(?<!-)$/
@@ -23,7 +24,6 @@ export abstract class OndemandContracts extends Construct implements OdmdContrac
     static readonly STACK_PARAM_BUILD_SRC_REF = 'buildSrcRef'
     static readonly STACK_PARAM_BUILD_SRC_REPO = 'buildSrcRepo'
 
-    public readonly odmdConfigOdmdContractsNpm
 
     public readonly networking
 
@@ -34,22 +34,32 @@ export abstract class OndemandContracts extends Construct implements OdmdContrac
     public readonly DEFAULTS_SVC
 
 
-    public readonly accounts: AccountsCentralView
-
     public getAccountName(accId: string) {
         return Object.entries(this.accounts).find(([k, v]) => v == accId)![0] as keyof AccountsCentralView
     }
 
-    public readonly allAccounts: string[]
+    abstract get allAccounts(): string[]
 
-    public readonly githubRepos: GithubReposCentralView
+    abstract get odmdConfigOdmdContractsNpm(): C
 
-    public readonly odmdBuilds: Array<ContractsBuild<AnyContractsEnVer>>;
+    abstract get accounts(): A
+
+    abstract get githubRepos(): G
+
+    public get odmdBuilds(): Array<ContractsBuild<AnyContractsEnVer>> {
+        return [
+            this.odmdConfigOdmdContractsNpm,
+            this.networking,
+            this.eksCluster,
+            this.defaultVpcRds,
+            this.defaultEcrEks,
+        ]
+    }
 
 
-    private static _inst: OdmdContractsCentralView;
+    private static _inst: OdmdContractsCentralView<any, any, any>;
 
-    public static get inst(): OdmdContractsCentralView {
+    public static get inst(): OdmdContractsCentralView<AccountsCentralView, GithubReposCentralView, OdmdConfigOdmdContractsNpm<AccountsCentralView, GithubReposCentralView>> {
         return this._inst
     }
 
@@ -59,83 +69,13 @@ export abstract class OndemandContracts extends Construct implements OdmdContrac
         return process.env[this.REV_REF_name]!
     }
 
-    constructor(app: App,
-                contractsBuildClass: new (scope: OndemandContracts
-                ) => OdmdConfigOdmdContractsNpm,
-                accountOverriding: AccountsCentralView | undefined = undefined,
-                srcReposOverriding: GithubReposCentralView | undefined = undefined) {
+    constructor(app: App) {
         super(app, 'ondemandenv');
         if (OndemandContracts._inst) {
             throw new Error(`can't init twice`)
         }
         OndemandContracts._inst = this
         Aspects.of(app).add(new ContractsAspect())
-
-        this.accounts = {
-            central: '1111central111',
-            networking: '222networking222',
-            workspace0: '333workspace333',
-        }
-
-        if (!accountOverriding && process.env.ODMD_ACCOUNTS) {
-            let accountsJsonStr = Buffer.from(process.env.ODMD_ACCOUNTS!, 'base64').toString('utf-8');
-            accountOverriding = JSON.parse(accountsJsonStr) as AccountsCentralView
-            console.log(`accountsJsonStr>>>
-            
-            ${accountsJsonStr}
-            
-            accountsJsonStr<<<`)
-        }
-        if (accountOverriding) {
-            const keys = Object.keys(this.accounts)
-            console.warn(`keys: ${JSON.stringify(keys)}`)
-            console.warn(`accountOverriding: ${JSON.stringify(accountOverriding)}`)
-
-            for (const k in accountOverriding) {
-                // @ts-ignore
-                console.log(`${k} >> ${accountOverriding[k]}`)
-            }
-
-
-            Object.entries(accountOverriding).forEach(ovr => {
-
-
-                console.warn(`
-                
-                ovr[0]: ${ovr[0]}
-                ovr[1]: ${ovr[1]} 
-                
-                `)
-
-
-                if (!keys.includes(ovr[0])) {
-                    throw new Error(`wrong account overriding: ${ovr[0]}:  ${ovr[1]}`)
-                }
-                this.accounts[ovr[0] as keyof AccountsCentralView] = ovr[1] as string
-            })
-        }
-
-        const accEntries = Object.entries(this.accounts);
-        if (Array.from(accEntries.keys()).length != Array.from(accEntries.values()).length) {
-            throw new Error("Account name to number has to be 1:1!")
-        }
-
-        if (srcReposOverriding) {
-            this.githubRepos = srcReposOverriding
-        } else if (process.env.ODMD_GH_REPOS) {
-            this.githubRepos = JSON.parse(Buffer.from(process.env.ODMD_GH_REPOS, 'base64').toString("utf-8")) as GithubReposCentralView
-        } else {
-            this.githubRepos = {
-                __contracts: {owner: 'odmd', name: 'contracts', ghAppInstallID: 1234},
-                __eks: {owner: 'odmd', name: 'eks', ghAppInstallID: 1234},
-                __networking: {owner: 'odmd', name: 'networking', ghAppInstallID: 1234},
-                _defaultKubeEks: {owner: 'odmd', name: 'defaultKubeEks', ghAppInstallID: 1234},
-                _defaultVpcRds: {owner: 'odmd', name: 'defaultVpcRds', ghAppInstallID: 1234}
-            }
-        }
-
-        this.allAccounts = Object.values(this.accounts)
-        this.odmdConfigOdmdContractsNpm = new contractsBuildClass(this)
 
         this.networking = new OdmdConfigNetworking(this)
 
@@ -145,17 +85,6 @@ export abstract class OndemandContracts extends Construct implements OdmdContrac
 
         this.DEFAULTS_SVC = [this.defaultVpcRds, this.defaultEcrEks] as ContractsBuild<AnyContractsEnVer>[]
 
-
-        this.odmdBuilds = [
-            this.odmdConfigOdmdContractsNpm,
-            this.networking,
-            this.eksCluster,
-            this.defaultVpcRds,
-            this.defaultEcrEks,
-        ]
-        if (new Set(this.odmdBuilds).size != this.odmdBuilds.length) {
-            throw new Error('duplicated envers?!')
-        }
 
         if (!process.env.CDK_CLI_VERSION) {
             throw new Error("have to have process.env.CDK_CLI_VERSION!")

@@ -20,22 +20,24 @@ export type AccountsCentralView = {
     workspace0: string,
 }
 
-export interface OdmdContractsCentralView {
+export interface OdmdContractsCentralView<A extends AccountsCentralView,
+    G extends GithubReposCentralView, C extends OdmdConfigOdmdContractsNpm<A, G>> {
 
-    readonly accounts: AccountsCentralView
+    get odmdConfigOdmdContractsNpm(): C
 
-    getAccountName(accId: string): keyof AccountsCentralView
+    get accounts(): A
+
+    get githubRepos(): G
+
+    getAccountName(accId: string): keyof A
 
     getTargetEnver(): AnyContractsEnVer | undefined
 
-    readonly allAccounts: string[]
-
-    readonly githubRepos: GithubReposCentralView
-
-    readonly odmdBuilds: Array<ContractsBuild<AnyContractsEnVer>>;
+    get allAccounts(): string[]
 
 
-    readonly odmdConfigOdmdContractsNpm: OdmdConfigOdmdContractsNpm
+    get odmdBuilds(): Array<ContractsBuild<AnyContractsEnVer>>;
+
 
     readonly networking: OdmdConfigNetworking
 

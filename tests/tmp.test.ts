@@ -14,6 +14,8 @@ import {WithRds} from "../lib/odmd-model/contracts-rds-cluster";
 import * as fs from "node:fs";
 import {OdmdConfigOdmdContractsNpm} from "../lib/repos/__contracts/odmd-build-odmd-contracts-npm";
 import {describe} from "node:test";
+import {AccountsCentralView, GithubReposCentralView} from "../lib/OdmdContractsCentralView";
+import {TmpTstContracts} from "./tmp-tst-contracts";
 
 
 function checkVpcEnver(enver: WithVpc) {
@@ -93,16 +95,13 @@ try replace(/[^A-Za-z0-9_$]/g,'_')`
 
 }
 
-class tmpOdmdContracts extends OndemandContracts {
-
-}
 
 describe('mkss1', () => {
 
     const allEnvers = new Set<AnyContractsEnVer>();
 
     let app = new App();
-    new tmpOdmdContracts(app, OdmdConfigOdmdContractsNpm)
+    new TmpTstContracts(app)
 
     it("package name wrong", () => {
         expect(JSON.parse(fs.readFileSync('package.json').toString()).name)

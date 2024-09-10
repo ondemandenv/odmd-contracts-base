@@ -2,18 +2,17 @@ import {OndemandContracts} from "../lib/OndemandContracts";
 import {App} from "aws-cdk-lib";
 import {ContractsEnverCtnImg} from "../lib/odmd-model/contracts-enver-ctn-img";
 import {OdmdConfigOdmdContractsNpm} from "../lib/repos/__contracts/odmd-build-odmd-contracts-npm";
+import {AccountsCentralView, GithubReposCentralView} from "../lib/OdmdContractsCentralView";
+import {TmpTstContracts} from "./tmp-tst-contracts";
 
 
-class tmp2OdmdContracts extends OndemandContracts {
-
-}
 
 test('make_sense2', () => {
 
     process.env.CDK_DEFAULT_ACCOUNT = 'aaaaaa'
     process.env.CDK_DEFAULT_REGION = 'us-west-1'
     const app = new App()
-    new tmp2OdmdContracts(app, OdmdConfigOdmdContractsNpm)
+    new TmpTstContracts(app)
 
 
     process.env['target_build_id'] = OndemandContracts.inst.networking.buildId

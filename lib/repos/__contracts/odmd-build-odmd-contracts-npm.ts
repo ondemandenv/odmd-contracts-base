@@ -2,9 +2,11 @@ import {OdmdBuildOdmdContracts} from "./odmd-build-odmd-contracts";
 import {ContractsEnverNpm} from "../../odmd-model/contracts-enver-npm";
 import {OndemandContracts} from "../../OndemandContracts";
 import {SRC_Rev_REF} from "../../odmd-model/contracts-build";
+import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
 
 
-export class OdmdConfigOdmdContractsNpm extends OdmdBuildOdmdContracts<ContractsEnverNpm> {
+export class OdmdConfigOdmdContractsNpm<A extends AccountsCentralView,
+    G extends GithubReposCentralView> extends OdmdBuildOdmdContracts<ContractsEnverNpm> {
 
     readonly envers: Array<ContractsEnverNpm>
     readonly theOne: ContractsEnverNpm
@@ -13,7 +15,7 @@ export class OdmdConfigOdmdContractsNpm extends OdmdBuildOdmdContracts<Contracts
         return '@ondemandenv/contracts-lib-base'
     }
 
-    constructor(scope: OndemandContracts) {
+    constructor(scope: OndemandContracts<A, G, OdmdConfigOdmdContractsNpm<A, G>>) {
         super(scope, 'odmd-contracts-npm');
 
         const srcRevREF = new SRC_Rev_REF("b", "odmd_us_west_1__sandbox");
