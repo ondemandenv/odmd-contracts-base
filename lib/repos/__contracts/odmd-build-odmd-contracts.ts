@@ -12,6 +12,6 @@ export abstract class OdmdBuildOdmdContracts<T extends ContractsEnver<ContractsB
 
     constructor(scope: Construct, id: string) {
         super(scope, id);
-        this.gitHubRepo = OndemandContracts.myInst.githubRepos.__contracts
+        this.gitHubRepo = OndemandContracts.inst.githubRepos.__contracts
     }
 }

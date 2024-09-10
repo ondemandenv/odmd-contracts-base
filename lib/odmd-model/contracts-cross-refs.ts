@@ -129,7 +129,7 @@ export class ContractsCrossRefConsumer<C extends AnyContractsEnVer, P extends An
         const tmp = s.substring(this.OdmdRef_prefix.length + 2)
         const targetPath = tmp.substring(0, tmp.indexOf("}"));
 
-        for (const b of OndemandContracts.myInst.odmdBuilds) {
+        for (const b of OndemandContracts.inst.odmdBuilds) {
             const f = b.node.findAll().find(e => e.node.path == targetPath)
             if (f) {
                 return f as ContractsCrossRefConsumer<AnyContractsEnVer, AnyContractsEnVer>;

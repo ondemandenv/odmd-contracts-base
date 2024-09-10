@@ -7,7 +7,7 @@ import {AnyContractsEnVer} from "../../odmd-model/contracts-enver";
 
 export class OdmdConfigNetworking extends ContractsBuild<ContractsEnverCdk> {
 
-    gitHubRepo = OndemandContracts.myInst.githubRepos.__networking
+    gitHubRepo = OndemandContracts.inst.githubRepos.__networking
 
     ownerEmail = undefined
 
@@ -56,7 +56,7 @@ export abstract class IPAM_AB extends ContractsEnverCdk {
     }
 
     constructor(owner: OdmdConfigNetworking, region: string, rev: SRC_Rev_REF) {
-        super(owner, OndemandContracts.myInst.accounts.networking, region, rev);
+        super(owner, OndemandContracts.inst.accounts.networking, region, rev);
     }
 
     getRevStackNames() {

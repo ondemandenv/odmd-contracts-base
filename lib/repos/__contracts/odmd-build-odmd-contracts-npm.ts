@@ -20,7 +20,7 @@ export class OdmdConfigOdmdContractsNpm extends OdmdBuildOdmdContracts<Contracts
 
         this.theOne = new ContractsEnverNpm(
             this,
-            OndemandContracts.myInst.accounts.workplace2,
+            OndemandContracts.inst.accounts.workspace0,
             'us-west-1',
             srcRevREF
         );
@@ -37,8 +37,8 @@ export class OdmdConfigOdmdContractsNpm extends OdmdBuildOdmdContracts<Contracts
             `npm install`,
             `npm run test`,
             `npm publish`,
-            `git config user.name "odmd_us_west_1__workplace2[bot]"`,
-            `git config user.email "odmd_us_west_1__workplace2@ondemandenv.dev"`,
+            `git config user.name "odmd_us_west_1__workspace[bot]"`,
+            `git config user.email "odmd_us_west_1__workspace@ondemandenv.dev"`,
 
             `${PKG_VER} && npm dist-tag add ${this.packageName}@$PKG_VER $GITHUB_SHA`,
 

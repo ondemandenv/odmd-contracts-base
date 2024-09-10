@@ -22,8 +22,8 @@ export abstract class ContractsEnverEcsCluster extends ContractsEnverCdk impleme
     constructor(owner: ContractsBuild<ContractsEnverCdk>, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF) {
         super(owner, targetAWSAccountID, targetAWSRegion, targetRevision);
 
-        this.ipamPoolName = new ContractsCrossRefConsumer(this, 'ipamPoolName', OndemandContracts.myInst.networking.ipam_west1_le.ipamPoolName)
-        this.transitGatewayShareName = new ContractsCrossRefConsumer(this, 'transitGatewayShareName', OndemandContracts.myInst.networking.ipam_west1_le.transitGatewayShareName)
-        this.natPublicIP = new ContractsCrossRefConsumer(this, 'natPublicIP', OndemandContracts.myInst.networking.ipam_west1_le.natPublicIP)
+        this.ipamPoolName = new ContractsCrossRefConsumer(this, 'ipamPoolName', OndemandContracts.inst.networking.ipam_west1_le.ipamPoolName)
+        this.transitGatewayShareName = new ContractsCrossRefConsumer(this, 'transitGatewayShareName', OndemandContracts.inst.networking.ipam_west1_le.transitGatewayShareName)
+        this.natPublicIP = new ContractsCrossRefConsumer(this, 'natPublicIP', OndemandContracts.inst.networking.ipam_west1_le.natPublicIP)
     }
 }

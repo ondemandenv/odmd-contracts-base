@@ -13,7 +13,7 @@ export class OdmdBuildDefaultKubeEks extends ContractsBuild<ContractsEnverCdk> {
         super(scope, 'DefaultKubeEks');
     }
 
-    gitHubRepo= OndemandContracts.myInst.githubRepos._defaultKubeEks
+    gitHubRepo= OndemandContracts.inst.githubRepos._defaultKubeEks
     ownerEmail?: string | undefined;
     readonly envers: Array<ContractsEnverCdkDefaultEcrEks> = []
 

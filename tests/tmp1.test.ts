@@ -32,7 +32,7 @@ test('make_sense1', () => {
 
     // await CurrentEnver.init()
 
-    OndemandContracts.myInst.odmdBuilds.forEach(cc => {
+    OndemandContracts.inst.odmdBuilds.forEach(cc => {
         cc.envers.forEach(enver => {
             if (enver instanceof ContractsEnverCtnImg) {
 

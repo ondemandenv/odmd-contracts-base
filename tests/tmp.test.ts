@@ -106,11 +106,11 @@ describe('mkss1', () => {
 
     it("package name wrong", () => {
         expect(JSON.parse(fs.readFileSync('package.json').toString()).name)
-            .toBe(OndemandContracts.myInst.odmdConfigOdmdContractsNpm.packageName)
+            .toBe(OndemandContracts.inst.odmdConfigOdmdContractsNpm.packageName)
     })
 
 
-    OndemandContracts.myInst.odmdBuilds.forEach((buildConfig: ContractsBuild<AnyContractsEnVer>) => {
+    OndemandContracts.inst.odmdBuilds.forEach((buildConfig: ContractsBuild<AnyContractsEnVer>) => {
 
         if (buildConfig.envers.length > 0) {
             const cmn = buildConfig.getEnverCommonAncestor()
@@ -130,7 +130,7 @@ describe('mkss1', () => {
             throw new Error(`build Id ${buildId}.lowercase can't start with a region name }`)
         }
         if (buildIdLowercase.startsWith(OndemandContracts.RES_PREFIX)
-            && buildConfig != OndemandContracts.myInst.odmdConfigOdmdContractsNpm) {
+            && buildConfig != OndemandContracts.inst.odmdConfigOdmdContractsNpm) {
             throw new Error(`build Id ${buildId} can't start with ${OndemandContracts.RES_PREFIX} which is reserved`)
         }
         if (buildId.length > 25) {
@@ -167,7 +167,7 @@ describe('mkss1', () => {
             }
             let envConfigs = p.get(c.targetRevision.toPathPartStr())!;
             envConfigs.add(c)
-            if (envConfigs.size > 1 && !OndemandContracts.myInst.DEFAULTS_SVC.includes(c.owner)) {
+            if (envConfigs.size > 1 && !OndemandContracts.inst.DEFAULTS_SVC.includes(c.owner)) {
                 throw new Error(`For each build, One branch can only have one deployment, but found ${c.owner.buildId}, branch ${c.targetRevision} are pointing to mutiple deployments!`)
             }
             return p

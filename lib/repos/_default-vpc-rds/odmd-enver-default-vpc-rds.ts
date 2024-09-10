@@ -23,7 +23,7 @@ export class ContractsEnverCdkDefaultVpc extends ContractsEnverCdk implements Wi
     constructor(owner: OdmdBuildDefaultVpcRds, clientAWSRegion: string, accountKey: keyof Accounts,
                 vpc: SimpleVpc, defaultRev: SRC_Rev_REF = new SRC_Rev_REF("b", `${clientAWSRegion}_${accountKey}_${vpc.vpcName}`
             .replace(/[^a-zA-Z0-9_]/g, '_'))) {
-        super(owner, OndemandContracts.myInst.accounts[accountKey]!, clientAWSRegion, defaultRev);
+        super(owner, OndemandContracts.inst.accounts[accountKey]!, clientAWSRegion, defaultRev);
 
         this.centralVpcCidr = new ContractsCrossRefConsumer(this, 'centralVpcCidr', vpc.ipamEnver.centralVpcCidr)
 
@@ -41,7 +41,7 @@ export class ContractsEnverCdkDefaultVpc extends ContractsEnverCdk implements Wi
         this.vpcIpv4Cidr = new ContractsCrossRefProducer(this, 'vpcIpv4Cidr_' + vpc.vpcName)
         this.nameServers = new ContractsCrossRefProducer(this, 'nameServers_' + vpc.vpcName)
 
-        vpc.ipamEnver.addSubdomainServer(vpc.vpcName + '_' + OndemandContracts.myInst.getAccountName(this.targetAWSAccountID), this.nameServers)
+        vpc.ipamEnver.addSubdomainServer(vpc.vpcName + '_' + OndemandContracts.inst.getAccountName(this.targetAWSAccountID), this.nameServers)
         this.rdsTrustCentralRoleName = `rds_${this.targetAWSAccountID}_trustCentral_${this.targetAWSRegion}`
     }
 

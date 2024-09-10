@@ -147,7 +147,7 @@ export class SRC_Rev_REF {
 
         this.value = value;
 
-        OndemandContracts.myInst.allAccounts.forEach(ac => {
+        OndemandContracts.inst.allAccounts.forEach(ac => {
             if (value.includes(ac)) {
                 throw new Error(`${ac} is an account and should not be used in revRef!`)
             }

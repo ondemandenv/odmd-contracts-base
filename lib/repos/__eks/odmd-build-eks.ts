@@ -4,7 +4,7 @@ import {OndemandContracts} from "../../OndemandContracts";
 
 export abstract class OdmdBuildEks extends ContractsBuild<ContractsEnverCdk> {
 
-    gitHubRepo = OndemandContracts.myInst.githubRepos.__eks
+    gitHubRepo = OndemandContracts.inst.githubRepos.__eks
 
     ownerEmail?: string | undefined;
 

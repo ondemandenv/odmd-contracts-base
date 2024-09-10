@@ -16,11 +16,11 @@ test('make_sense2', () => {
     new tmp2OdmdContracts(app, OdmdConfigOdmdContractsNpm)
 
 
-    process.env['target_build_id'] = OndemandContracts.myInst.networking.buildId
+    process.env['target_build_id'] = OndemandContracts.inst.networking.buildId
     process.env['target_rev_ref'] = "b..ipam_west1_le"
-    let targetEnver = OndemandContracts.myInst.getTargetEnver();
+    let targetEnver = OndemandContracts.inst.getTargetEnver();
     if (targetEnver!.targetRevision.origin != undefined
-        || targetEnver != OndemandContracts.myInst.networking.envers[0]
+        || targetEnver != OndemandContracts.inst.networking.envers[0]
     ) {
         throw new Error("no!")
     }
@@ -34,7 +34,7 @@ test('make_sense2', () => {
     }
 
 
-    OndemandContracts.myInst.odmdBuilds.forEach(b => {
+    OndemandContracts.inst.odmdBuilds.forEach(b => {
         b.envers
             .filter(e => e instanceof ContractsEnverCtnImg)
             .map(e => e as ContractsEnverCtnImg)
@@ -57,7 +57,7 @@ test('make_sense2', () => {
             })
 
         b.node.findAll().forEach(c => {
-            OndemandContracts.myInst.allAccounts.forEach(a => {
+            OndemandContracts.inst.allAccounts.forEach(a => {
                 if (c.node.id.includes(a)) {
                     throw new Error(c.node.path + ' using account inside id? change to use account name' + c.constructor)
                 }

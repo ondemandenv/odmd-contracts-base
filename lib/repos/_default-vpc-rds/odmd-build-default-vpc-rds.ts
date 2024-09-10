@@ -20,7 +20,7 @@ export class OdmdBuildDefaultVpcRds extends ContractsBuild<ContractsEnverCdk> {
         super(scope, 'OdmdBuildDefaultVpcRds');
     }
 
-    gitHubRepo = OndemandContracts.myInst.githubRepos._defaultVpcRds
+    gitHubRepo = OndemandContracts.inst.githubRepos._defaultVpcRds
     ownerEmail?: string | undefined;
     readonly envers: Array<ContractsEnverCdkDefaultVpc> = []
 
@@ -33,7 +33,7 @@ export class OdmdBuildDefaultVpcRds extends ContractsBuild<ContractsEnverCdk> {
             return rt
         }
 
-        rt = new ContractsEnverCdkDefaultVpc(this, client.targetAWSRegion, OndemandContracts.myInst.getAccountName(client.targetAWSAccountID), vpc);
+        rt = new ContractsEnverCdkDefaultVpc(this, client.targetAWSRegion, OndemandContracts.inst.getAccountName(client.targetAWSAccountID), vpc);
         this.envers.push(rt)
         rt.addClient(client)
         return rt;

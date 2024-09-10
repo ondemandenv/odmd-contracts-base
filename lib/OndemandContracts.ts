@@ -23,8 +23,7 @@ export type GithubRepos = GithubReposCentralView & {
 export type Accounts = {
     central: string,
     networking: string,
-    workplace1: string,
-    workplace2: string,
+    workspace0: string
 };
 
 export abstract class OndemandContracts extends Construct implements OdmdContractsCentralView {
@@ -62,10 +61,7 @@ export abstract class OndemandContracts extends Construct implements OdmdContrac
     public readonly odmdBuilds: Array<ContractsBuild<AnyContractsEnVer>>;
 
 
-    private static _myInst: OndemandContracts;
-    static get myInst() {
-        return this._myInst
-    }
+    private static _myInst: OdmdContractsCentralView;
 
     public static get inst(): OdmdContractsCentralView {
         return this._myInst
@@ -92,8 +88,7 @@ export abstract class OndemandContracts extends Construct implements OdmdContrac
         this.accounts = {
             central: '1111central111',
             networking: '222networking222',
-            workplace1: '333workplace1333',
-            workplace2: '444aiorzsbx444'
+            workspace0: '333workspace333',
         }
 
         if (!accountOverriding && process.env.ODMD_ACCOUNTS) {
