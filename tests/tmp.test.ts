@@ -12,9 +12,7 @@ import {IConstruct} from "constructs";
 import {PgSchemaUsersProps} from "../lib/odmd-model/contracts-pg-schema-usrs";
 import {WithRds} from "../lib/odmd-model/contracts-rds-cluster";
 import * as fs from "node:fs";
-import {OdmdConfigOdmdContractsNpm} from "../lib/repos/__contracts/odmd-build-odmd-contracts-npm";
 import {describe} from "node:test";
-import {AccountsCentralView, GithubReposCentralView} from "../lib/OdmdContractsCentralView";
 import {TmpTstContracts} from "./tmp-tst-contracts";
 
 

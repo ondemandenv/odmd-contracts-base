@@ -46,14 +46,21 @@ export abstract class OndemandContracts<A extends AccountsCentralView,
 
     abstract get githubRepos(): G
 
+    private _builds: Array<ContractsBuild<AnyContractsEnVer>>
     public get odmdBuilds(): Array<ContractsBuild<AnyContractsEnVer>> {
-        return [
-            this.odmdConfigOdmdContractsNpm,
-            this.networking,
-            this.eksCluster,
-            this.defaultVpcRds,
-            this.defaultEcrEks,
-        ]
+        if (!this._builds) {
+            this._builds = [
+                this.odmdConfigOdmdContractsNpm,
+                this.networking,
+                this.eksCluster,
+                this.defaultVpcRds,
+                this.defaultEcrEks,
+            ];
+            if (this._builds.filter(b => b == undefined).length > 0) {
+                throw new Error()
+            }
+        }
+        return this._builds
     }
 
 
@@ -112,7 +119,7 @@ export abstract class OndemandContracts<A extends AccountsCentralView,
         //target_rev_ref=b..master-_b..ta
         const enverRef = OndemandContracts.REV_REF_value
         if (!buildId || !enverRef) {
-            throw new Error(`if (!buildId || !enverRef): ${buildId} || ${enverRef}`);
+            throw new Error(`if (!buildId || !enverRef): ${buildId} || ${enverRef} check: env: target_build_id`);
         }
         const b = this.odmdBuilds.find(b => b.buildId == buildId)
         if (!b) {
