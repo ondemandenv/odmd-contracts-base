@@ -1,11 +1,7 @@
 import {OndemandContracts} from "../lib/OndemandContracts";
 import {ContractsEnverCtnImg} from "../lib/odmd-model/contracts-enver-ctn-img";
-import {ContractsCrossRefProducer, OdmdNames} from "../lib/odmd-model/contracts-cross-refs";
 import {App, Stack} from "aws-cdk-lib";
-import {PgSchemaUsers} from "../lib/odmd-model/contracts-pg-schema-usrs";
 import {Repository, RepositoryProps} from "aws-cdk-lib/aws-ecr";
-import {OdmdConfigOdmdContractsNpm} from "../lib/repos/__contracts/odmd-build-odmd-contracts-npm";
-import {AccountsCentralView, GithubReposCentralView} from "../lib/OdmdContractsCentralView";
 import {TmpTstContracts} from "./tmp-tst-contracts";
 
 

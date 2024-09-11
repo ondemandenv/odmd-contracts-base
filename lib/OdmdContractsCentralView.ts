@@ -1,10 +1,10 @@
 import {ContractsBuild, GithubRepo} from "./odmd-model/contracts-build";
 import {AnyContractsEnVer} from "./odmd-model/contracts-enver";
-import {OdmdConfigOdmdContractsNpm} from "./repos/__contracts/odmd-build-odmd-contracts-npm";
 import {OdmdConfigNetworking} from "./repos/__networking/odmd-config-networking";
 import {OdmdBuildEksCluster} from "./repos/__eks/odmd-build-eks-cluster";
 import {OdmdBuildDefaultVpcRds} from "./repos/_default-vpc-rds/odmd-build-default-vpc-rds";
 import {OdmdBuildDefaultKubeEks} from "./repos/_default-kube-eks/odmd-build-default-kube-eks";
+import {OdmdBuildOdmdContracts} from "./repos/__contracts/odmd-build-odmd-contracts";
 
 export type GithubReposCentralView = {
 
@@ -21,7 +21,7 @@ export type AccountsCentralView = {
 }
 
 export interface OdmdContractsCentralView<A extends AccountsCentralView,
-    G extends GithubReposCentralView, C extends OdmdConfigOdmdContractsNpm<A, G>> {
+    G extends GithubReposCentralView, C extends OdmdBuildOdmdContracts<A, G>> {
 
     get odmdConfigOdmdContractsNpm(): C
 

@@ -1,11 +1,15 @@
 import {ContractsBuild, GithubRepo} from "../../odmd-model/contracts-build";
-import {ContractsEnver} from "../../odmd-model/contracts-enver";
 import {OndemandContracts} from "../../OndemandContracts";
 import {Construct} from "constructs";
+import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
+import {ContractsEnverNpm} from "../../odmd-model/contracts-enver-npm";
 
-export abstract class OdmdBuildOdmdContracts<T extends ContractsEnver<ContractsBuild<T>>> extends ContractsBuild<T> {
+export abstract class OdmdBuildOdmdContracts<A extends AccountsCentralView, G extends GithubReposCentralView>
+    extends ContractsBuild<ContractsEnverNpm> {
 
-    ownerEmail?: string | undefined;
+    public abstract get packageName(): string/* {
+        return '@ondemandenv/contracts-lib-base'
+    }*/
 
     public readonly gitHubRepo: GithubRepo
 

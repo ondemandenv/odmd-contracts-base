@@ -7,13 +7,13 @@ import {ContractsBuild, SRC_Rev_REF} from "./odmd-model/contracts-build";
 import {OdmdBuildDefaultKubeEks} from "./repos/_default-kube-eks/odmd-build-default-kube-eks";
 import {App, Aspects} from "aws-cdk-lib";
 import {ContractsAspect} from "./odmd-model/contracts-aspect";
-import {OdmdConfigOdmdContractsNpm} from "./repos/__contracts/odmd-build-odmd-contracts-npm";
 import {execSync} from "child_process";
 import {AccountsCentralView, GithubReposCentralView, OdmdContractsCentralView} from "./OdmdContractsCentralView";
+import {OdmdBuildOdmdContracts} from "./repos/__contracts/odmd-build-odmd-contracts";
 
 
 export abstract class OndemandContracts<A extends AccountsCentralView,
-    G extends GithubReposCentralView, C extends OdmdConfigOdmdContractsNpm<A, G>> extends Construct implements OdmdContractsCentralView<A, G, C> {
+    G extends GithubReposCentralView, C extends OdmdBuildOdmdContracts<A, G>> extends Construct implements OdmdContractsCentralView<A, G, C> {
 
     static readonly RES_PREFIX = "odmd-"
     static readonly REGEX_DBClusterIdentifier = /^[a-z](?:(?![-]{2,})[a-z0-9-]){1,62}(?<!-)$/
@@ -66,7 +66,7 @@ export abstract class OndemandContracts<A extends AccountsCentralView,
 
     private static _inst: OdmdContractsCentralView<any, any, any>;
 
-    public static get inst(): OdmdContractsCentralView<AccountsCentralView, GithubReposCentralView, OdmdConfigOdmdContractsNpm<AccountsCentralView, GithubReposCentralView>> {
+    public static get inst(): OdmdContractsCentralView<AccountsCentralView, GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>> {
         return this._inst
     }
 

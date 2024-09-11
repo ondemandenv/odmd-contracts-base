@@ -1,17 +1,40 @@
 import {OndemandContracts} from "../lib/OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../lib/OdmdContractsCentralView";
-import {OdmdConfigOdmdContractsNpm} from "../lib/repos/__contracts/odmd-build-odmd-contracts-npm";
 import {App} from "aws-cdk-lib";
+import {OdmdBuildOdmdContracts} from "../lib/repos/__contracts/odmd-build-odmd-contracts";
+import {ContractsEnverNpm} from "../lib/odmd-model/contracts-enver-npm";
+import {Construct} from "constructs";
+import {SRC_Rev_REF} from "../lib/odmd-model/contracts-build";
 
-export class TmpTstContracts extends OndemandContracts<AccountsCentralView, GithubReposCentralView, OdmdConfigOdmdContractsNpm<AccountsCentralView, GithubReposCentralView>> {
-    private _odmdConfigOdmdContractsNpm: OdmdConfigOdmdContractsNpm<AccountsCentralView, GithubReposCentralView>;
+export class TmpTstContracts extends OndemandContracts<AccountsCentralView, GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>> {
+    private _odmdConfigOdmdContractsNpm: OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>;
 
     constructor(app: App) {
         super(app);
-        this._odmdConfigOdmdContractsNpm = new OdmdConfigOdmdContractsNpm(this);
+        this._odmdConfigOdmdContractsNpm = new (class extends OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView> {
+            public get packageName(): string {
+                return '@ondemandenv/contracts-lib-base'
+            }
+
+            readonly envers: Array<ContractsEnverNpm>
+            readonly ownerEmail: string;
+
+
+            constructor(scope: Construct, id: string) {
+                super(scope, id);
+                const srcRevREF = new SRC_Rev_REF("b", "odmd_us_west_1__sandbox");
+
+                this.envers = [new ContractsEnverNpm(
+                    this,
+                    OndemandContracts.inst.accounts.workspace0,
+                    'us-west-1',
+                    srcRevREF
+                )];
+            }
+        })(this, 'aaa');
     }
 
-    get odmdConfigOdmdContractsNpm(): OdmdConfigOdmdContractsNpm<AccountsCentralView, GithubReposCentralView> {
+    get odmdConfigOdmdContractsNpm(): OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView> {
         return this._odmdConfigOdmdContractsNpm
     }
 

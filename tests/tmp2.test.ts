@@ -1,8 +1,6 @@
 import {OndemandContracts} from "../lib/OndemandContracts";
 import {App} from "aws-cdk-lib";
 import {ContractsEnverCtnImg} from "../lib/odmd-model/contracts-enver-ctn-img";
-import {OdmdConfigOdmdContractsNpm} from "../lib/repos/__contracts/odmd-build-odmd-contracts-npm";
-import {AccountsCentralView, GithubReposCentralView} from "../lib/OdmdContractsCentralView";
 import {TmpTstContracts} from "./tmp-tst-contracts";
 
 
