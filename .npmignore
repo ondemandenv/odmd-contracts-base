@@ -3,6 +3,7 @@
 
 node_modules
 
+jest.config*
 tests
 
 # CDK asset staging directory
@@ -19,7 +20,5 @@ cdk.context.json
 cdk.json
 gradlew
 gradlew.bat
-package.json
 package.template.json
-package-lock.json
-tsconfig.json
+tsconfig*
