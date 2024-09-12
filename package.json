@@ -1,11 +1,13 @@
 {
   "name": "@ondemandenv/contracts-lib-base",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
   "dependencies": {
     "aws-cdk-lib": "2.154.1",
+    "cdk8s": "2.68.107",
+    "cdk8s-plus-29": "2.5.4",
     "constructs": "^10.0.0",
     "js-yaml": "^4.1.0"
   },
@@ -17,8 +19,6 @@
     "cross-env": "^7.0.3",
     "ts-node": "^10.9.2",
     "typescript": "~5.1.6",
-    "cdk8s": "2.68.107",
-    "cdk8s-plus-29": "2.5.4",
     "cdk8s-cli": "2.198.212",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.2"
