@@ -1,11 +1,11 @@
-import {Construct} from "constructs";
+import {Construct, IConstruct} from "constructs";
 import {OdmdConfigNetworking} from "./repos/__networking/odmd-config-networking";
 import {OdmdBuildEksCluster} from "./repos/__eks/odmd-build-eks-cluster";
 import {OdmdBuildDefaultVpcRds} from "./repos/_default-vpc-rds/odmd-build-default-vpc-rds";
 import {AnyContractsEnVer} from "./odmd-model/contracts-enver";
 import {ContractsBuild, SRC_Rev_REF} from "./odmd-model/contracts-build";
 import {OdmdBuildDefaultKubeEks} from "./repos/_default-kube-eks/odmd-build-default-kube-eks";
-import {App, Aspects} from "aws-cdk-lib";
+import {Aspects} from "aws-cdk-lib";
 import {ContractsAspect} from "./odmd-model/contracts-aspect";
 import {execSync} from "child_process";
 import {AccountsCentralView, GithubReposCentralView, OdmdContractsCentralView} from "./OdmdContractsCentralView";
@@ -25,13 +25,13 @@ export abstract class OndemandContracts<A extends AccountsCentralView,
     static readonly STACK_PARAM_BUILD_SRC_REPO = 'buildSrcRepo'
 
 
-    public readonly networking
+    readonly networking?: OdmdConfigNetworking
 
-    public readonly eksCluster
-    public readonly defaultVpcRds
-    public readonly defaultEcrEks
+    readonly eksCluster?: OdmdBuildEksCluster
+    readonly defaultVpcRds?: OdmdBuildDefaultVpcRds
+    readonly defaultEcrEks?: OdmdBuildDefaultKubeEks
 
-    public readonly DEFAULTS_SVC
+    readonly DEFAULTS_SVC?: ContractsBuild<AnyContractsEnVer>[]
 
 
     public getAccountName(accId: string) {
@@ -47,27 +47,34 @@ export abstract class OndemandContracts<A extends AccountsCentralView,
     abstract get githubRepos(): G
 
     private _builds: Array<ContractsBuild<AnyContractsEnVer>>
+
     public get odmdBuilds(): Array<ContractsBuild<AnyContractsEnVer>> {
         if (!this._builds) {
             this._builds = [
-                this.odmdConfigOdmdContractsNpm,
-                this.networking,
-                this.eksCluster,
-                this.defaultVpcRds,
-                this.defaultEcrEks,
-            ];
-            if (this._builds.filter(b => b == undefined).length > 0) {
-                throw new Error()
+                this.odmdConfigOdmdContractsNpm
+            ]
+
+            if( this.networking ){
+                this._builds.push( this.networking )
+            }
+            if( this.eksCluster ){
+                this._builds.push( this.eksCluster )
+            }
+            if( this.defaultVpcRds ){
+                this._builds.push( this.defaultVpcRds )
+            }
+            if( this.defaultEcrEks ){
+                this._builds.push( this.defaultEcrEks )
             }
         }
         return this._builds
     }
 
 
-    private static _inst: OdmdContractsCentralView<any, any, any>;
+    private static _instMap: Map<string, OdmdContractsCentralView<any, any, any>> = new Map<string, OdmdContractsCentralView<any, any, any>>();
 
     public static get inst(): OdmdContractsCentralView<AccountsCentralView, GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>> {
-        return this._inst
+        return this._instMap.get(this.__id)!
     }
 
     public static readonly REV_REF_name = 'target_rev_ref'
@@ -76,13 +83,20 @@ export abstract class OndemandContracts<A extends AccountsCentralView,
         return process.env[this.REV_REF_name]!
     }
 
-    constructor(app: App) {
-        super(app, 'ondemandenv');
-        if (OndemandContracts._inst) {
+    public static readonly __id: string = 'ondemandenv'
+
+    constructor(scope: IConstruct, id?: string) {
+        super(scope, id ?? OndemandContracts.__id);
+
+        if (id && id != this.node.id) {
+            throw new Error('ILLEGAL ID:' + id)
+        }
+
+        if (OndemandContracts._instMap.has(this.node.id)) {
             throw new Error(`can't init twice`)
         }
-        OndemandContracts._inst = this
-        Aspects.of(app).add(new ContractsAspect())
+        OndemandContracts._instMap.set(this.node.id, this)
+        Aspects.of(scope).add(new ContractsAspect())
 
         this.networking = new OdmdConfigNetworking(this)
 

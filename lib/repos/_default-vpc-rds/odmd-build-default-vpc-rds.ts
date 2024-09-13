@@ -17,10 +17,9 @@ export type SimpleVpc = {
 export class OdmdBuildDefaultVpcRds extends ContractsBuild<ContractsEnverCdk> {
 
     constructor(scope: Construct) {
-        super(scope, 'OdmdBuildDefaultVpcRds');
+        super(scope, 'OdmdBuildDefaultVpcRds', OndemandContracts.inst.githubRepos._defaultVpcRds!);
     }
 
-    gitHubRepo = OndemandContracts.inst.githubRepos._defaultVpcRds
     ownerEmail?: string | undefined;
     readonly envers: Array<ContractsEnverCdkDefaultVpc> = []
 

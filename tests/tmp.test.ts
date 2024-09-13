@@ -164,7 +164,7 @@ describe('mkss1', () => {
             }
             let envConfigs = p.get(c.targetRevision.toPathPartStr())!;
             envConfigs.add(c)
-            if (envConfigs.size > 1 && !OndemandContracts.inst.DEFAULTS_SVC.includes(c.owner)) {
+            if (envConfigs.size > 1 ) {
                 throw new Error(`For each build, One branch can only have one deployment, but found ${c.owner.buildId}, branch ${c.targetRevision} are pointing to mutiple deployments!`)
             }
             return p

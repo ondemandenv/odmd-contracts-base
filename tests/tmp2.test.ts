@@ -13,11 +13,11 @@ test('make_sense2', () => {
     new TmpTstContracts(app)
 
 
-    process.env['target_build_id'] = OndemandContracts.inst.networking.buildId
+    process.env['target_build_id'] = OndemandContracts.inst.networking!.buildId
     process.env['target_rev_ref'] = "b..ipam_west1_le"
     let targetEnver = OndemandContracts.inst.getTargetEnver();
     if (targetEnver!.targetRevision.origin != undefined
-        || targetEnver != OndemandContracts.inst.networking.envers[0]
+        || targetEnver != OndemandContracts.inst.networking!.envers[0]
     ) {
         throw new Error("no!")
     }

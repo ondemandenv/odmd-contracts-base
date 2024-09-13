@@ -10,14 +10,13 @@ import {ContractsEnverEksCluster} from "../../odmd-model/contracts-enver-eks-clu
 export class OdmdBuildDefaultKubeEks extends ContractsBuild<ContractsEnverCdk> {
 
     constructor(scope: Construct) {
-        super(scope, 'DefaultKubeEks');
+        super(scope, 'DefaultKubeEks', OndemandContracts.inst.githubRepos._defaultKubeEks!);
     }
 
-    gitHubRepo= OndemandContracts.inst.githubRepos._defaultKubeEks
     ownerEmail?: string | undefined;
     readonly envers: Array<ContractsEnverCdkDefaultEcrEks> = []
 
-    public getOrCreateOne(usr: AnyContractsEnVer, targetEksCluster: ContractsEnverEksCluster, targetNamespace:string) {
+    public getOrCreateOne(usr: AnyContractsEnVer, targetEksCluster: ContractsEnverEksCluster, targetNamespace: string) {
         let rt = this.envers.find(e => e.userEnver == usr)
         if (rt) {
             return rt

@@ -39,7 +39,7 @@ export class EksClusterEnverArgo extends ContractsEnverEksClusterArgoCd implemen
 
     constructor(owner: ContractsBuild<ContractsEnverCdk>, id: string) {
         super(owner, OndemandContracts.inst.accounts.workspace0, 'us-west-1', new SRC_Rev_REF("b", 'odmdSbxUsw1Gyang'));
-        const ipamWest1Le = OndemandContracts.inst.networking.ipam_west1_le;
+        const ipamWest1Le = OndemandContracts.inst.networking!.ipam_west1_le;
         const adr = new ContractsIpAddresses(this, ipamWest1Le.ipamPoolName)
 
         this.vpcConfig = new ContractsVpc(adr, 'the-vpc');

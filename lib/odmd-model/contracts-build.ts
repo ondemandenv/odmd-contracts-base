@@ -32,9 +32,10 @@ export abstract class ContractsBuild<T extends ContractsEnver<ContractsBuild<T>>
         return ContractsBuild.CENTRAL_TO_INST.get(this)!
     }
 
-    constructor(scope: Construct, id: string) {
+    constructor(scope: Construct, id: string, repo: GithubRepo) {
         super(scope, id);
         this.buildId = id
+        this.gitHubRepo = repo
         if (ContractsBuild.CENTRAL_TO_INST.has(this.constructor as CentralConfigConstr)) {
             throw new Error(`duplicate singleton: ${this.constructor.name}/${id}`)
         }
@@ -44,7 +45,7 @@ export abstract class ContractsBuild<T extends ContractsEnver<ContractsBuild<T>>
     public readonly buildId: string
 
     readonly description?: string
-    abstract readonly gitHubRepo: GithubRepo
+    readonly gitHubRepo: GithubRepo
 
     /**
      * Configurations will be used by ODMD pipelines will NOT be overridden:

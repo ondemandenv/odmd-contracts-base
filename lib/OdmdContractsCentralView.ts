@@ -9,10 +9,10 @@ import {OdmdBuildOdmdContracts} from "./repos/__contracts/odmd-build-odmd-contra
 export type GithubReposCentralView = {
 
     __contracts: GithubRepo
-    __eks: GithubRepo
-    __networking: GithubRepo
-    _defaultKubeEks: GithubRepo
-    _defaultVpcRds: GithubRepo
+    __eks?: GithubRepo
+    __networking?: GithubRepo
+    _defaultKubeEks?: GithubRepo
+    _defaultVpcRds?: GithubRepo
 }
 export type AccountsCentralView = {
     central: string,
@@ -39,13 +39,13 @@ export interface OdmdContractsCentralView<A extends AccountsCentralView,
     get odmdBuilds(): Array<ContractsBuild<AnyContractsEnVer>>;
 
 
-    readonly networking: OdmdConfigNetworking
+    readonly networking?: OdmdConfigNetworking
 
-    readonly eksCluster: OdmdBuildEksCluster
-    readonly defaultVpcRds: OdmdBuildDefaultVpcRds
-    readonly defaultEcrEks: OdmdBuildDefaultKubeEks
+    readonly eksCluster?: OdmdBuildEksCluster
+    readonly defaultVpcRds?: OdmdBuildDefaultVpcRds
+    readonly defaultEcrEks?: OdmdBuildDefaultKubeEks
 
-    readonly DEFAULTS_SVC: ContractsBuild<AnyContractsEnVer>[]
+    readonly DEFAULTS_SVC?: ContractsBuild<AnyContractsEnVer>[]
 
 
 }

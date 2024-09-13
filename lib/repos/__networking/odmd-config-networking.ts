@@ -7,7 +7,6 @@ import {AnyContractsEnVer} from "../../odmd-model/contracts-enver";
 
 export class OdmdConfigNetworking extends ContractsBuild<ContractsEnverCdk> {
 
-    gitHubRepo = OndemandContracts.inst.githubRepos.__networking
 
     ownerEmail = undefined
 
@@ -15,7 +14,7 @@ export class OdmdConfigNetworking extends ContractsBuild<ContractsEnverCdk> {
     readonly envers: IPAM_AB[]
 
     constructor(scope: Construct) {
-        super(scope, 'networking');
+        super(scope, 'networking', OndemandContracts.inst.githubRepos.__networking!);
         this.envers = [
             this.ipam_west1_le = new IPAM_WEST1_LE(this, new SRC_Rev_REF("b", "ipam_west1_le")),
         ]

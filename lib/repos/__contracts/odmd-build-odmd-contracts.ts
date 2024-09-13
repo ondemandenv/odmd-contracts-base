@@ -11,11 +11,8 @@ export abstract class OdmdBuildOdmdContracts<A extends AccountsCentralView, G ex
         return '@ondemandenv/contracts-lib-base'
     }*/
 
-    public readonly gitHubRepo: GithubRepo
-
 
     constructor(scope: Construct, id: string) {
-        super(scope, id);
-        this.gitHubRepo = OndemandContracts.inst.githubRepos.__contracts
+        super(scope, id, OndemandContracts.inst.githubRepos.__contracts);
     }
 }
