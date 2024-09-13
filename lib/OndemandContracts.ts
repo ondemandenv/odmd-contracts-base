@@ -54,27 +54,26 @@ export abstract class OndemandContracts<A extends AccountsCentralView,
                 this.odmdConfigOdmdContractsNpm
             ]
 
-            if( this.networking ){
-                this._builds.push( this.networking )
+            if (this.networking) {
+                this._builds.push(this.networking)
             }
-            if( this.eksCluster ){
-                this._builds.push( this.eksCluster )
+            if (this.eksCluster) {
+                this._builds.push(this.eksCluster)
             }
-            if( this.defaultVpcRds ){
-                this._builds.push( this.defaultVpcRds )
+            if (this.defaultVpcRds) {
+                this._builds.push(this.defaultVpcRds)
             }
-            if( this.defaultEcrEks ){
-                this._builds.push( this.defaultEcrEks )
+            if (this.defaultEcrEks) {
+                this._builds.push(this.defaultEcrEks)
             }
         }
         return this._builds
     }
 
 
-    private static _instMap: Map<string, OdmdContractsCentralView<any, any, any>> = new Map<string, OdmdContractsCentralView<any, any, any>>();
-
+    private static _inst: OdmdContractsCentralView<any, any, any>
     public static get inst(): OdmdContractsCentralView<AccountsCentralView, GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>> {
-        return this._instMap.get(this.__id)!
+        return this._inst
     }
 
     public static readonly REV_REF_name = 'target_rev_ref'
@@ -83,19 +82,13 @@ export abstract class OndemandContracts<A extends AccountsCentralView,
         return process.env[this.REV_REF_name]!
     }
 
-    public static readonly __id: string = 'ondemandenv'
-
     constructor(scope: IConstruct, id?: string) {
-        super(scope, id ?? OndemandContracts.__id);
+        super(scope, id ?? 'ondemandenv');
 
-        if (id && id != this.node.id) {
-            throw new Error('ILLEGAL ID:' + id)
-        }
-
-        if (OndemandContracts._instMap.has(this.node.id)) {
+        if (OndemandContracts._inst) {
             throw new Error(`can't init twice`)
         }
-        OndemandContracts._instMap.set(this.node.id, this)
+        OndemandContracts._inst = this
         Aspects.of(scope).add(new ContractsAspect())
 
         this.networking = new OdmdConfigNetworking(this)
