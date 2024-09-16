@@ -44,7 +44,9 @@ export abstract class OndemandContracts<A extends AccountsCentralView,
 
     abstract get accounts(): A
 
-    abstract get githubRepos(): G
+    get githubRepos(): G {
+        throw new Error("abstract!")
+    }
 
     private _builds: Array<ContractsBuild<AnyContractsEnVer>>
 
@@ -91,14 +93,24 @@ export abstract class OndemandContracts<A extends AccountsCentralView,
         OndemandContracts._inst = this
         Aspects.of(scope).add(new ContractsAspect())
 
-        this.networking = new OdmdConfigNetworking(this)
+        if (this.githubRepos.__networking) {
+            this.networking = new OdmdConfigNetworking(this)
+        }
 
-        this.eksCluster = new OdmdBuildEksCluster(this)
-        this.defaultVpcRds = new OdmdBuildDefaultVpcRds(this)
-        this.defaultEcrEks = new OdmdBuildDefaultKubeEks(this)
+        if (this.githubRepos.__eks) {
+            this.eksCluster = new OdmdBuildEksCluster(this)
+        }
 
-        this.DEFAULTS_SVC = [this.defaultVpcRds, this.defaultEcrEks] as ContractsBuild<AnyContractsEnVer>[]
+        this.DEFAULTS_SVC = [] as ContractsBuild<AnyContractsEnVer>[]
+        if (this.githubRepos._defaultVpcRds) {
+            this.defaultVpcRds = new OdmdBuildDefaultVpcRds(this)
+            this.DEFAULTS_SVC.push(this.defaultVpcRds)
+        }
 
+        if (OndemandContracts.inst.githubRepos._defaultKubeEks) {
+            this.defaultEcrEks = new OdmdBuildDefaultKubeEks(this)
+            this.DEFAULTS_SVC.push(this.defaultEcrEks)
+        }
 
         if (!process.env.CDK_CLI_VERSION) {
             throw new Error("have to have process.env.CDK_CLI_VERSION!")

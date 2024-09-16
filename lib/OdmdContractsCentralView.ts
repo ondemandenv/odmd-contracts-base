@@ -8,6 +8,8 @@ import {OdmdBuildOdmdContracts} from "./repos/__contracts/odmd-build-odmd-contra
 
 export type GithubReposCentralView = {
 
+    githubAppId: string;
+
     __contracts: GithubRepo
     __eks?: GithubRepo
     __networking?: GithubRepo

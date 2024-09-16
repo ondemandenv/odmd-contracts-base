@@ -67,6 +67,8 @@ export class TmpTstContracts extends OndemandContracts<AccountsCentralView, Gith
     get githubRepos(): GithubReposCentralView {
         if (!this._githubRepos) {
             this._githubRepos = {
+
+                githubAppId: "123",
                 __contracts: {owner: 'odmd', name: 'contracts', ghAppInstallID: 1234},
                 __eks: {owner: 'odmd', name: 'eks', ghAppInstallID: 1234},
                 __networking: {owner: 'odmd', name: 'networking', ghAppInstallID: 1234},
