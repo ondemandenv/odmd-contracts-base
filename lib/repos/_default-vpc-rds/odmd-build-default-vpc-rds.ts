@@ -21,7 +21,7 @@ export class OdmdBuildDefaultVpcRds extends ContractsBuild<ContractsEnverCdk> {
         AccountsCentralView,
         GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
     >) {
-        super(scope, 'OdmdBuildDefaultVpcRds', OndemandContracts.inst.githubRepos._defaultVpcRds!);
+        super(scope, 'OdmdBuildDefaultVpcRds', scope.githubRepos._defaultVpcRds!);
     }
 
     ownerEmail?: string | undefined;
@@ -36,7 +36,7 @@ export class OdmdBuildDefaultVpcRds extends ContractsBuild<ContractsEnverCdk> {
             return rt
         }
 
-        rt = new ContractsEnverCdkDefaultVpc(this, client.targetAWSRegion, OndemandContracts.inst.getAccountName(client.targetAWSAccountID), vpc);
+        rt = new ContractsEnverCdkDefaultVpc(this, client.targetAWSRegion, client.owner.contracts.getAccountName(client.targetAWSAccountID), vpc);
         this.envers.push(rt)
         rt.addClient(client)
         return rt;

@@ -114,30 +114,6 @@ export class ContractsCrossRefConsumer<C extends AnyContractsEnVer, P extends An
 
     public static readonly OdmdRef_prefix = 'OdmdRefConsumer: ';
 
-    /**
-     *
-     * @param s  `${ContractsCrossRefConsumer.OdmdRef_prefix}\${${this.node.path}}`
-     * @param s  "OdmdRefConsumer: ${a/b/c}"
-     *
-     */
-    public static fromOdmdRef(s: string): ContractsCrossRefConsumer<AnyContractsEnVer, AnyContractsEnVer> {
-
-        if (!s.startsWith(this.OdmdRef_prefix + "${")) {
-            throw new Error('Only OdmdRefConsumer')
-        }
-
-        const tmp = s.substring(this.OdmdRef_prefix.length + 2)
-        const targetPath = tmp.substring(0, tmp.indexOf("}"));
-
-        for (const b of OndemandContracts.inst.odmdBuilds) {
-            const f = b.node.findAll().find(e => e.node.path == targetPath)
-            if (f) {
-                return f as ContractsCrossRefConsumer<AnyContractsEnVer, AnyContractsEnVer>;
-            }
-        }
-        throw new Error('/')
-
-    }
 
 
     private static readonly _sharingIns: Map<string, ContractsShareIn> = new Map<string, ContractsShareIn>();

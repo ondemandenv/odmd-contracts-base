@@ -15,7 +15,7 @@ export class OdmdBuildDefaultKubeEks extends ContractsBuild<ContractsEnverCdk> {
         AccountsCentralView,
         GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
     >) {
-        super(scope, 'DefaultKubeEks', OndemandContracts.inst.githubRepos._defaultKubeEks!);
+        super(scope, 'DefaultKubeEks', scope.githubRepos._defaultKubeEks!);
     }
 
     ownerEmail?: string | undefined;

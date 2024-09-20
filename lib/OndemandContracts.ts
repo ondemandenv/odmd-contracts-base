@@ -10,10 +10,15 @@ import {ContractsAspect} from "./odmd-model/contracts-aspect";
 import {execSync} from "child_process";
 import {AccountsCentralView, GithubReposCentralView, OdmdContractsCentralView} from "./OdmdContractsCentralView";
 import {OdmdBuildOdmdContracts} from "./repos/__contracts/odmd-build-odmd-contracts";
+import {ContractsCrossRefConsumer} from "./odmd-model/contracts-cross-refs";
 
 
-export abstract class OndemandContracts<A extends AccountsCentralView,
-    G extends GithubReposCentralView, C extends OdmdBuildOdmdContracts<A, G>> extends Construct implements OdmdContractsCentralView<A, G, C> {
+export abstract class OndemandContracts<
+    A extends AccountsCentralView,
+    G extends GithubReposCentralView,
+    C extends OdmdBuildOdmdContracts<A, G>
+>
+    extends Construct implements OdmdContractsCentralView<A, G, C> {
 
     static readonly RES_PREFIX = "odmd-"
     static readonly REGEX_DBClusterIdentifier = /^[a-z](?:(?![-]{2,})[a-z0-9-]){1,62}(?<!-)$/
@@ -72,12 +77,6 @@ export abstract class OndemandContracts<A extends AccountsCentralView,
         return this._builds
     }
 
-
-    private static _inst: OdmdContractsCentralView<any, any, any>
-    public static get inst(): OdmdContractsCentralView<AccountsCentralView, GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>> {
-        return this._inst
-    }
-
     public static readonly REV_REF_name = 'target_rev_ref'
 
     public static get REV_REF_value(): string {
@@ -87,10 +86,6 @@ export abstract class OndemandContracts<A extends AccountsCentralView,
     constructor(scope: IConstruct, id?: string) {
         super(scope, id ?? 'ondemandenv');
 
-        if (OndemandContracts._inst) {
-            throw new Error(`can't init twice`)
-        }
-        OndemandContracts._inst = this
         Aspects.of(scope).add(new ContractsAspect())
 
         if (this.githubRepos.__networking) {
@@ -107,7 +102,7 @@ export abstract class OndemandContracts<A extends AccountsCentralView,
             this.DEFAULTS_SVC.push(this.defaultVpcRds)
         }
 
-        if (OndemandContracts.inst.githubRepos._defaultKubeEks) {
+        if (this.githubRepos._defaultKubeEks) {
             this.defaultEcrEks = new OdmdBuildDefaultKubeEks(this)
             this.DEFAULTS_SVC.push(this.defaultEcrEks)
         }
@@ -178,5 +173,28 @@ export abstract class OndemandContracts<A extends AccountsCentralView,
         b.envers.push(nwEnver)
 
         return nwEnver
+    }
+
+    /**
+     *
+     * @param s  `${ContractsCrossRefConsumer.OdmdRef_prefix}\${${this.node.path}}`
+     * @param s  "OdmdRefConsumer: ${a/b/c}"
+     *
+     */
+    public getRefConsumerFromOdmdRef(s: string): ContractsCrossRefConsumer<AnyContractsEnVer, AnyContractsEnVer> {
+        if (!s.startsWith(ContractsCrossRefConsumer.OdmdRef_prefix + "${")) {
+            throw new Error('Only OdmdRefConsumer')
+        }
+
+        const tmp = s.substring(ContractsCrossRefConsumer.OdmdRef_prefix.length + 2)
+        const targetPath = tmp.substring(0, tmp.indexOf("}"));
+
+        for (const b of this.odmdBuilds) {
+            const f = b.node.findAll().find(e => e.node.path == targetPath)
+            if (f) {
+                return f as ContractsCrossRefConsumer<AnyContractsEnVer, AnyContractsEnVer>;
+            }
+        }
+        throw new Error('/')
     }
 }

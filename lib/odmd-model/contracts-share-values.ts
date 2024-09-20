@@ -101,7 +101,7 @@ export class ContractsShareOut extends Construct {
             throw new Error("odmd-share-out input size is 0 can't proceed !")
         }
 
-        if (scope.account == OndemandContracts.inst.accounts.central) {
+        if (scope.account == Array.from(refToVal.keys())[0].owner.owner.contracts.accounts.central) {
             throw new Error("OdmdShareOut is not for central")
         }
         if (!process.env[OndemandContracts.REV_REF_name]) {

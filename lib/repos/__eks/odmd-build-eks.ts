@@ -11,7 +11,7 @@ export abstract class OdmdBuildEks extends ContractsBuild<ContractsEnverCdk> {
         AccountsCentralView,
         GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
     >, id: string) {
-        super(scope, id, OndemandContracts.inst.githubRepos.__eks!);
+        super(scope, id, scope.githubRepos.__eks!);
     }
 
 

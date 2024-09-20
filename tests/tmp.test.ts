@@ -99,15 +99,15 @@ describe('mkss1', () => {
     const allEnvers = new Set<AnyContractsEnVer>();
 
     let app = new App();
-    new TmpTstContracts(app)
+    const theContracts = new TmpTstContracts(app)
 
     it("package name wrong", () => {
         expect(JSON.parse(fs.readFileSync('package.json').toString()).name)
-            .toBe(OndemandContracts.inst.odmdConfigOdmdContractsNpm.packageName)
+            .toBe(theContracts.odmdConfigOdmdContractsNpm.packageName)
     })
 
 
-    OndemandContracts.inst.odmdBuilds.forEach((buildConfig: ContractsBuild<AnyContractsEnVer>) => {
+    theContracts.odmdBuilds.forEach((buildConfig: ContractsBuild<AnyContractsEnVer>) => {
 
         if (buildConfig.envers.length > 0) {
             const cmn = buildConfig.getEnverCommonAncestor()
@@ -127,7 +127,7 @@ describe('mkss1', () => {
             throw new Error(`build Id ${buildId}.lowercase can't start with a region name }`)
         }
         if (buildIdLowercase.startsWith(OndemandContracts.RES_PREFIX)
-            && buildConfig != OndemandContracts.inst.odmdConfigOdmdContractsNpm) {
+            && buildConfig != theContracts.odmdConfigOdmdContractsNpm) {
             throw new Error(`build Id ${buildId} can't start with ${OndemandContracts.RES_PREFIX} which is reserved`)
         }
         if (buildId.length > 25) {

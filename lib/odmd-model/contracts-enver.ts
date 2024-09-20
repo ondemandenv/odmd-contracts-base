@@ -118,7 +118,7 @@ export abstract class ContractsEnver<T extends ContractsBuild<ContractsEnver<T>>
     }
 
     public get centralRoleArn(): string {
-        return `arn:aws:iam::${OndemandContracts.inst.accounts.central}:role${this.centralRolePath}${this.centralRoleName}`;
+        return `arn:aws:iam::${this.owner.contracts.accounts.central}:role${this.centralRolePath}${this.centralRoleName}`;
     }
 
     public get buildRoleName(): string {

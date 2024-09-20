@@ -10,7 +10,7 @@ test('make_sense1', () => {
     process.env.CDK_DEFAULT_ACCOUNT = 'aaaaaa'
     process.env.CDK_DEFAULT_REGION = 'us-west-1'
     const app = new App()
-    new TmpTstContracts(app)
+    const theContracts = new TmpTstContracts(app)
 
     const buildRegion = process.env.CDK_DEFAULT_REGION;
     const buildAccount = process.env.CDK_DEFAULT_ACCOUNT
@@ -24,9 +24,7 @@ test('make_sense1', () => {
         }
     });
 
-    // await CurrentEnver.init()
-
-    OndemandContracts.inst.odmdBuilds.forEach(cc => {
+    theContracts.odmdBuilds.forEach(cc => {
         cc.envers.forEach(enver => {
             if (enver instanceof ContractsEnverCtnImg) {
 

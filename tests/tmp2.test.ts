@@ -1,8 +1,6 @@
-import {OndemandContracts} from "../lib/OndemandContracts";
 import {App} from "aws-cdk-lib";
 import {ContractsEnverCtnImg} from "../lib/odmd-model/contracts-enver-ctn-img";
 import {TmpTstContracts} from "./tmp-tst-contracts";
-
 
 
 test('make_sense2', () => {
@@ -10,14 +8,14 @@ test('make_sense2', () => {
     process.env.CDK_DEFAULT_ACCOUNT = 'aaaaaa'
     process.env.CDK_DEFAULT_REGION = 'us-west-1'
     const app = new App()
-    new TmpTstContracts(app)
+    const theContracts = new TmpTstContracts(app)
 
 
-    process.env['target_build_id'] = OndemandContracts.inst.networking!.buildId
+    process.env['target_build_id'] = theContracts.networking!.buildId
     process.env['target_rev_ref'] = "b..ipam_west1_le"
-    let targetEnver = OndemandContracts.inst.getTargetEnver();
+    let targetEnver = theContracts.getTargetEnver();
     if (targetEnver!.targetRevision.origin != undefined
-        || targetEnver != OndemandContracts.inst.networking!.envers[0]
+        || targetEnver != theContracts.networking!.envers[0]
     ) {
         throw new Error("no!")
     }
@@ -31,7 +29,7 @@ test('make_sense2', () => {
     }
 
 
-    OndemandContracts.inst.odmdBuilds.forEach(b => {
+    theContracts.odmdBuilds.forEach(b => {
         b.envers
             .filter(e => e instanceof ContractsEnverCtnImg)
             .map(e => e as ContractsEnverCtnImg)
@@ -54,7 +52,7 @@ test('make_sense2', () => {
             })
 
         b.node.findAll().forEach(c => {
-            OndemandContracts.inst.allAccounts.forEach(a => {
+            theContracts.allAccounts.forEach(a => {
                 if (c.node.id.includes(a)) {
                     throw new Error(c.node.path + ' using account inside id? change to use account name' + c.constructor)
                 }

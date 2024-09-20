@@ -19,7 +19,7 @@ export class OdmdConfigNetworking extends ContractsBuild<ContractsEnverCdk> {
         AccountsCentralView,
         GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
     >) {
-        super(scope, 'networking', OndemandContracts.inst.githubRepos.__networking!);
+        super(scope, 'networking', scope.githubRepos.__networking!);
         this.envers = [
             this.ipam_west1_le = new IPAM_WEST1_LE(this, new SRC_Rev_REF("b", "ipam_west1_le")),
         ]
@@ -60,7 +60,7 @@ export abstract class IPAM_AB extends ContractsEnverCdk {
     }
 
     constructor(owner: OdmdConfigNetworking, region: string, rev: SRC_Rev_REF) {
-        super(owner, OndemandContracts.inst.accounts.networking, region, rev);
+        super(owner, owner.contracts.accounts.networking, region, rev);
     }
 
     getRevStackNames() {
