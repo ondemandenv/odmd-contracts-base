@@ -1,10 +1,11 @@
 import {ContractsBuild} from "../../odmd-model/contracts-build";
 import {ContractsEnverCdk} from "../../odmd-model/contracts-enver-cdk";
 import {AnyContractsEnVer, IContractsEnver} from "../../odmd-model/contracts-enver";
-import {Construct} from "constructs";
 import {IPAM_AB} from "../__networking/odmd-config-networking";
 import {ContractsEnverCdkDefaultVpc} from "./odmd-enver-default-vpc-rds";
 import {OndemandContracts} from "../../OndemandContracts";
+import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
+import {OdmdBuildOdmdContracts} from "../__contracts/odmd-build-odmd-contracts";
 
 
 export type SimpleVpc = {
@@ -16,7 +17,10 @@ export type SimpleVpc = {
 
 export class OdmdBuildDefaultVpcRds extends ContractsBuild<ContractsEnverCdk> {
 
-    constructor(scope: Construct) {
+    constructor(scope: OndemandContracts<
+        AccountsCentralView,
+        GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
+    >) {
         super(scope, 'OdmdBuildDefaultVpcRds', OndemandContracts.inst.githubRepos._defaultVpcRds!);
     }
 

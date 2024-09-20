@@ -20,13 +20,16 @@ export class TmpTstContracts extends OndemandContracts<AccountsCentralView, Gith
             readonly ownerEmail: string;
 
 
-            constructor(scope: Construct, id: string) {
+            constructor(scope: OndemandContracts<
+                AccountsCentralView,
+                GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
+            >, id: string) {
                 super(scope, id);
                 const srcRevREF = new SRC_Rev_REF("b", "odmd_us_west_1__sandbox");
 
                 this.envers = [new ContractsEnverNpm(
                     this,
-                    OndemandContracts.inst.accounts.workspace0,
+                    this.contracts.accounts.workspace0,
                     'us-west-1',
                     srcRevREF
                 )];

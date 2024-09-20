@@ -4,6 +4,8 @@ import {ContractsEnverCdk} from "../../odmd-model/contracts-enver-cdk";
 import {ContractsCrossRefConsumer, ContractsCrossRefProducer} from "../../odmd-model/contracts-cross-refs";
 import {OndemandContracts} from "../../OndemandContracts";
 import {AnyContractsEnVer} from "../../odmd-model/contracts-enver";
+import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
+import {OdmdBuildOdmdContracts} from "../__contracts/odmd-build-odmd-contracts";
 
 export class OdmdConfigNetworking extends ContractsBuild<ContractsEnverCdk> {
 
@@ -13,7 +15,10 @@ export class OdmdConfigNetworking extends ContractsBuild<ContractsEnverCdk> {
     public readonly ipam_west1_le: IPAM_AB;
     readonly envers: IPAM_AB[]
 
-    constructor(scope: Construct) {
+    constructor(scope: OndemandContracts<
+        AccountsCentralView,
+        GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
+    >) {
         super(scope, 'networking', OndemandContracts.inst.githubRepos.__networking!);
         this.envers = [
             this.ipam_west1_le = new IPAM_WEST1_LE(this, new SRC_Rev_REF("b", "ipam_west1_le")),

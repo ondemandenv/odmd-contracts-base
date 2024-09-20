@@ -12,7 +12,10 @@ export abstract class OdmdBuildOdmdContracts<A extends AccountsCentralView, G ex
     }*/
 
 
-    constructor(scope: Construct, id: string) {
+    constructor(scope: OndemandContracts<
+        AccountsCentralView,
+        GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
+    >, id: string) {
         super(scope, id, OndemandContracts.inst.githubRepos.__contracts);
     }
 }

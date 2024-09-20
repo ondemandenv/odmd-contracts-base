@@ -13,6 +13,8 @@ import {ContractsEnverCdk} from "./contracts-enver-cdk";
 import {ContractsEnverCtnImg} from "./contracts-enver-ctn-img";
 import {ContractsEnverNpm} from "./contracts-enver-npm";
 import {OndemandContracts} from "../OndemandContracts";
+import {AccountsCentralView, GithubReposCentralView} from "../OdmdContractsCentralView";
+import {OdmdBuildOdmdContracts} from "../repos/__contracts/odmd-build-odmd-contracts";
 
 type CentralConfigConstr = new (...args: any[]) => ContractsBuild<AnyContractsEnVer>;
 
@@ -32,7 +34,10 @@ export abstract class ContractsBuild<T extends ContractsEnver<ContractsBuild<T>>
         return ContractsBuild.CENTRAL_TO_INST.get(this)!
     }
 
-    constructor(scope: Construct, id: string, repo: GithubRepo) {
+    constructor(scope: OndemandContracts<
+        AccountsCentralView,
+        GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
+    >, id: string, repo: GithubRepo) {
         super(scope, id);
         this.buildId = id
         this.gitHubRepo = repo
@@ -40,6 +45,12 @@ export abstract class ContractsBuild<T extends ContractsEnver<ContractsBuild<T>>
             throw new Error(`duplicate singleton: ${this.constructor.name}/${id}`)
         }
         ContractsBuild.CENTRAL_TO_INST.set(this.constructor as CentralConfigConstr, this)
+    }
+    public get contracts(){
+        return this.node.scope as OndemandContracts<
+            AccountsCentralView,
+            GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
+        >
     }
 
     public readonly buildId: string
