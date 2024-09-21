@@ -115,18 +115,16 @@ export class ContractsCrossRefConsumer<C extends AnyContractsEnVer, P extends An
     public static readonly OdmdRef_prefix = 'OdmdRefConsumer: ';
 
 
-
-    private static readonly _sharingIns: Map<string, ContractsShareIn> = new Map<string, ContractsShareIn>();
-
-
     public getSharedValue(stack: Stack): string {
         const key = OdmdNames.create(this._producer.owner, stack.stackName);
-        if (!ContractsCrossRefConsumer._sharingIns.has(key)) {
-            ContractsCrossRefConsumer._sharingIns.set(key, new ContractsShareIn(stack, this.owner.owner.buildId, [this]))
+        // @ts-ignore
+        const sharingIns = this.owner.owner.contracts._sharingIns;
+        if (!sharingIns.has(key)) {
+            sharingIns.set(key, new ContractsShareIn(stack, this.owner.owner.buildId, [this]))
         } else {
-            ContractsCrossRefConsumer._sharingIns.get(key)!.addRefProducer(this)
+            sharingIns.get(key)!.addRefProducer(this)
         }
-        return ContractsCrossRefConsumer._sharingIns.get(key)!.getShareValue(this._producer);
+        return sharingIns.get(key)!.getShareValue(this._producer);
     }
 
 }

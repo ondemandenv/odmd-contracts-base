@@ -11,6 +11,7 @@ import {execSync} from "child_process";
 import {AccountsCentralView, GithubReposCentralView, OdmdContractsCentralView} from "./OdmdContractsCentralView";
 import {OdmdBuildOdmdContracts} from "./repos/__contracts/odmd-build-odmd-contracts";
 import {ContractsCrossRefConsumer} from "./odmd-model/contracts-cross-refs";
+import {ContractsShareIn} from "./odmd-model/contracts-share-values";
 
 
 export abstract class OndemandContracts<
@@ -197,4 +198,7 @@ export abstract class OndemandContracts<
         }
         throw new Error('/')
     }
+
+    //used in ContractsCrossRefConsumer.getSharedValue
+    private readonly _sharingIns: Map<string, ContractsShareIn> = new Map<string, ContractsShareIn>();
 }

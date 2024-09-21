@@ -28,11 +28,6 @@ export type GithubRepo = {
 // export abstract class OdmdBuild<T extends OdmdEnVerConfig> extends Construct {
 export abstract class ContractsBuild<T extends ContractsEnver<ContractsBuild<T>>> extends Construct {
 
-    static readonly CENTRAL_TO_INST = new Map<CentralConfigConstr, ContractsBuild<AnyContractsEnVer>>();
-
-    static getInst(this: CentralConfigConstr): ContractsBuild<AnyContractsEnVer> {
-        return ContractsBuild.CENTRAL_TO_INST.get(this)!
-    }
 
     constructor(scope: OndemandContracts<
         AccountsCentralView,
@@ -41,10 +36,6 @@ export abstract class ContractsBuild<T extends ContractsEnver<ContractsBuild<T>>
         super(scope, id);
         this.buildId = id
         this.gitHubRepo = repo
-        if (ContractsBuild.CENTRAL_TO_INST.has(this.constructor as CentralConfigConstr)) {
-            throw new Error(`duplicate singleton: ${this.constructor.name}/${id}`)
-        }
-        ContractsBuild.CENTRAL_TO_INST.set(this.constructor as CentralConfigConstr, this)
     }
     public get contracts(){
         return this.node.scope as OndemandContracts<
