@@ -49,7 +49,18 @@ export interface IContractsEnver extends IConstruct {
 
 
 /**
- * configurations required by odmd central, for a specific branch/env/version
+ * configurations required and interpreted  by odmd central, for a specific branch/env/version
+ * defines how to build an enver:
+ *
+ * a cdk enver let self defined cdk project/repo to
+ * 1) implement ref producer for others to consumer
+ * 2) consume producers from other envers
+ *
+ * envers extending cdk enver can be pre defined cdk enver
+ *
+ * other envers do no consume ref:
+ * ecr enver defines an ECR repo as producers,
+ *
  */
 export abstract class ContractsEnver<T extends ContractsBuild<ContractsEnver<T>>> extends Construct implements IContractsEnver {
 
