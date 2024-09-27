@@ -87,7 +87,10 @@ export abstract class OndemandContracts<
     constructor(scope: IConstruct, id?: string) {
         super(scope, id ?? 'ondemandenv');
 
-        Aspects.of(scope).add(new ContractsAspect())
+        const aspects = Aspects.of(scope);
+        if (!aspects.all.find(a => a instanceof ContractsAspect)) {
+            aspects.add(new ContractsAspect())
+        }
 
         if (this.githubRepos.__networking) {
             this.networking = new OdmdConfigNetworking(this)

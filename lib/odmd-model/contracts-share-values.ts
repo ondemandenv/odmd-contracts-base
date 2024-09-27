@@ -22,7 +22,7 @@ export class ContractsShareIn extends Construct {
     private readonly now: CfnParameter
 
     constructor(scope: Stack, consumerBuildId: string, refConsumers: ContractsCrossRefConsumer<AnyContractsEnVer, AnyContractsEnVer>[]) {
-        super(scope, 'odmd-share-in' + consumerBuildId + refConsumers[0].producer.owner.targetRevision.toPathPartStr());
+        super(scope, 'odmd-share-in_' + consumerBuildId + '_' + refConsumers[0].producer.node.path);
 
         let tmp: AnyContractsEnVer | undefined = undefined;
         refConsumers.forEach(c => {

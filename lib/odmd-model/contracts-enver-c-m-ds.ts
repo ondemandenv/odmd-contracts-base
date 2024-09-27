@@ -6,9 +6,9 @@ import {ContractsEnver} from "./contracts-enver";
  * all lib artifacts builds are used as library for an app/service, we only track the app/service version,
  * EXCEPT the CONTRACTS defining odmd self and all services' contracts.
  */
-export class ContractsEnverNpm extends ContractsEnver<ContractsBuild<ContractsEnverNpm>> {
+export class ContractsEnverCMDs extends ContractsEnver<ContractsBuild<ContractsEnverCMDs>> {
 
-    constructor(owner: ContractsBuild<ContractsEnverNpm>, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF, buildCmds: string[] | undefined = undefined) {
+    constructor(owner: ContractsBuild<ContractsEnverCMDs>, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF, buildCmds: string[] | undefined = undefined) {
         super(owner, targetAWSAccountID, targetAWSRegion, targetRevision);
         if (buildCmds) {
             this.buildCmds.push(...buildCmds);

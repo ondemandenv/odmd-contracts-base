@@ -2,7 +2,7 @@ import {OndemandContracts} from "../lib/OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../lib/OdmdContractsCentralView";
 import {App} from "aws-cdk-lib";
 import {OdmdBuildOdmdContracts} from "../lib/repos/__contracts/odmd-build-odmd-contracts";
-import {ContractsEnverNpm} from "../lib/odmd-model/contracts-enver-npm";
+import {ContractsEnverCMDs} from "../lib/odmd-model/contracts-enver-c-m-ds";
 import {Construct} from "constructs";
 import {SRC_Rev_REF} from "../lib/odmd-model/contracts-build";
 
@@ -16,7 +16,7 @@ export class TmpTstContracts extends OndemandContracts<AccountsCentralView, Gith
                 return '@ondemandenv/contracts-lib-base'
             }
 
-            readonly envers: Array<ContractsEnverNpm>
+            readonly envers: Array<ContractsEnverCMDs>
             readonly ownerEmail: string;
 
 
@@ -27,7 +27,7 @@ export class TmpTstContracts extends OndemandContracts<AccountsCentralView, Gith
                 super(scope, id);
                 const srcRevREF = new SRC_Rev_REF("b", "odmd_us_west_1__sandbox");
 
-                this.envers = [new ContractsEnverNpm(
+                this.envers = [new ContractsEnverCMDs(
                     this,
                     this.contracts.accounts.workspace0,
                     'us-west-1',

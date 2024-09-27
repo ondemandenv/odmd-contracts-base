@@ -5,7 +5,7 @@ import {RegionInfo} from "aws-cdk-lib/region-info";
 import {ContractsEnverCtnImg} from "../lib/odmd-model/contracts-enver-ctn-img";
 import {ContractsEnverCdk} from "../lib/odmd-model/contracts-enver-cdk";
 import {ContractsIpAddresses, WithVpc} from "../lib/odmd-model/contracts-vpc";
-import {ContractsEnverNpm} from "../lib/odmd-model/contracts-enver-npm";
+import {ContractsEnverCMDs} from "../lib/odmd-model/contracts-enver-c-m-ds";
 import {OdmdNames} from "../lib/odmd-model/contracts-cross-refs";
 import {App} from "aws-cdk-lib";
 import {IConstruct} from "constructs";
@@ -236,7 +236,7 @@ describe('mkss1', () => {
             checkVpcEnver(enver as any as WithVpc)
         }
         if (enver.owner.gitHubRepo) {
-            if (enver instanceof ContractsEnverNpm || enver instanceof ContractsEnverCtnImg) {
+            if (enver instanceof ContractsEnverCMDs || enver instanceof ContractsEnverCtnImg) {
                 enver.buildCmds?.forEach(c => {
                     if (c.includes(`\${{`)) {
                         throw new Error(`${c} includes \${{}} which won't work, try put it in env and use $`)
@@ -326,4 +326,7 @@ describe('mkss1', () => {
     })
 
     console.log(`\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n`)
+
+
+
 });

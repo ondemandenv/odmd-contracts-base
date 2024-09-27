@@ -11,7 +11,7 @@ import {Construct, Node} from "constructs";
 import {AnyContractsEnVer, ContractsEnver} from "./contracts-enver";
 import {ContractsEnverCdk} from "./contracts-enver-cdk";
 import {ContractsEnverCtnImg} from "./contracts-enver-ctn-img";
-import {ContractsEnverNpm} from "./contracts-enver-npm";
+import {ContractsEnverCMDs} from "./contracts-enver-c-m-ds";
 import {OndemandContracts} from "../OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../OdmdContractsCentralView";
 import {OdmdBuildOdmdContracts} from "../repos/__contracts/odmd-build-odmd-contracts";
@@ -124,7 +124,7 @@ export abstract class ContractsBuild<T extends ContractsEnver<ContractsBuild<T>>
     }
 
     static SUPPORTED_ENVER_CLASSES = [
-        ContractsEnverCdk, ContractsEnverCtnImg, ContractsEnverNpm
+        ContractsEnverCdk, ContractsEnverCtnImg, ContractsEnverCMDs
     ]
 }
 
