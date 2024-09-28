@@ -1,7 +1,6 @@
-import {ContractsEnver} from "./contracts-enver";
-import {ContractsBuild} from "./contracts-build";
 import {RepositoryProps} from "aws-cdk-lib/aws-ecr";
 import {ContractsCrossRefProducer} from "./contracts-cross-refs";
+import {ContractsEnverCMDs} from "./contracts-enver-c-m-ds";
 
 /**
  * this is implemented by central.
@@ -24,7 +23,7 @@ export class CtnImgRefProducer extends ContractsCrossRefProducer<ContractsEnverC
 }
 
 
-export abstract class ContractsEnverCtnImg extends ContractsEnver<ContractsBuild<ContractsEnverCtnImg>> {
+export abstract class ContractsEnverCtnImg extends ContractsEnverCMDs {
 
     /**
      * commands to run to build images

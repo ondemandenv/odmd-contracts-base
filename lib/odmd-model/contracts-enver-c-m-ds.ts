@@ -1,26 +1,23 @@
 import {ContractsBuild, SRC_Rev_REF} from "./contracts-build";
 import {ContractsEnver} from "./contracts-enver";
+import {Stack} from "aws-cdk-lib";
 
 /**
  * we don't have producer of the repo here because:
- * all lib artifacts builds are used as library for an app/service, we only track the app/service version,
- * EXCEPT the CONTRACTS defining odmd self and all services' contracts.
+ * Only cdk enver implement producers
+ *
  */
 export class ContractsEnverCMDs extends ContractsEnver<ContractsBuild<ContractsEnverCMDs>> {
 
-    constructor(owner: ContractsBuild<ContractsEnverCMDs>, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF, buildCmds: string[] | undefined = undefined) {
-        super(owner, targetAWSAccountID, targetAWSRegion, targetRevision);
-        if (buildCmds) {
-            this.buildCmds.push(...buildCmds);
-        }
-    }
 
-//Make sure WF has enough permission:  https://github.com/orgs/${organization}/packages/npm/${repo}/settings
-    readonly buildCmds = [
-        //todo: get the org dynamically
-        'echo "@ondemandenv:registry=https://npm.pkg.github.com/" >> .npmrc',
-        'echo "//npm.pkg.github.com/:_authToken=$github_token" >> .npmrc'
-    ]
+    generateBuildCmds(stack: Stack): string[] {
+        return [
+
+            `echo "${this.owner.contracts.odmdConfigOdmdContractsNpm.packageName.split('/')[0]}:registry=https://npm.pkg.github.com/" >> .npmrc`,
+            'echo "//npm.pkg.github.com/:_authToken=$github_token" >> .npmrc'
+
+        ]
+    }
 
 
 }

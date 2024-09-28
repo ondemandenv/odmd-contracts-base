@@ -1,10 +1,13 @@
-import {ContractsBuild, GithubRepo} from "../../odmd-model/contracts-build";
+import {ContractsBuild} from "../../odmd-model/contracts-build";
 import {OndemandContracts} from "../../OndemandContracts";
-import {Construct} from "constructs";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
 import {ContractsEnverCMDs} from "../../odmd-model/contracts-enver-c-m-ds";
 
-export abstract class OdmdBuildOdmdContracts<A extends AccountsCentralView, G extends GithubReposCentralView>
+export abstract class OdmdBuildOdmdContracts<
+
+    A extends AccountsCentralView,
+    G extends GithubReposCentralView
+>
     extends ContractsBuild<ContractsEnverCMDs> {
 
     public abstract get packageName(): string/* {

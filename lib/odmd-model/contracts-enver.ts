@@ -58,8 +58,9 @@ export interface IContractsEnver extends IConstruct {
  *
  * envers extending cdk enver can be pre defined cdk enver
  *
- * other envers do no consume ref:
- * ecr enver defines an ECR repo as producers,
+ * other envers do consume ref thru ssm StringParameter
+ * ecr enver defines an ECR repo and tag/sha as producers,
+ *
  *
  */
 export abstract class ContractsEnver<T extends ContractsBuild<ContractsEnver<T>>> extends Construct implements IContractsEnver {

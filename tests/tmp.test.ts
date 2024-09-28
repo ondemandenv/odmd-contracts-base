@@ -7,7 +7,7 @@ import {ContractsEnverCdk} from "../lib/odmd-model/contracts-enver-cdk";
 import {ContractsIpAddresses, WithVpc} from "../lib/odmd-model/contracts-vpc";
 import {ContractsEnverCMDs} from "../lib/odmd-model/contracts-enver-c-m-ds";
 import {OdmdNames} from "../lib/odmd-model/contracts-cross-refs";
-import {App} from "aws-cdk-lib";
+import {App, Stack} from "aws-cdk-lib";
 import {IConstruct} from "constructs";
 import {PgSchemaUsersProps} from "../lib/odmd-model/contracts-pg-schema-usrs";
 import {WithRds} from "../lib/odmd-model/contracts-rds-cluster";
@@ -99,6 +99,7 @@ describe('mkss1', () => {
     const allEnvers = new Set<AnyContractsEnVer>();
 
     let app = new App();
+    const stack = new Stack(app)
     const theContracts = new TmpTstContracts(app)
 
     it("package name wrong", () => {
@@ -164,7 +165,7 @@ describe('mkss1', () => {
             }
             let envConfigs = p.get(c.targetRevision.toPathPartStr())!;
             envConfigs.add(c)
-            if (envConfigs.size > 1 ) {
+            if (envConfigs.size > 1) {
                 throw new Error(`For each build, One branch can only have one deployment, but found ${c.owner.buildId}, branch ${c.targetRevision} are pointing to mutiple deployments!`)
             }
             return p
@@ -237,7 +238,7 @@ describe('mkss1', () => {
         }
         if (enver.owner.gitHubRepo) {
             if (enver instanceof ContractsEnverCMDs || enver instanceof ContractsEnverCtnImg) {
-                enver.buildCmds?.forEach(c => {
+                enver.generateBuildCmds(stack)?.forEach(c => {
                     if (c.includes(`\${{`)) {
                         throw new Error(`${c} includes \${{}} which won't work, try put it in env and use $`)
                     }
@@ -326,7 +327,6 @@ describe('mkss1', () => {
     })
 
     console.log(`\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n\n`)
-
 
 
 });
