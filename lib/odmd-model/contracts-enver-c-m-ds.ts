@@ -9,7 +9,7 @@ import {Stack} from "aws-cdk-lib";
  */
 export class ContractsEnverCMDs extends ContractsEnver<ContractsBuild<ContractsEnverCMDs>> {
 
-    generateBuildCmds(stack: Stack): string[] {
+    generateBuildCmds(stack: Stack, ...args: any[]): string[] {
         const pkgOrg = this.owner.contracts.odmdConfigOdmdContractsNpm.packageName.split('/')[0];
         return [
 
