@@ -9,15 +9,14 @@ import {Stack} from "aws-cdk-lib";
  */
 export class ContractsEnverCMDs extends ContractsEnver<ContractsBuild<ContractsEnverCMDs>> {
 
-
     generateBuildCmds(stack: Stack): string[] {
+        const pkgOrg = this.owner.contracts.odmdConfigOdmdContractsNpm.packageName.split('/')[0];
         return [
 
-            `echo "${this.owner.contracts.odmdConfigOdmdContractsNpm.packageName.split('/')[0]}:registry=https://npm.pkg.github.com/" >> .npmrc`,
+            `echo "${pkgOrg}:registry=https://npm.pkg.github.com/" >> .npmrc`,
             'echo "//npm.pkg.github.com/:_authToken=$github_token" >> .npmrc'
 
         ]
     }
-
 
 }

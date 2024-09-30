@@ -20,5 +20,13 @@ export abstract class OdmdBuildOdmdContracts<
         GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
     >, id: string) {
         super(scope, id, scope.githubRepos.__contracts);
+        this.contractsLatestVerRepoPath = `/odmd-contracts-latest-version/${this.gitHubRepo.owner}/${this.gitHubRepo.name}`
     }
+
+    readonly contractsLatestVerRepoPath:string
+
+    getContractsLatestVerPath( enver:ContractsEnverCMDs){
+        return this.contractsLatestVerRepoPath + '/' + enver.targetRevision.value
+    }
+
 }

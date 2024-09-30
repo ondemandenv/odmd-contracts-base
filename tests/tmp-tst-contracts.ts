@@ -3,7 +3,6 @@ import {AccountsCentralView, GithubReposCentralView} from "../lib/OdmdContractsC
 import {App} from "aws-cdk-lib";
 import {OdmdBuildOdmdContracts} from "../lib/repos/__contracts/odmd-build-odmd-contracts";
 import {ContractsEnverCMDs} from "../lib/odmd-model/contracts-enver-c-m-ds";
-import {Construct} from "constructs";
 import {SRC_Rev_REF} from "../lib/odmd-model/contracts-build";
 
 export class TmpTstContracts extends OndemandContracts<AccountsCentralView, GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>> {

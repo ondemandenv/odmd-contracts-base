@@ -1,4 +1,3 @@
-import {OndemandContracts} from "../lib/OndemandContracts";
 import {ContractsEnverCtnImg} from "../lib/odmd-model/contracts-enver-ctn-img";
 import {App, Stack} from "aws-cdk-lib";
 import {Repository, RepositoryProps} from "aws-cdk-lib/aws-ecr";

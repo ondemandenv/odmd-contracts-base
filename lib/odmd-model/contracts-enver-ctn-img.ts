@@ -25,10 +25,6 @@ export class CtnImgRefProducer extends ContractsCrossRefProducer<ContractsEnverC
 
 export abstract class ContractsEnverCtnImg extends ContractsEnverCMDs {
 
-    /**
-     * commands to run to build images
-     */
-    abstract readonly buildCmds: string[];
 
     abstract readonly builtImgNameToRepo: {
         [imgName: string]: RepositoryProps//imgName has to start with buildId !

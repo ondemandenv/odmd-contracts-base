@@ -1,4 +1,3 @@
-import {Construct} from "constructs";
 import {ContractsBuild, SRC_Rev_REF} from "../../odmd-model/contracts-build";
 import {ContractsEnverCdk} from "../../odmd-model/contracts-enver-cdk";
 import {ContractsCrossRefConsumer, ContractsCrossRefProducer} from "../../odmd-model/contracts-cross-refs";
