@@ -83,7 +83,7 @@ export class ContractsCrossRefConsumer<C extends AnyContractsEnVer, P extends An
         if (producer.owner.owner.buildId == scope.owner.buildId) {
             throw new Error('consuming from same build is ILLEGAL!')
         }
-        if (scope.owner instanceof OdmdBuildOdmdContracts) {
+        if (scope.owner == scope.owner.contracts.odmdConfigOdmdContractsNpm) {
             throw new Error(`OdmdBuildOdmdContracts should not consume anything!`)
         }
         if (scope instanceof ContractsEnverCtnImg) {
