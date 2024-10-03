@@ -1,7 +1,7 @@
 import {ContractsEnverCtnImg} from "../lib/odmd-model/contracts-enver-ctn-img";
 import {App, Stack} from "aws-cdk-lib";
 import {Repository, RepositoryProps} from "aws-cdk-lib/aws-ecr";
-import {TmpTstContracts} from "./tmp-tst-contracts";
+import {TmpTstContracts, TmpTstContracts1} from "./tmp-tst-contracts";
 
 
 test('make_sense1', () => {
@@ -46,5 +46,14 @@ test('make_sense1', () => {
             }
         })
     })
+
+    try {
+        new TmpTstContracts1(app).validate()
+    } catch (e) {
+        if ((e as Error).message != 'onlyProducerAllowed but found: TmpTstContracts1/aaa/b..odmd_us_west_1__sandbox contains TmpTstContracts1/aaa/b..odmd_us_west_1__sandbox/asdf') {
+            throw e
+        }
+        console.log(e)
+    }
 
 });

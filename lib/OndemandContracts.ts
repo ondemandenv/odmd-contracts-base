@@ -12,6 +12,7 @@ import {AccountsCentralView, GithubReposCentralView, OdmdContractsCentralView} f
 import {OdmdBuildOdmdContracts} from "./repos/__contracts/odmd-build-odmd-contracts";
 import {ContractsCrossRefConsumer} from "./odmd-model/contracts-cross-refs";
 import {ContractsShareIn} from "./odmd-model/contracts-share-values";
+import {ContractsEnverCtnImg} from "./odmd-model/contracts-enver-ctn-img";
 
 
 export abstract class OndemandContracts<
@@ -204,4 +205,26 @@ export abstract class OndemandContracts<
 
     //used in ContractsCrossRefConsumer.getSharedValue
     private readonly _sharingIns: Map<string, ContractsShareIn> = new Map<string, ContractsShareIn>();
+
+
+    public validate() {
+        function onlyProducerAllowed(enver: IConstruct) {
+            const f = enver.node.findAll().find(n => n instanceof ContractsCrossRefConsumer)
+            if (f) {
+                throw new Error(`onlyProducerAllowed but found: ${enver.node.path} contains ${f.node.path}`)
+            }
+        }
+
+        this.odmdConfigOdmdContractsNpm.envers.forEach(enver => {
+            onlyProducerAllowed(enver);
+        })
+
+        this._builds.forEach(b => {
+            b.envers.forEach(enver => {
+                if (enver instanceof ContractsEnverCtnImg) {
+                    onlyProducerAllowed(enver);
+                }
+            })
+        })
+    }
 }
