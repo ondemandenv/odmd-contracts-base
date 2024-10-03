@@ -4,6 +4,8 @@ import {AnyContractsEnVer} from "./contracts-enver";
 import {OndemandContracts} from "../OndemandContracts";
 import {ContractsShareIn} from "./contracts-share-values";
 import {Stack} from "aws-cdk-lib";
+import {OdmdBuildOdmdContracts} from "../repos/__contracts/odmd-build-odmd-contracts";
+import {ContractsEnverCtnImg} from "./contracts-enver-ctn-img";
 
 export interface RefProducerProps {
     pathPart?: string
@@ -52,7 +54,7 @@ export class ContractsCrossRefProducer<T extends AnyContractsEnVer> extends Cons
 
 }
 
-export interface RefConsumerOption {
+export type RefConsumerOption = {
     defaultIfAbsent: any//so that deploy will continue even producer is not deployed yet
 
     trigger: 'no' | 'directly' //trigger consumer stack deployment on change?
@@ -80,6 +82,12 @@ export class ContractsCrossRefConsumer<C extends AnyContractsEnVer, P extends An
         super(scope, id);
         if (producer.owner.owner.buildId == scope.owner.buildId) {
             throw new Error('consuming from same build is ILLEGAL!')
+        }
+        if (scope.owner instanceof OdmdBuildOdmdContracts) {
+            throw new Error(`OdmdBuildOdmdContracts should not consume anything!`)
+        }
+        if (scope instanceof ContractsEnverCtnImg) {
+            throw new Error(`ContractsEnverCtnImg should not consume anything!`)
         }
         if (!producer.consumers.has(this)) {
             producer.consumers.set(this, new Set())
