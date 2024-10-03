@@ -207,7 +207,7 @@ export abstract class OndemandContracts<
     private readonly _sharingIns: Map<string, ContractsShareIn> = new Map<string, ContractsShareIn>();
 
 
-    public validate() {
+    public odmdValidate() {
         function onlyProducerAllowed(enver: IConstruct) {
             const f = enver.node.findAll().find(n => n instanceof ContractsCrossRefConsumer)
             if (f) {

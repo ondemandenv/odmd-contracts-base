@@ -30,8 +30,8 @@ export abstract class ContractsEnverCtnImg extends ContractsEnverCMDs {
     abstract readonly builtImgNameToRepo: {
         [imgName: string]: RepositoryProps//imgName has to start with buildId !
     }
-    abstract readonly builtImgNameToRepoGrants?: {
-        [imgName: string]: [grantee: IGrantable, ...actions: string[]]
+    abstract readonly builtImgNameToRepoGrants: {
+        [imgName: string]: [grantee: IGrantable, ...actions: string[]][]
     }
 
     abstract readonly builtImgNameToRepoProducer: {
