@@ -1,5 +1,4 @@
 import {ContractsEnverEksCluster, ContractsEnverEksClusterArgoCd} from "../../odmd-model/contracts-enver-eks-cluster";
-import {Construct} from "constructs";
 import {OndemandContracts} from "../../OndemandContracts";
 import {OdmdBuildEks} from "./odmd-build-eks";
 import {ContractsCrossRefConsumer, ContractsCrossRefProducer} from "../../odmd-model/contracts-cross-refs";
@@ -8,7 +7,7 @@ import {ContractsEnverCdk} from "../../odmd-model/contracts-enver-cdk";
 import {ContractsIpAddresses, ContractsVpc, WithVpc} from "../../odmd-model/contracts-vpc";
 import {IPAM_AB} from "../__networking/odmd-config-networking";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
-import {OdmdBuildOdmdContracts} from "../__contracts/odmd-build-odmd-contracts";
+import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
 
 export class OdmdBuildEksCluster extends OdmdBuildEks {
 
@@ -19,7 +18,7 @@ export class OdmdBuildEksCluster extends OdmdBuildEks {
 
     constructor(scope: OndemandContracts<
         AccountsCentralView,
-        GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
+        GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
     >) {
         super(scope, 'eks');
 

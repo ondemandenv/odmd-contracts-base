@@ -104,7 +104,7 @@ describe('mkss1', () => {
 
     it("package name wrong", () => {
         expect(JSON.parse(fs.readFileSync('package.json').toString()).name)
-            .toBe(theContracts.odmdConfigOdmdContractsNpm.packageName)
+            .toBe(theContracts.contractsLibBuild.packageName)
     })
 
 
@@ -128,7 +128,7 @@ describe('mkss1', () => {
             throw new Error(`build Id ${buildId}.lowercase can't start with a region name }`)
         }
         if (buildIdLowercase.startsWith(OndemandContracts.RES_PREFIX)
-            && buildConfig != theContracts.odmdConfigOdmdContractsNpm) {
+            && buildConfig != theContracts.contractsLibBuild) {
             throw new Error(`build Id ${buildId} can't start with ${OndemandContracts.RES_PREFIX} which is reserved`)
         }
         if (buildId.length > 25) {

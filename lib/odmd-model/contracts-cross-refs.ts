@@ -1,10 +1,8 @@
 import {Construct} from "constructs";
 import * as crypto from 'crypto';
 import {AnyContractsEnVer} from "./contracts-enver";
-import {OndemandContracts} from "../OndemandContracts";
 import {ContractsShareIn} from "./contracts-share-values";
 import {Stack} from "aws-cdk-lib";
-import {OdmdBuildOdmdContracts} from "../repos/__contracts/odmd-build-odmd-contracts";
 import {ContractsEnverCtnImg} from "./contracts-enver-ctn-img";
 
 export interface RefProducerProps {
@@ -83,11 +81,11 @@ export class ContractsCrossRefConsumer<C extends AnyContractsEnVer, P extends An
         if (producer.owner.owner.buildId == scope.owner.buildId) {
             throw new Error('consuming from same build is ILLEGAL!')
         }
-        if (scope.owner == scope.owner.contracts.odmdConfigOdmdContractsNpm) {
-            throw new Error(`OdmdBuildOdmdContracts should not consume anything!`)
+        if (scope.owner == scope.owner.contracts.contractsLibBuild) {
+            throw new Error(`OdmdBuildOdmdContracts should not consume anything! only depends on its src`)
         }
         if (scope instanceof ContractsEnverCtnImg) {
-            throw new Error(`ContractsEnverCtnImg should not consume anything!`)
+            throw new Error(`ContractsEnverCtnImg should not consume anything! only depends on its src and contractsLib`)
         }
         if (!producer.consumers.has(this)) {
             producer.consumers.set(this, new Set())

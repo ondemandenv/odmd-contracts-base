@@ -10,7 +10,7 @@ import {Stack} from "aws-cdk-lib";
 export class ContractsEnverCMDs extends ContractsEnver<ContractsBuild<ContractsEnverCMDs>> {
 
     generateBuildCmds(stack: Stack, ...args: any[]): string[] {
-        const pkgOrg = this.owner.contracts.odmdConfigOdmdContractsNpm.packageName.split('/')[0];
+        const pkgOrg = this.owner.contracts.contractsLibBuild.packageName.split('/')[0];
         return [
 
             `echo "${pkgOrg}:registry=https://npm.pkg.github.com/" >> .npmrc`,

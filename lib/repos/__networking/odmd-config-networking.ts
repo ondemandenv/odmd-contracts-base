@@ -4,7 +4,7 @@ import {ContractsCrossRefConsumer, ContractsCrossRefProducer} from "../../odmd-m
 import {OndemandContracts} from "../../OndemandContracts";
 import {AnyContractsEnVer} from "../../odmd-model/contracts-enver";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
-import {OdmdBuildOdmdContracts} from "../__contracts/odmd-build-odmd-contracts";
+import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
 
 export class OdmdConfigNetworking extends ContractsBuild<ContractsEnverCdk> {
 
@@ -16,7 +16,7 @@ export class OdmdConfigNetworking extends ContractsBuild<ContractsEnverCdk> {
 
     constructor(scope: OndemandContracts<
         AccountsCentralView,
-        GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
+        GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
     >) {
         super(scope, 'networking', scope.githubRepos.__networking!);
         this.envers = [

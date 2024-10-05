@@ -3,12 +3,15 @@ import {OndemandContracts} from "../../OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
 import {ContractsEnverCMDs} from "../../odmd-model/contracts-enver-c-m-ds";
 
-export abstract class OdmdBuildOdmdContracts<
-
+export abstract class OdmdBuildContractsLib<
     A extends AccountsCentralView,
     G extends GithubReposCentralView
->
-    extends ContractsBuild<ContractsEnverCMDs> {
+> extends ContractsBuild<ContractsEnverCMDs> {
+
+    /*
+    the s3 bucket object key for saving the latest contracts ver info
+     */
+    public static readonly LATEST_CONTRACTS_LIB_VER_KEY = "LATEST_CONTRACTS_LIB_VER_KEY"
 
     public abstract get packageName(): string/* {
         return '@ondemandenv/contracts-lib-base'
@@ -17,16 +20,10 @@ export abstract class OdmdBuildOdmdContracts<
 
     constructor(scope: OndemandContracts<
         AccountsCentralView,
-        GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
+        GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
     >, id: string) {
         super(scope, id, scope.githubRepos.__contracts);
-        this.contractsLatestVerRepoPath = `/odmd-contracts-latest-version/${this.gitHubRepo.owner}/${this.gitHubRepo.name}`
     }
 
-    readonly contractsLatestVerRepoPath:string
-
-    getContractsLatestVerPath( enver:ContractsEnverCMDs){
-        return this.contractsLatestVerRepoPath + '/' + enver.targetRevision.value
-    }
 
 }

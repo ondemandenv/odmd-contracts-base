@@ -1,17 +1,17 @@
 import {OndemandContracts} from "../lib/OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../lib/OdmdContractsCentralView";
 import {App} from "aws-cdk-lib";
-import {OdmdBuildOdmdContracts} from "../lib/repos/__contracts/odmd-build-odmd-contracts";
+import {OdmdBuildContractsLib} from "../lib/repos/__contracts/odmd-build-contracts-lib";
 import {ContractsEnverCMDs} from "../lib/odmd-model/contracts-enver-c-m-ds";
 import {SRC_Rev_REF} from "../lib/odmd-model/contracts-build";
 import {ContractsCrossRefConsumer} from "../lib/odmd-model/contracts-cross-refs";
 
-export class TmpTstContracts extends OndemandContracts<AccountsCentralView, GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>> {
-    private _odmdConfigOdmdContractsNpm: OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>;
+export class TmpTstContracts extends OndemandContracts<AccountsCentralView, GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>> {
+    private _odmdConfigOdmdContractsNpm: OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>;
 
     constructor(app: App) {
         super(app);
-        this._odmdConfigOdmdContractsNpm = new (class extends OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView> {
+        this._odmdConfigOdmdContractsNpm = new (class extends OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
             public get packageName(): string {
                 return '@ondemandenv/contracts-lib-base'
             }
@@ -22,7 +22,7 @@ export class TmpTstContracts extends OndemandContracts<AccountsCentralView, Gith
 
             constructor(scope: OndemandContracts<
                 AccountsCentralView,
-                GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
+                GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
             >, id: string) {
                 super(scope, id);
                 const srcRevREF = new SRC_Rev_REF("b", "odmd_us_west_1__sandbox");
@@ -37,7 +37,7 @@ export class TmpTstContracts extends OndemandContracts<AccountsCentralView, Gith
         })(this, 'aaa');
     }
 
-    get odmdConfigOdmdContractsNpm(): OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView> {
+    get contractsLibBuild(): OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
         return this._odmdConfigOdmdContractsNpm
     }
 
@@ -84,15 +84,15 @@ export class TmpTstContracts extends OndemandContracts<AccountsCentralView, Gith
 
 }
 
-export class TmpTstContracts1  extends OndemandContracts<AccountsCentralView, GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>> {
-    private _odmdConfigOdmdContractsNpm: OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>;
+export class TmpTstContracts1  extends OndemandContracts<AccountsCentralView, GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>> {
+    private _odmdConfigOdmdContractsNpm: OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>;
 
     // readonly networking?: OdmdConfigNetworking
     constructor(app: App) {
         super(app, 'TmpTstContracts1');
 
         // this.networking = new OdmdConfigNetworking(this)
-        this._odmdConfigOdmdContractsNpm = new (class extends OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView> {
+        this._odmdConfigOdmdContractsNpm = new (class extends OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
             public get packageName(): string {
                 return '@ondemandenv/contracts-lib-base'
             }
@@ -103,7 +103,7 @@ export class TmpTstContracts1  extends OndemandContracts<AccountsCentralView, Gi
 
             constructor(scope: OndemandContracts<
                 AccountsCentralView,
-                GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
+                GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
             >, id: string) {
                 super(scope, id);
                 const srcRevREF = new SRC_Rev_REF("b", "odmd_us_west_1__sandbox");
@@ -121,7 +121,7 @@ export class TmpTstContracts1  extends OndemandContracts<AccountsCentralView, Gi
 
     }
 
-    get odmdConfigOdmdContractsNpm(): OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView> {
+    get contractsLibBuild(): OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
         return this._odmdConfigOdmdContractsNpm
     }
 

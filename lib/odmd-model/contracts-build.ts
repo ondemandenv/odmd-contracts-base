@@ -14,7 +14,7 @@ import {ContractsEnverCtnImg} from "./contracts-enver-ctn-img";
 import {ContractsEnverCMDs} from "./contracts-enver-c-m-ds";
 import {OndemandContracts} from "../OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../OdmdContractsCentralView";
-import {OdmdBuildOdmdContracts} from "../repos/__contracts/odmd-build-odmd-contracts";
+import {OdmdBuildContractsLib} from "../repos/__contracts/odmd-build-contracts-lib";
 
 type CentralConfigConstr = new (...args: any[]) => ContractsBuild<AnyContractsEnVer>;
 
@@ -31,7 +31,7 @@ export abstract class ContractsBuild<T extends ContractsEnver<ContractsBuild<T>>
 
     constructor(scope: OndemandContracts<
         AccountsCentralView,
-        GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
+        GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
     >, id: string, repo: GithubRepo) {
         super(scope, id);
         this.buildId = id
@@ -40,7 +40,7 @@ export abstract class ContractsBuild<T extends ContractsEnver<ContractsBuild<T>>
     public get contracts(){
         return this.node.scope as OndemandContracts<
             AccountsCentralView,
-            GithubReposCentralView, OdmdBuildOdmdContracts<AccountsCentralView, GithubReposCentralView>
+            GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
         >
     }
 

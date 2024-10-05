@@ -9,7 +9,7 @@ import {Aspects} from "aws-cdk-lib";
 import {ContractsAspect} from "./odmd-model/contracts-aspect";
 import {execSync} from "child_process";
 import {AccountsCentralView, GithubReposCentralView, OdmdContractsCentralView} from "./OdmdContractsCentralView";
-import {OdmdBuildOdmdContracts} from "./repos/__contracts/odmd-build-odmd-contracts";
+import {OdmdBuildContractsLib} from "./repos/__contracts/odmd-build-contracts-lib";
 import {ContractsCrossRefConsumer} from "./odmd-model/contracts-cross-refs";
 import {ContractsShareIn} from "./odmd-model/contracts-share-values";
 import {ContractsEnverCtnImg} from "./odmd-model/contracts-enver-ctn-img";
@@ -18,7 +18,7 @@ import {ContractsEnverCtnImg} from "./odmd-model/contracts-enver-ctn-img";
 export abstract class OndemandContracts<
     A extends AccountsCentralView,
     G extends GithubReposCentralView,
-    C extends OdmdBuildOdmdContracts<A, G>
+    C extends OdmdBuildContractsLib<A, G>
 >
     extends Construct implements OdmdContractsCentralView<A, G, C> {
 
@@ -47,7 +47,7 @@ export abstract class OndemandContracts<
 
     abstract get allAccounts(): string[]
 
-    abstract get odmdConfigOdmdContractsNpm(): C
+    abstract get contractsLibBuild(): C
 
     abstract get accounts(): A
 
@@ -60,7 +60,7 @@ export abstract class OndemandContracts<
     public get odmdBuilds(): Array<ContractsBuild<AnyContractsEnVer>> {
         if (!this._builds) {
             this._builds = [
-                this.odmdConfigOdmdContractsNpm
+                this.contractsLibBuild
             ]
 
             if (this.networking) {
@@ -215,7 +215,7 @@ export abstract class OndemandContracts<
             }
         }
 
-        this.odmdConfigOdmdContractsNpm.envers.forEach(enver => {
+        this.contractsLibBuild.envers.forEach(enver => {
             onlyProducerAllowed(enver);
         })
 
