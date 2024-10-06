@@ -1,44 +1,49 @@
 import {OndemandContracts} from "../lib/OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../lib/OdmdContractsCentralView";
 import {App} from "aws-cdk-lib";
-import {OdmdBuildContractsLib} from "../lib/repos/__contracts/odmd-build-contracts-lib";
+import {OdmdBuildContractsLib, OdmdEnverContractsLib} from "../lib/repos/__contracts/odmd-build-contracts-lib";
 import {ContractsEnverCMDs} from "../lib/odmd-model/contracts-enver-c-m-ds";
 import {SRC_Rev_REF} from "../lib/odmd-model/contracts-build";
 import {ContractsCrossRefConsumer} from "../lib/odmd-model/contracts-cross-refs";
 
+
+export class TmpTstOdmdBuildContractsLib extends OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
+    public get packageName(): string {
+        return '@ondemandenv/contracts-lib-base'
+    }
+
+    public get theOne(): OdmdEnverContractsLib {
+        return this.envers[0]
+    }
+
+    envers: OdmdEnverContractsLib[];
+    ownerEmail?: string | undefined;
+
+
+    constructor(scope: OndemandContracts<AccountsCentralView, GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>>, id: string) {
+        super(scope, id);
+        this.envers = [
+            new OdmdEnverContractsLib(
+                this,
+                this.contracts.accounts.workspace0,
+                'us-west-1',
+                new SRC_Rev_REF("b", "odmd_us_west_1__sandbox")
+            )
+        ]
+    }
+}
+
+
 export class TmpTstContracts extends OndemandContracts<AccountsCentralView, GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>> {
-    private _odmdConfigOdmdContractsNpm: OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>;
+    private _odmdBuildContractsLib: OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>;
 
     constructor(app: App) {
         super(app);
-        this._odmdConfigOdmdContractsNpm = new (class extends OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
-            public get packageName(): string {
-                return '@ondemandenv/contracts-lib-base'
-            }
-
-            readonly envers: Array<ContractsEnverCMDs>
-            readonly ownerEmail: string;
-
-
-            constructor(scope: OndemandContracts<
-                AccountsCentralView,
-                GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
-            >, id: string) {
-                super(scope, id);
-                const srcRevREF = new SRC_Rev_REF("b", "odmd_us_west_1__sandbox");
-
-                this.envers = [new ContractsEnverCMDs(
-                    this,
-                    this.contracts.accounts.workspace0,
-                    'us-west-1',
-                    srcRevREF
-                )];
-            }
-        })(this, 'aaa');
+        this._odmdBuildContractsLib = new TmpTstOdmdBuildContractsLib(this, 'aaa');
     }
 
     get contractsLibBuild(): OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
-        return this._odmdConfigOdmdContractsNpm
+        return this._odmdBuildContractsLib
     }
 
     private _accounts: AccountsCentralView
@@ -84,7 +89,7 @@ export class TmpTstContracts extends OndemandContracts<AccountsCentralView, Gith
 
 }
 
-export class TmpTstContracts1  extends OndemandContracts<AccountsCentralView, GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>> {
+export class TmpTstContracts1 extends OndemandContracts<AccountsCentralView, GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>> {
     private _odmdConfigOdmdContractsNpm: OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>;
 
     // readonly networking?: OdmdConfigNetworking
@@ -92,32 +97,7 @@ export class TmpTstContracts1  extends OndemandContracts<AccountsCentralView, Gi
         super(app, 'TmpTstContracts1');
 
         // this.networking = new OdmdConfigNetworking(this)
-        this._odmdConfigOdmdContractsNpm = new (class extends OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
-            public get packageName(): string {
-                return '@ondemandenv/contracts-lib-base'
-            }
-
-            readonly envers: Array<ContractsEnverCMDs>
-            readonly ownerEmail: string;
-
-
-            constructor(scope: OndemandContracts<
-                AccountsCentralView,
-                GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
-            >, id: string) {
-                super(scope, id);
-                const srcRevREF = new SRC_Rev_REF("b", "odmd_us_west_1__sandbox");
-
-                this.envers = [new ContractsEnverCMDs(
-                    this,
-                    this.contracts.accounts.workspace0,
-                    'us-west-1',
-                    srcRevREF
-                )];
-
-                new ContractsCrossRefConsumer(this.envers[0], 'asdf', this.contracts.networking!.ipam_west1_le.centralVpcCidr)
-            }
-        })(this, 'aaa');
+        this._odmdConfigOdmdContractsNpm = new TmpTstOdmdBuildContractsLib(this, 'aaa');
 
     }
 

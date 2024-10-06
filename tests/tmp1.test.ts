@@ -48,7 +48,7 @@ test('make_sense1', () => {
     })
 
     try {
-        new TmpTstContracts1(app).odmdValidate()
+        theContracts.odmdValidate()
     } catch (e) {
         if ((e as Error).message != 'onlyProducerAllowed but found: TmpTstContracts1/aaa/b..odmd_us_west_1__sandbox contains TmpTstContracts1/aaa/b..odmd_us_west_1__sandbox/asdf') {
             throw e

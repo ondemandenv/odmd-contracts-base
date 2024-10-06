@@ -7,13 +7,15 @@ import {Stack} from "aws-cdk-lib";
  * Only cdk enver implement producers
  *
  */
-export class ContractsEnverCMDs extends ContractsEnver<ContractsBuild<ContractsEnverCMDs>> {
+export abstract class ContractsEnverCMDs extends ContractsEnver<ContractsBuild<ContractsEnverCMDs>> {
 
-    generateBuildCmds(stack: Stack, ...args: any[]): string[] {
-        const pkgOrg = this.owner.contracts.contractsLibBuild.packageName.split('/')[0];
+    abstract generateBuildCmds(stack: Stack, ...args: any[]): string[]
+
+    genNpmRcCmds(): string[] {
         return [
 
-            `echo "${pkgOrg}:registry=https://npm.pkg.github.com/" >> .npmrc`,
+            `echo "${this.owner.contracts.contractsLibBuild.pkgOrg
+            }:registry=https://npm.pkg.github.com/" >> .npmrc`,
             'echo "//npm.pkg.github.com/:_authToken=$github_token" >> .npmrc'
 
         ]
