@@ -2,17 +2,17 @@ import {Construct, IConstruct} from "constructs";
 import {OdmdConfigNetworking} from "./repos/__networking/odmd-config-networking";
 import {OdmdBuildEksCluster} from "./repos/__eks/odmd-build-eks-cluster";
 import {OdmdBuildDefaultVpcRds} from "./repos/_default-vpc-rds/odmd-build-default-vpc-rds";
-import {AnyContractsEnVer} from "./odmd-model/contracts-enver";
-import {ContractsBuild, SRC_Rev_REF} from "./odmd-model/contracts-build";
+import {AnyOdmdEnVer} from "./odmd-model/odmd-enver";
+import {OdmdBuild, SRC_Rev_REF} from "./odmd-model/odmd-build";
 import {OdmdBuildDefaultKubeEks} from "./repos/_default-kube-eks/odmd-build-default-kube-eks";
 import {Aspects} from "aws-cdk-lib";
-import {ContractsAspect} from "./odmd-model/contracts-aspect";
+import {OdmdAspect} from "./odmd-model/odmd-aspect";
 import {execSync} from "child_process";
 import {AccountsCentralView, GithubReposCentralView, OdmdContractsCentralView} from "./OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "./repos/__contracts/odmd-build-contracts-lib";
-import {ContractsCrossRefConsumer} from "./odmd-model/contracts-cross-refs";
-import {ContractsShareIn} from "./odmd-model/contracts-share-values";
-import {ContractsEnverCtnImg} from "./odmd-model/contracts-enver-ctn-img";
+import {OdmdCrossRefConsumer} from "./odmd-model/odmd-cross-refs";
+import {OdmdShareIn} from "./odmd-model/odmd-share-refs";
+import {OdmdEnverCtnImg} from "./odmd-model/odmd-enver-ctn-img";
 
 
 export abstract class OndemandContracts<
@@ -38,7 +38,7 @@ export abstract class OndemandContracts<
     readonly defaultVpcRds?: OdmdBuildDefaultVpcRds
     readonly defaultEcrEks?: OdmdBuildDefaultKubeEks
 
-    readonly DEFAULTS_SVC?: ContractsBuild<AnyContractsEnVer>[]
+    readonly DEFAULTS_SVC?: OdmdBuild<AnyOdmdEnVer>[]
 
 
     public getAccountName(accId: string) {
@@ -55,9 +55,9 @@ export abstract class OndemandContracts<
         throw new Error("abstract!")
     }
 
-    private _builds: Array<ContractsBuild<AnyContractsEnVer>>
+    private _builds: Array<OdmdBuild<AnyOdmdEnVer>>
 
-    public get odmdBuilds(): Array<ContractsBuild<AnyContractsEnVer>> {
+    public get odmdBuilds(): Array<OdmdBuild<AnyOdmdEnVer>> {
         if (!this._builds) {
             this._builds = [
                 this.contractsLibBuild
@@ -89,8 +89,8 @@ export abstract class OndemandContracts<
         super(scope, id ?? 'ondemandenv');
 
         const aspects = Aspects.of(scope);
-        if (!aspects.all.find(a => a instanceof ContractsAspect)) {
-            aspects.add(new ContractsAspect())
+        if (!aspects.all.find(a => a instanceof OdmdAspect)) {
+            aspects.add(new OdmdAspect())
         }
 
         if (this.githubRepos.__networking) {
@@ -101,7 +101,7 @@ export abstract class OndemandContracts<
             this.eksCluster = new OdmdBuildEksCluster(this)
         }
 
-        this.DEFAULTS_SVC = [] as ContractsBuild<AnyContractsEnVer>[]
+        this.DEFAULTS_SVC = [] as OdmdBuild<AnyOdmdEnVer>[]
         if (this.githubRepos._defaultVpcRds) {
             this.defaultVpcRds = new OdmdBuildDefaultVpcRds(this)
             this.DEFAULTS_SVC.push(this.defaultVpcRds)
@@ -186,30 +186,30 @@ export abstract class OndemandContracts<
      * @param s  "OdmdRefConsumer: ${a/b/c}"
      *
      */
-    public getRefConsumerFromOdmdRef(s: string): ContractsCrossRefConsumer<AnyContractsEnVer, AnyContractsEnVer> {
-        if (!s.startsWith(ContractsCrossRefConsumer.OdmdRef_prefix + "${")) {
+    public getRefConsumerFromOdmdRef(s: string): OdmdCrossRefConsumer<AnyOdmdEnVer, AnyOdmdEnVer> {
+        if (!s.startsWith(OdmdCrossRefConsumer.OdmdRef_prefix + "${")) {
             throw new Error('Only OdmdRefConsumer')
         }
 
-        const tmp = s.substring(ContractsCrossRefConsumer.OdmdRef_prefix.length + 2)
+        const tmp = s.substring(OdmdCrossRefConsumer.OdmdRef_prefix.length + 2)
         const targetPath = tmp.substring(0, tmp.indexOf("}"));
 
         for (const b of this.odmdBuilds) {
             const f = b.node.findAll().find(e => e.node.path == targetPath)
             if (f) {
-                return f as ContractsCrossRefConsumer<AnyContractsEnVer, AnyContractsEnVer>;
+                return f as OdmdCrossRefConsumer<AnyOdmdEnVer, AnyOdmdEnVer>;
             }
         }
         throw new Error('/')
     }
 
     //used in ContractsCrossRefConsumer.getSharedValue
-    private readonly _sharingIns: Map<string, ContractsShareIn> = new Map<string, ContractsShareIn>();
+    private readonly _sharingIns: Map<string, OdmdShareIn> = new Map<string, OdmdShareIn>();
 
 
     public odmdValidate() {
         function onlyProducerAllowed(enver: IConstruct) {
-            const f = enver.node.findAll().find(n => n instanceof ContractsCrossRefConsumer)
+            const f = enver.node.findAll().find(n => n instanceof OdmdCrossRefConsumer)
             if (f) {
                 throw new Error(`onlyProducerAllowed but found: ${enver.node.path} contains ${f.node.path}`)
             }
@@ -221,7 +221,7 @@ export abstract class OndemandContracts<
 
         this._builds.forEach(b => {
             b.envers.forEach(enver => {
-                if (enver instanceof ContractsEnverCtnImg) {
+                if (enver instanceof OdmdEnverCtnImg) {
                     onlyProducerAllowed(enver);
                 }
             })

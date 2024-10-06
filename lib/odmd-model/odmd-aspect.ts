@@ -1,9 +1,9 @@
 import {CfnOutput, CfnParameter, IAspect, NestedStack, Stack} from "aws-cdk-lib";
 import {IConstruct} from "constructs";
 import {OndemandContracts} from "../OndemandContracts";
-import {ContractsShareIn, ContractsShareOut} from "./contracts-share-values";
+import {OdmdShareIn, OdmdShareOut} from "./odmd-share-refs";
 
-export class ContractsAspect implements IAspect {
+export class OdmdAspect implements IAspect {
     visit(node: IConstruct): void {
         if (node instanceof Stack) {
             const s = node as Stack
@@ -49,9 +49,9 @@ Debugging Challenges: Errors in nested stacks can be harder to diagnose because 
                 description: 'BUILD_SRC_REF'
             })
 
-            let odmdNowParam = s.node.children.find(n => n instanceof CfnParameter && n.node.id == ContractsShareIn.ODMD_NOW) as CfnParameter;
+            let odmdNowParam = s.node.children.find(n => n instanceof CfnParameter && n.node.id == OdmdShareIn.ODMD_NOW) as CfnParameter;
             if (!odmdNowParam) {
-                odmdNowParam = new CfnParameter(s, ContractsShareIn.ODMD_NOW, {
+                odmdNowParam = new CfnParameter(s, OdmdShareIn.ODMD_NOW, {
                     type: 'Number',
                     default: new Date().getTime()
                 })
@@ -62,8 +62,8 @@ Debugging Challenges: Errors in nested stacks can be harder to diagnose because 
                 description: 'BUILD_SRC_REV'
             })
 
-            new CfnOutput(s, ContractsShareIn.ODMD_NOW + '-out', {
-                key: ContractsShareIn.ODMD_NOW,
+            new CfnOutput(s, OdmdShareIn.ODMD_NOW + '-out', {
+                key: OdmdShareIn.ODMD_NOW,
                 value: buildSrcRevParam.valueAsString + '-' + odmdNowParam.valueAsString
             })
 
@@ -75,8 +75,8 @@ Debugging Challenges: Errors in nested stacks can be harder to diagnose because 
     private shareOutVers(s: Stack) {
         const odmdShareOutVersionMapOut = new Map<string, any>(
             s.node.findAll()
-                .filter(n => n instanceof ContractsShareOut)
-                .map(n => n as ContractsShareOut)
+                .filter(n => n instanceof OdmdShareOut)
+                .map(n => n as OdmdShareOut)
                 .map(so =>
                     [so.producingEnver.owner.buildId + '/' + so.producingEnver.targetRevision.toPathPartStr(), so.outVersions]
                 )
@@ -93,8 +93,8 @@ Debugging Challenges: Errors in nested stacks can be harder to diagnose because 
     private shareInVers(s: Stack) {
         const odmdShareInVersionMapOut = new Map<string, any>(
             s.node.findAll()
-                .filter(n => n instanceof ContractsShareIn)
-                .map(n => n as ContractsShareIn)
+                .filter(n => n instanceof OdmdShareIn)
+                .map(n => n as OdmdShareIn)
                 .map(si =>
                     [si.producerEnver.owner.buildId + '/' + si.producerEnver.targetRevision.toPathPartStr(), si.getInVersions()]
                 )

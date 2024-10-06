@@ -1,8 +1,8 @@
-import {ContractsBuild, SRC_Rev_REF} from "./contracts-build";
-import {AnyContractsEnVer, ContractsEnver, IContractsEnver} from "./contracts-enver";
-import {ContractsCrossRefConsumer} from "./contracts-cross-refs";
+import {OdmdBuild} from "./odmd-build";
+import {AnyOdmdEnVer, OdmdEnver} from "./odmd-enver";
+import {OdmdCrossRefConsumer} from "./odmd-cross-refs";
 
-export class ContractsEnverCdk extends ContractsEnver<ContractsBuild<ContractsEnverCdk>> {
+export class OdmdEnverCdk extends OdmdEnver<OdmdBuild<OdmdEnverCdk>> {
 
     /**
      * initial deployment will disable rollback withno changeset or approval automatically
@@ -14,7 +14,7 @@ export class ContractsEnverCdk extends ContractsEnver<ContractsBuild<ContractsEn
     // readonly changeSetNoDeploy?: boolean
 
     //todo: when team IAM is ready
-    readonly approvalRole?: ContractsCrossRefConsumer<this, AnyContractsEnVer>[]
+    readonly approvalRole?: OdmdCrossRefConsumer<this, AnyOdmdEnVer>[]
 
     readonly preInstallCmds: Array<string> = [
         //todo: get the org dynamically
@@ -55,7 +55,7 @@ export class ContractsEnverCdk extends ContractsEnver<ContractsBuild<ContractsEn
     getRevStackNames(): Array<string> {
         const revStr = this.targetRevision.type == 'b' ? this.targetRevision.value : this.targetRevision.toPathPartStr();
         const rt = [`${this.owner.buildId}--${revStr}`];
-        return rt.map(n => ContractsEnverCdk.SANITIZE_STACK_NAME(n))
+        return rt.map(n => OdmdEnverCdk.SANITIZE_STACK_NAME(n))
     }
 
     public static SANITIZE_STACK_NAME(n: string) {

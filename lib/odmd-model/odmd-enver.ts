@@ -11,23 +11,23 @@
 
 import {Construct, IConstruct} from "constructs";
 import {Stack} from "aws-cdk-lib";
-import {ContractsShareIn} from "./contracts-share-values";
+import {OdmdShareIn} from "./odmd-share-refs";
 import {OndemandContracts} from "../OndemandContracts";
-import {ContractsBuild, SRC_Rev_REF} from "./contracts-build";
-import {ContractsCrossRefProducer, OdmdNames} from "./contracts-cross-refs";
+import {OdmdBuild, SRC_Rev_REF} from "./odmd-build";
+import {OdmdCrossRefProducer, OdmdNames} from "./odmd-cross-refs";
 
 // type CentralConfigConstr = new (...args: any[]) => ContractsBuild<AnyContractsEnVer>;
 //
 // export type GitHubRepo = { owner: string, repo: string, odmdGhAppInstallationID?: number };
 
-export interface IContractsEnver extends IConstruct {
+export interface IOdmdEnver extends IConstruct {
 
     readonly targetAWSAccountID: string;
     readonly targetAWSRegion: string
     readonly targetRevision: SRC_Rev_REF
 
 
-    get owner(): ContractsBuild<AnyContractsEnVer>
+    get owner(): OdmdBuild<AnyOdmdEnVer>
 
     readonly ephemeral: boolean
     readonly overwriteGhWf: boolean
@@ -43,7 +43,7 @@ export interface IContractsEnver extends IConstruct {
     readonly buildRolePath: string
     readonly buildRoleArn: string
 
-    generateDynamicEnver(org: SRC_Rev_REF): IContractsEnver
+    generateDynamicEnver(org: SRC_Rev_REF): IOdmdEnver
 
 }
 
@@ -63,7 +63,7 @@ export interface IContractsEnver extends IConstruct {
  *
  *
  */
-export abstract class ContractsEnver<T extends ContractsBuild<ContractsEnver<T>>> extends Construct implements IContractsEnver {
+export abstract class OdmdEnver<T extends OdmdBuild<OdmdEnver<T>>> extends Construct implements IOdmdEnver {
 
 
     readonly owner: T
@@ -145,11 +145,11 @@ export abstract class ContractsEnver<T extends ContractsBuild<ContractsEnver<T>>
         return `arn:aws:iam::${this.targetAWSAccountID}:role${this.buildRolePath}${this.buildRoleName}`;
     }
 
-    generateDynamicEnver(rev: SRC_Rev_REF, newInst: IContractsEnver | undefined = undefined): IContractsEnver {
+    generateDynamicEnver(rev: SRC_Rev_REF, newInst: IOdmdEnver | undefined = undefined): IOdmdEnver {
         if (!newInst) {
             const cf = this.constructor
             // @ts-ignore
-            newInst = new cf(this.owner, this.targetAWSAccountID, this.targetAWSRegion, rev) as IContractsEnver
+            newInst = new cf(this.owner, this.targetAWSAccountID, this.targetAWSRegion, rev) as IOdmdEnver
         }
         if (rev.origin != this.targetRevision) {
             throw new Error(`org and gen enver's origin should be same`)
@@ -159,5 +159,5 @@ export abstract class ContractsEnver<T extends ContractsBuild<ContractsEnver<T>>
 
 }
 
-export class AnyContractsEnVer extends ContractsEnver<ContractsBuild<AnyContractsEnVer>> implements IContractsEnver {
+export class AnyOdmdEnVer extends OdmdEnver<OdmdBuild<AnyOdmdEnVer>> implements IOdmdEnver {
 }

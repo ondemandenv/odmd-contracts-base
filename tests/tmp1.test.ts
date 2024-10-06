@@ -1,4 +1,4 @@
-import {ContractsEnverCtnImg} from "../lib/odmd-model/contracts-enver-ctn-img";
+import {OdmdEnverCtnImg} from "../lib/odmd-model/odmd-enver-ctn-img";
 import {App, Stack} from "aws-cdk-lib";
 import {Repository, RepositoryProps} from "aws-cdk-lib/aws-ecr";
 import {TmpTstContracts, TmpTstContracts1} from "./tmp-tst-contracts";
@@ -25,9 +25,9 @@ test('make_sense1', () => {
 
     theContracts.odmdBuilds.forEach(cc => {
         cc.envers.forEach(enver => {
-            if (enver instanceof ContractsEnverCtnImg) {
+            if (enver instanceof OdmdEnverCtnImg) {
 
-                let cimgEnvr = enver as ContractsEnverCtnImg;
+                let cimgEnvr = enver as OdmdEnverCtnImg;
                 const imgToRepo: {
                     [p: string]: RepositoryProps
                 } = cimgEnvr.builtImgNameToRepo

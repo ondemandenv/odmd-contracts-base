@@ -1,5 +1,5 @@
 import {App} from "aws-cdk-lib";
-import {ContractsEnverCtnImg} from "../lib/odmd-model/contracts-enver-ctn-img";
+import {OdmdEnverCtnImg} from "../lib/odmd-model/odmd-enver-ctn-img";
 import {TmpTstContracts} from "./tmp-tst-contracts";
 
 
@@ -31,8 +31,8 @@ test('make_sense2', () => {
 
     theContracts.odmdBuilds.forEach(b => {
         b.envers
-            .filter(e => e instanceof ContractsEnverCtnImg)
-            .map(e => e as ContractsEnverCtnImg)
+            .filter(e => e instanceof OdmdEnverCtnImg)
+            .map(e => e as OdmdEnverCtnImg)
             .forEach(e => {
                 Object.entries(e.builtImgNameToRepo).forEach(([k, v]) => {
                     const kn = k.split(':')[0]

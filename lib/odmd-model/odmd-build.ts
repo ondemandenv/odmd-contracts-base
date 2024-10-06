@@ -8,15 +8,15 @@
 
 import {PolicyStatement} from "aws-cdk-lib/aws-iam";
 import {Construct, Node} from "constructs";
-import {AnyContractsEnVer, ContractsEnver} from "./contracts-enver";
-import {ContractsEnverCdk} from "./contracts-enver-cdk";
-import {ContractsEnverCtnImg} from "./contracts-enver-ctn-img";
-import {ContractsEnverCMDs} from "./contracts-enver-c-m-ds";
+import {AnyOdmdEnVer, OdmdEnver} from "./odmd-enver";
+import {OdmdEnverCdk} from "./odmd-enver-cdk";
+import {OdmdEnverCtnImg} from "./odmd-enver-ctn-img";
+import {OdmdEnverCMDs} from "./odmd-enver-c-m-ds";
 import {OndemandContracts} from "../OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "../repos/__contracts/odmd-build-contracts-lib";
 
-type CentralConfigConstr = new (...args: any[]) => ContractsBuild<AnyContractsEnVer>;
+type CentralConfigConstr = new (...args: any[]) => OdmdBuild<AnyOdmdEnVer>;
 
 
 export type GithubRepo = {
@@ -26,7 +26,7 @@ export type GithubRepo = {
 }
 
 // export abstract class OdmdBuild<T extends OdmdEnVerConfig> extends Construct {
-export abstract class ContractsBuild<T extends ContractsEnver<ContractsBuild<T>>> extends Construct {
+export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Construct {
 
 
     constructor(scope: OndemandContracts<
@@ -110,7 +110,7 @@ export abstract class ContractsBuild<T extends ContractsEnver<ContractsBuild<T>>
 
         let rt = paths[0][i - 1]!.constructor!;
         while (rt) {
-            const n = ContractsBuild.SUPPORTED_ENVER_CLASSES.find(c => {
+            const n = OdmdBuild.SUPPORTED_ENVER_CLASSES.find(c => {
                 return c == rt
             })
             if (n) {
@@ -124,7 +124,7 @@ export abstract class ContractsBuild<T extends ContractsEnver<ContractsBuild<T>>
     }
 
     static SUPPORTED_ENVER_CLASSES = [
-        ContractsEnverCdk, ContractsEnverCtnImg, ContractsEnverCMDs
+        OdmdEnverCdk, OdmdEnverCtnImg, OdmdEnverCMDs
     ]
 }
 

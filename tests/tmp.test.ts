@@ -1,16 +1,16 @@
-import {AnyContractsEnVer} from "../lib/odmd-model/contracts-enver";
+import {AnyOdmdEnVer} from "../lib/odmd-model/odmd-enver";
 import {OndemandContracts} from "../lib/OndemandContracts";
-import {ContractsBuild} from "../lib/odmd-model/contracts-build";
+import {OdmdBuild} from "../lib/odmd-model/odmd-build";
 import {RegionInfo} from "aws-cdk-lib/region-info";
-import {ContractsEnverCtnImg} from "../lib/odmd-model/contracts-enver-ctn-img";
-import {ContractsEnverCdk} from "../lib/odmd-model/contracts-enver-cdk";
-import {ContractsIpAddresses, WithVpc} from "../lib/odmd-model/contracts-vpc";
-import {ContractsEnverCMDs} from "../lib/odmd-model/contracts-enver-c-m-ds";
-import {OdmdNames} from "../lib/odmd-model/contracts-cross-refs";
+import {OdmdEnverCtnImg} from "../lib/odmd-model/odmd-enver-ctn-img";
+import {OdmdEnverCdk} from "../lib/odmd-model/odmd-enver-cdk";
+import {ContractsIpAddresses, WithVpc} from "../lib/odmd-model/odmd-vpc";
+import {OdmdEnverCMDs} from "../lib/odmd-model/odmd-enver-c-m-ds";
+import {OdmdNames} from "../lib/odmd-model/odmd-cross-refs";
 import {App, Stack} from "aws-cdk-lib";
 import {IConstruct} from "constructs";
-import {PgSchemaUsersProps} from "../lib/odmd-model/contracts-pg-schema-usrs";
-import {WithRds} from "../lib/odmd-model/contracts-rds-cluster";
+import {PgSchemaUsersProps} from "../lib/odmd-model/odmd-pg-schema-usrs";
+import {WithRds} from "../lib/odmd-model/odmd-rds-cluster";
 import * as fs from "node:fs";
 import {describe} from "node:test";
 import {TmpTstContracts} from "./tmp-tst-contracts";
@@ -96,7 +96,7 @@ try replace(/[^A-Za-z0-9_$]/g,'_')`
 
 describe('mkss1', () => {
 
-    const allEnvers = new Set<AnyContractsEnVer>();
+    const allEnvers = new Set<AnyOdmdEnVer>();
 
     let app = new App();
     const stack = new Stack(app)
@@ -108,7 +108,7 @@ describe('mkss1', () => {
     })
 
 
-    theContracts.odmdBuilds.forEach((buildConfig: ContractsBuild<AnyContractsEnVer>) => {
+    theContracts.odmdBuilds.forEach((buildConfig: OdmdBuild<AnyOdmdEnVer>) => {
 
         if (buildConfig.envers.length > 0) {
             const cmn = buildConfig.getEnverCommonAncestor()
@@ -137,11 +137,11 @@ describe('mkss1', () => {
         if (!buildConfig.envers) {
             throw new Error(`${buildConfig.buildId}:${buildConfig.constructor.name} has no envers defined!`)
         }
-        const illegalBaseBranches = buildConfig.envers.filter((b: AnyContractsEnVer) => !b.targetRevision || b.targetRevision.value.length == 0);
+        const illegalBaseBranches = buildConfig.envers.filter((b: AnyOdmdEnVer) => !b.targetRevision || b.targetRevision.value.length == 0);
         if (illegalBaseBranches.length > 0) {
             throw new Error(buildConfig.buildId + ", basebranch:" + illegalBaseBranches)
         }
-        buildConfig.envers.forEach((e: AnyContractsEnVer) => {
+        buildConfig.envers.forEach((e: AnyOdmdEnVer) => {
             if (e.targetRevision.value.length > 25) {
                 console.warn(`buildId ${buildId}'s infraGitRootBranch name:"${e.targetRevision.toPathPartStr()}" length: ${e.targetRevision.value.length} might be too long to use dynamic env`)
             }
@@ -169,7 +169,7 @@ describe('mkss1', () => {
                 throw new Error(`For each build, One branch can only have one deployment, but found ${c.owner.buildId}, branch ${c.targetRevision} are pointing to mutiple deployments!`)
             }
             return p
-        }, new Map<string, Set<AnyContractsEnVer>>)
+        }, new Map<string, Set<AnyOdmdEnVer>>)
 
         if (buildConfig.gitHubRepo && buildConfig.gitHubRepo.ghAppInstallID) {
             buildConfig.envers.forEach(c => {
@@ -181,8 +181,8 @@ describe('mkss1', () => {
         }
 
         buildConfig.envers.forEach(enver => {
-            if (enver instanceof ContractsEnverCdk) {
-                const cdkConfig = enver as ContractsEnverCdk
+            if (enver instanceof OdmdEnverCdk) {
+                const cdkConfig = enver as OdmdEnverCdk
                 cdkConfig.getRevStackNames().forEach(stackName => {
                     if (stackName.length > 128) {
                         throw new Error(`stackName: ${stackName} length: ${stackName.length} exceed limit of 128`)
@@ -217,7 +217,7 @@ describe('mkss1', () => {
             }
             p.get(key)!.push(v)
             return p
-        }, new Map<string, AnyContractsEnVer[]>()).forEach((v, k) => {
+        }, new Map<string, AnyOdmdEnVer[]>()).forEach((v, k) => {
             const tmpBrcRoots = v.map(e => e.targetRevision)
             for (let i = 1; i < tmpBrcRoots.length; i++) {
                 for (let j = 0; j < i; j++) {
@@ -237,13 +237,13 @@ describe('mkss1', () => {
             checkVpcEnver(enver as any as WithVpc)
         }
         if (enver.owner.gitHubRepo) {
-            if (enver instanceof ContractsEnverCMDs || enver instanceof ContractsEnverCtnImg) {
+            if (enver instanceof OdmdEnverCMDs || enver instanceof OdmdEnverCtnImg) {
                 enver.generateBuildCmds(stack)?.forEach(c => {
                     if (c.includes(`\${{`)) {
                         throw new Error(`${c} includes \${{}} which won't work, try put it in env and use $`)
                     }
                 })
-            } else if (enver instanceof ContractsEnverCdk) {
+            } else if (enver instanceof OdmdEnverCdk) {
                 enver.preInstallCmds?.forEach(c => {
                     if (c.includes(`\${{`)) {
                         throw new Error(`${c} includes \${{}} which won't work, try put it in env and use $`)
@@ -271,14 +271,14 @@ describe('mkss1', () => {
         return p
     };
 
-    const accountToEnvers: Map<string, Set<AnyContractsEnVer>> = Array.from(allEnvers).reduce((p, v) => {
+    const accountToEnvers: Map<string, Set<AnyOdmdEnVer>> = Array.from(allEnvers).reduce((p, v) => {
         const k = v.targetAWSAccountID
         if (!p.has(k)) {
             p.set(k, new Set())
         }
         p.get(k)!.add(v)
         return p;
-    }, new Map<string, Set<AnyContractsEnVer>>())
+    }, new Map<string, Set<AnyOdmdEnVer>>())
 
     accountToEnvers.forEach((enversOfSameAccount, acc) => {
         if (enversOfSameAccount.size < 0) {
@@ -315,8 +315,8 @@ describe('mkss1', () => {
         const msg = `\t${OdmdNames.md5hash(a)}\t=>\t${a}\t=>\n\n${Array.from(vs).map(
             v => {
                 let rt = '\t{ ' + v.owner.buildId + '/' + v.targetRevision.toPathPartStr()
-                if (v instanceof ContractsEnverCdk) {
-                    rt = rt + '/[' + (v as ContractsEnverCdk).getRevStackNames().join() + ']'
+                if (v instanceof OdmdEnverCdk) {
+                    rt = rt + '/[' + (v as OdmdEnverCdk).getRevStackNames().join() + ']'
                 }
                 rt += ' }';
                 return rt

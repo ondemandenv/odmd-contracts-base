@@ -1,52 +1,52 @@
 //vpc->rds->schema->user
-import {ContractsEnverCdk} from "../../odmd-model/contracts-enver-cdk";
-import {ContractsIpAddresses, ContractsVpc, WithVpc} from "../../odmd-model/contracts-vpc";
-import {ContractsRdsCluster} from "../../odmd-model/contracts-rds-cluster";
+import {OdmdEnverCdk} from "../../odmd-model/odmd-enver-cdk";
+import {ContractsIpAddresses, OdmdVpc, WithVpc} from "../../odmd-model/odmd-vpc";
+import {OdmdRdsCluster} from "../../odmd-model/odmd-rds-cluster";
 import {OdmdBuildDefaultVpcRds, SimpleVpc} from "./odmd-build-default-vpc-rds";
-import {ContractsCrossRefConsumer, ContractsCrossRefProducer} from "../../odmd-model/contracts-cross-refs";
-import {AnyContractsEnVer} from "../../odmd-model/contracts-enver";
-import {PgSchemaUsersProps} from "../../odmd-model/contracts-pg-schema-usrs";
-import {SRC_Rev_REF} from "../../odmd-model/contracts-build";
+import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "../../odmd-model/odmd-cross-refs";
+import {AnyOdmdEnVer} from "../../odmd-model/odmd-enver";
+import {PgSchemaUsersProps} from "../../odmd-model/odmd-pg-schema-usrs";
+import {SRC_Rev_REF} from "../../odmd-model/odmd-build";
 import {OndemandContracts} from "../../OndemandContracts";
 import {IPAM_AB} from "../__networking/odmd-config-networking";
 import {AccountsCentralView} from "../../OdmdContractsCentralView";
 
-export class ContractsEnverCdkDefaultVpc extends ContractsEnverCdk implements WithVpc {
+export class ContractsEnverCdkDefaultVpc extends OdmdEnverCdk implements WithVpc {
 
-    readonly vpcConfig: ContractsVpc
-    readonly vpcIpv4Cidr: ContractsCrossRefProducer<ContractsEnverCdkDefaultVpc>
-    readonly rdsConfigs = [] as ContractsRdsCluster[]
-    readonly nameServers: ContractsCrossRefProducer<ContractsEnverCdkDefaultVpc>
-    readonly centralVpcCidr: ContractsCrossRefConsumer<this, IPAM_AB>;
+    readonly vpcConfig: OdmdVpc
+    readonly vpcIpv4Cidr: OdmdCrossRefProducer<ContractsEnverCdkDefaultVpc>
+    readonly rdsConfigs = [] as OdmdRdsCluster[]
+    readonly nameServers: OdmdCrossRefProducer<ContractsEnverCdkDefaultVpc>
+    readonly centralVpcCidr: OdmdCrossRefConsumer<this, IPAM_AB>;
     readonly rdsTrustCentralRoleName: string
-    readonly clientEnvers: Set<AnyContractsEnVer> = new Set()
+    readonly clientEnvers: Set<AnyOdmdEnVer> = new Set()
 
     constructor(owner: OdmdBuildDefaultVpcRds, clientAWSRegion: string, accountKey: keyof AccountsCentralView,
                 vpc: SimpleVpc, defaultRev: SRC_Rev_REF = new SRC_Rev_REF("b", `${clientAWSRegion}_${accountKey}_${vpc.vpcName}`
             .replace(/[^a-zA-Z0-9_]/g, '_'))) {
         super(owner, owner.contracts.accounts[accountKey]!, clientAWSRegion, defaultRev);
 
-        this.centralVpcCidr = new ContractsCrossRefConsumer(this, 'centralVpcCidr', vpc.ipamEnver.centralVpcCidr)
+        this.centralVpcCidr = new OdmdCrossRefConsumer(this, 'centralVpcCidr', vpc.ipamEnver.centralVpcCidr)
 
         const adr = new ContractsIpAddresses(this, vpc.ipamEnver.ipamPoolName, vpc.ipv4NetmaskLength, vpc.defaultSubnetIpv4NetmaskLength)
 
-        const tgw = new ContractsCrossRefConsumer(
+        const tgw = new OdmdCrossRefConsumer(
             this, 'tgw', vpc.ipamEnver.transitGatewayShareName
         )
 
-        this.vpcConfig = new (class extends ContractsVpc {
+        this.vpcConfig = new (class extends OdmdVpc {
             vpcName = vpc.vpcName
             transitGatewayRef = tgw
         })(adr, 'vpc');
 
-        this.vpcIpv4Cidr = new ContractsCrossRefProducer(this, 'vpcIpv4Cidr_' + vpc.vpcName)
-        this.nameServers = new ContractsCrossRefProducer(this, 'nameServers_' + vpc.vpcName)
+        this.vpcIpv4Cidr = new OdmdCrossRefProducer(this, 'vpcIpv4Cidr_' + vpc.vpcName)
+        this.nameServers = new OdmdCrossRefProducer(this, 'nameServers_' + vpc.vpcName)
 
         vpc.ipamEnver.addSubdomainServer(vpc.vpcName + '_' + owner.contracts.getAccountName(this.targetAWSAccountID), this.nameServers)
         this.rdsTrustCentralRoleName = `rds_${this.targetAWSAccountID}_trustCentral_${this.targetAWSRegion}`
     }
 
-    addClient(c: AnyContractsEnVer) {
+    addClient(c: AnyOdmdEnVer) {
         if (this.clientEnvers.has(c)) {
             console.warn("Adding client again?")
             return
@@ -63,12 +63,12 @@ export class ContractsEnverCdkDefaultVpc extends ContractsEnverCdk implements Wi
             return found;
         }
 
-        const clusterHostname = new ContractsCrossRefProducer<AnyContractsEnVer>(this, 'clusterHostname');
-        const clusterPort = new ContractsCrossRefProducer<AnyContractsEnVer>(this, 'clusterPort');
-        const clusterSocketAddress = new ContractsCrossRefProducer<AnyContractsEnVer>(this, 'clusterSocketAddress');
-        const clusterMasterRoleArn = new ContractsCrossRefProducer<AnyContractsEnVer>(this, 'clusterMasterRoleArn');
+        const clusterHostname = new OdmdCrossRefProducer<AnyOdmdEnVer>(this, 'clusterHostname');
+        const clusterPort = new OdmdCrossRefProducer<AnyOdmdEnVer>(this, 'clusterPort');
+        const clusterSocketAddress = new OdmdCrossRefProducer<AnyOdmdEnVer>(this, 'clusterSocketAddress');
+        const clusterMasterRoleArn = new OdmdCrossRefProducer<AnyOdmdEnVer>(this, 'clusterMasterRoleArn');
 
-        const rdsConfig = new (class extends ContractsRdsCluster {
+        const rdsConfig = new (class extends OdmdRdsCluster {
             clusterHostname = clusterHostname
             clusterPort = clusterPort
             clusterSocketAddress = clusterSocketAddress
@@ -79,7 +79,7 @@ export class ContractsEnverCdkDefaultVpc extends ContractsEnverCdk implements Wi
         return rdsConfig
     }
 
-    addSchemaUsers(rds: ContractsRdsCluster, schemaUsers: PgSchemaUsersProps) {
+    addSchemaUsers(rds: OdmdRdsCluster, schemaUsers: PgSchemaUsersProps) {
         if (!this.rdsConfigs.find(r => r == rds)) {
             throw new Error(`input rds is not one of this vpc's rds`)
         }
@@ -93,7 +93,7 @@ export class ContractsEnverCdkDefaultVpc extends ContractsEnverCdk implements Wi
             if (rds.usernameToSecretId.has(us.userName)) {
                 throw new Error(`pg username:${us.userName} already exist`)
             }
-            rds.usernameToSecretId.set(us.userName, new ContractsCrossRefProducer<AnyContractsEnVer>(this, 'clusteruser-' + us.userName))
+            rds.usernameToSecretId.set(us.userName, new OdmdCrossRefProducer<AnyOdmdEnVer>(this, 'clusteruser-' + us.userName))
         })
     }
 
@@ -108,6 +108,6 @@ export class ContractsEnverCdkDefaultVpc extends ContractsEnverCdk implements Wi
                 rt.push(stackName + '-' + r.clusterIdentifier + '-' + su.schema)
             })
         })
-        return rt.map(n => ContractsEnverCdk.SANITIZE_STACK_NAME(n))
+        return rt.map(n => OdmdEnverCdk.SANITIZE_STACK_NAME(n))
     }
 }

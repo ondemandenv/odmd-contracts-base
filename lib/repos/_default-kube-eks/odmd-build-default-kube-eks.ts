@@ -1,14 +1,14 @@
 import {ContractsEnverCdkDefaultEcrEks} from "./odmd-enver-default-ecr-eks";
-import {ContractsBuild} from "../../odmd-model/contracts-build";
-import {ContractsEnverCdk} from "../../odmd-model/contracts-enver-cdk";
-import {AnyContractsEnVer} from "../../odmd-model/contracts-enver";
+import {OdmdBuild} from "../../odmd-model/odmd-build";
+import {OdmdEnverCdk} from "../../odmd-model/odmd-enver-cdk";
+import {AnyOdmdEnVer} from "../../odmd-model/odmd-enver";
 import {OndemandContracts} from "../../OndemandContracts";
-import {ContractsEnverEksCluster} from "../../odmd-model/contracts-enver-eks-cluster";
+import {OdmdEnverEksCluster} from "../../odmd-model/odmd-enver-eks-cluster";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
 
 
-export class OdmdBuildDefaultKubeEks extends ContractsBuild<ContractsEnverCdk> {
+export class OdmdBuildDefaultKubeEks extends OdmdBuild<OdmdEnverCdk> {
 
     constructor(scope: OndemandContracts<
         AccountsCentralView,
@@ -20,7 +20,7 @@ export class OdmdBuildDefaultKubeEks extends ContractsBuild<ContractsEnverCdk> {
     ownerEmail?: string | undefined;
     readonly envers: Array<ContractsEnverCdkDefaultEcrEks> = []
 
-    public getOrCreateOne(usr: AnyContractsEnVer, targetEksCluster: ContractsEnverEksCluster, targetNamespace: string) {
+    public getOrCreateOne(usr: AnyOdmdEnVer, targetEksCluster: OdmdEnverEksCluster, targetNamespace: string) {
         let rt = this.envers.find(e => e.userEnver == usr)
         if (rt) {
             return rt

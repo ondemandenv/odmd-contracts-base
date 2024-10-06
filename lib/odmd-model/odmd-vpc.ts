@@ -6,14 +6,14 @@ import {
     VpcIpamOptions,
     VpcProps
 } from "aws-cdk-lib/aws-ec2";
-import {ContractsBuild} from "./contracts-build";
-import {ContractsCrossRefConsumer, ContractsCrossRefProducer} from "./contracts-cross-refs";
-import {AnyContractsEnVer, IContractsEnver} from "./contracts-enver";
+import {OdmdBuild} from "./odmd-build";
+import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "./odmd-cross-refs";
+import {AnyOdmdEnVer, IOdmdEnver} from "./odmd-enver";
 import {IPAM_AB} from "../repos/__networking/odmd-config-networking";
 
-export class ContractsVpc implements VpcProps {
+export class OdmdVpc implements VpcProps {
 
-    public readonly build: ContractsBuild<AnyContractsEnVer>
+    public readonly build: OdmdBuild<AnyOdmdEnVer>
 
     constructor(addresses: ContractsIpAddresses, name: string) {
         this.ipAddresses = addresses
@@ -23,11 +23,11 @@ export class ContractsVpc implements VpcProps {
         this.maxAzs = 2;
         this.natGateways = 0;
 
-        this.transitGatewayRef = new ContractsCrossRefConsumer<AnyContractsEnVer, IPAM_AB>(
+        this.transitGatewayRef = new OdmdCrossRefConsumer<AnyOdmdEnVer, IPAM_AB>(
             addresses.enver, addresses.enver.targetRevision.toPathPartStr() + '-' + addresses.ipv4IpamPoolRef.producer.name, addresses.ipv4IpamPoolRef.producer.owner.transitGatewayShareName)
     }
 
-    public readonly transitGatewayRef: ContractsCrossRefConsumer<AnyContractsEnVer, IPAM_AB>
+    public readonly transitGatewayRef: OdmdCrossRefConsumer<AnyOdmdEnVer, IPAM_AB>
     public readonly ipAddresses: ContractsIpAddresses;
     public readonly vpcName: string;
     public readonly maxAzs: number;
@@ -36,28 +36,28 @@ export class ContractsVpc implements VpcProps {
 
 }
 
-export interface WithVpc extends IContractsEnver {
-    readonly vpcConfig: ContractsVpc
-    readonly vpcCidr?: ContractsCrossRefProducer<WithVpc>
+export interface WithVpc extends IOdmdEnver {
+    readonly vpcConfig: OdmdVpc
+    readonly vpcCidr?: OdmdCrossRefProducer<WithVpc>
 }
 
 export class ContractsIpAddresses implements IIpAddresses {
 
-    readonly enver: AnyContractsEnVer;
+    readonly enver: AnyOdmdEnVer;
 
-    constructor(enver: AnyContractsEnVer, ipv4IpamPoolRef: ContractsCrossRefProducer<IPAM_AB>,
+    constructor(enver: AnyOdmdEnVer, ipv4IpamPoolRef: OdmdCrossRefProducer<IPAM_AB>,
                 ipv4NetmaskLength: number = 26,
                 defaultSubnetIpv4NetmaskLength: number = 28) {
         this.enver = enver;
         // this.ipv4IpamPoolRef = ipv4IpamPoolRef;
-        this.ipv4IpamPoolRef = new ContractsCrossRefConsumer<AnyContractsEnVer, IPAM_AB>(enver, ipv4IpamPoolRef.name, ipv4IpamPoolRef);
+        this.ipv4IpamPoolRef = new OdmdCrossRefConsumer<AnyOdmdEnVer, IPAM_AB>(enver, ipv4IpamPoolRef.name, ipv4IpamPoolRef);
         this.ipv4NetmaskLength = ipv4NetmaskLength;
         this.defaultSubnetIpv4NetmaskLength = defaultSubnetIpv4NetmaskLength;
     }
 
     public readonly ipv4NetmaskLength: number
     public readonly defaultSubnetIpv4NetmaskLength: number
-    public readonly ipv4IpamPoolRef: ContractsCrossRefConsumer<AnyContractsEnVer, IPAM_AB>;
+    public readonly ipv4IpamPoolRef: OdmdCrossRefConsumer<AnyOdmdEnVer, IPAM_AB>;
 
     allocateSubnetsCidr(input: AllocateCidrRequest): SubnetIpamOptions {
         throw new Error('n/a')

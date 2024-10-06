@@ -1,8 +1,8 @@
 import {Construct} from "constructs";
 import {CfnParameter, CustomResource, Fn, Stack} from "aws-cdk-lib";
-import {ContractsCrossRefConsumer, ContractsCrossRefProducer} from "./contracts-cross-refs";
+import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "./odmd-cross-refs";
 import {OndemandContracts} from "../OndemandContracts";
-import {AnyContractsEnVer} from "./contracts-enver";
+import {AnyOdmdEnVer} from "./odmd-enver";
 
 export function GET_SHARE_THRU_SSM_PROVIDER_NAME(ownerBuildId: string, ownerRegion: string, ownerAccount: string) {
     //The Name field of every Export member must be specified and consist only of alphanumeric characters, colons, or hyphens.
@@ -11,27 +11,27 @@ export function GET_SHARE_THRU_SSM_PROVIDER_NAME(ownerBuildId: string, ownerRegi
 
 const SHARE_VERSIONS = "share..version";
 
-export class ContractsShareIn extends Construct {
+export class OdmdShareIn extends Construct {
 
-    private readonly _refConsumers: ContractsCrossRefConsumer<AnyContractsEnVer, AnyContractsEnVer>[]
+    private readonly _refConsumers: OdmdCrossRefConsumer<AnyOdmdEnVer, AnyOdmdEnVer>[]
     private readonly _cs: CustomResource
     private readonly _rtData: { [name: string]: any } = {}
-    public readonly producerEnver: AnyContractsEnVer
+    public readonly producerEnver: AnyOdmdEnVer
     public static readonly ODMD_NOW = 'ContractsShareInNow';
 
     private readonly now: CfnParameter
 
-    constructor(scope: Stack, consumerBuildId: string, refConsumers: ContractsCrossRefConsumer<AnyContractsEnVer, AnyContractsEnVer>[]) {
+    constructor(scope: Stack, consumerBuildId: string, refConsumers: OdmdCrossRefConsumer<AnyOdmdEnVer, AnyOdmdEnVer>[]) {
         super(scope, 'odmd-share-in_' + consumerBuildId + '_' + refConsumers[0].producer.node.path);
 
-        let tmp: AnyContractsEnVer | undefined = undefined;
+        let tmp: AnyOdmdEnVer | undefined = undefined;
         refConsumers.forEach(c => {
             if (tmp != undefined && tmp != c.producer.owner) {
                 throw new Error(`One shareIn's refProducers have to share one enver but you have two: ${tmp.node.path} <=>${c.producer.owner.node.path}`)
             }
             tmp = c.producer.owner
         })
-        this.producerEnver = tmp! as AnyContractsEnVer;
+        this.producerEnver = tmp! as AnyOdmdEnVer;
         this._refConsumers = refConsumers;
 
         const serviceToken = Fn.importValue(GET_SHARE_THRU_SSM_PROVIDER_NAME(consumerBuildId, scope.region, scope.account));
@@ -46,8 +46,8 @@ export class ContractsShareIn extends Construct {
             }
         })
 
-        const odmdNowParam = scope.node.children.find(n => n instanceof CfnParameter && n.node.id == ContractsShareIn.ODMD_NOW) as CfnParameter;
-        this.now = odmdNowParam ?? new CfnParameter(scope, ContractsShareIn.ODMD_NOW, {
+        const odmdNowParam = scope.node.children.find(n => n instanceof CfnParameter && n.node.id == OdmdShareIn.ODMD_NOW) as CfnParameter;
+        this.now = odmdNowParam ?? new CfnParameter(scope, OdmdShareIn.ODMD_NOW, {
             type: 'Number',
             default: new Date().getTime()
         })
@@ -62,7 +62,7 @@ export class ContractsShareIn extends Construct {
                 throw new Error('?')
             }
             nameObj[c.producer.name] = c.options
-            nameObj[ContractsShareIn.ODMD_NOW] = this.now.valueAsString
+            nameObj[OdmdShareIn.ODMD_NOW] = this.now.valueAsString
             this._rtData[c.producer.name] = this._cs.getAttString(c.producer.name)
             this._rtData[SHARE_VERSIONS] = this._cs.getAttString(SHARE_VERSIONS)
         })
@@ -71,7 +71,7 @@ export class ContractsShareIn extends Construct {
         this._cs.resource._cfnProperties.share_names = nameObj
     }
 
-    public addRefProducer(refConsumer: ContractsCrossRefConsumer<AnyContractsEnVer, AnyContractsEnVer>) {
+    public addRefProducer(refConsumer: OdmdCrossRefConsumer<AnyOdmdEnVer, AnyOdmdEnVer>) {
         if (!this._refConsumers.includes(refConsumer)) {
             if (this._refConsumers[0].producer.owner != refConsumer.producer.owner) {
                 throw new Error(`One shareIn's refProducers have to share enver but you have two: ${
@@ -83,7 +83,7 @@ export class ContractsShareIn extends Construct {
         }
     }
 
-    public getShareValue(refProducer: ContractsCrossRefProducer<AnyContractsEnVer>) {
+    public getShareValue(refProducer: OdmdCrossRefProducer<AnyOdmdEnVer>) {
         return this._rtData[refProducer.name] as string
     }
 
@@ -92,9 +92,9 @@ export class ContractsShareIn extends Construct {
     }
 }
 
-export class ContractsShareOut extends Construct {
+export class OdmdShareOut extends Construct {
 
-    constructor(scope: Stack, refToVal: Map<ContractsCrossRefProducer<AnyContractsEnVer>, any>) {
+    constructor(scope: Stack, refToVal: Map<OdmdCrossRefProducer<AnyOdmdEnVer>, any>) {
         super(scope, 'odmd-share-out_' + OndemandContracts.REV_REF_value);
 
         if (refToVal.size == 0) {
@@ -118,7 +118,7 @@ export class ContractsShareOut extends Construct {
             ${OndemandContracts.REV_REF_value}  <> ${misMatchEnver.owner.targetRevision.toPathPartStr()}`)
         }
 
-        let tmp: AnyContractsEnVer | undefined = undefined;
+        let tmp: AnyOdmdEnVer | undefined = undefined;
         refProducers.forEach(p => {
             if (tmp != undefined && tmp != p.owner) {
                 throw new Error(`One shareOut can only have one enver but you have two: ${tmp.node.path} <=>${p.owner.node.path}`)
@@ -135,10 +135,10 @@ export class ContractsShareOut extends Construct {
             }
             p.set(v.name, v)
             return p;
-        }, new Map<string, ContractsCrossRefProducer<AnyContractsEnVer>>)
+        }, new Map<string, OdmdCrossRefProducer<AnyOdmdEnVer>>)
 
 
-        this.producingEnver = tmp! as AnyContractsEnVer;
+        this.producingEnver = tmp! as AnyOdmdEnVer;
         const serviceToken = Fn.importValue(GET_SHARE_THRU_SSM_PROVIDER_NAME(this.producingEnver.owner.buildId, scope.region, scope.account));
 
         const properties = {} as { [n: string]: string | number }
@@ -166,7 +166,7 @@ export class ContractsShareOut extends Construct {
         this.outVersions = cs.getAttString(SHARE_VERSIONS)
     }
 
-    public readonly producingEnver: AnyContractsEnVer
+    public readonly producingEnver: AnyOdmdEnVer
 
     public readonly outVersions: string
 }

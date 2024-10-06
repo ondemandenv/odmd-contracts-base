@@ -6,15 +6,15 @@ import {
     ServerlessScalingOptions
 } from "aws-cdk-lib/aws-rds";
 import {RemovalPolicy} from "aws-cdk-lib";
-import {PgSchemaUsersProps} from "./contracts-pg-schema-usrs";
-import {ContractsVpc, WithVpc} from "./contracts-vpc";
-import {ContractsCrossRefConsumer, ContractsCrossRefProducer, OdmdNames} from "./contracts-cross-refs";
-import {AnyContractsEnVer} from "./contracts-enver";
+import {PgSchemaUsersProps} from "./odmd-pg-schema-usrs";
+import {OdmdVpc, WithVpc} from "./odmd-vpc";
+import {OdmdCrossRefConsumer, OdmdCrossRefProducer, OdmdNames} from "./odmd-cross-refs";
+import {AnyOdmdEnVer} from "./odmd-enver";
 
-export class ContractsRdsCluster {
+export class OdmdRdsCluster {
 
 
-    constructor(vpc: ContractsVpc, rdsId: string = 'db') {
+    constructor(vpc: OdmdVpc, rdsId: string = 'db') {
         this.vpc = vpc;
         this.rdsId = rdsId;
 
@@ -25,17 +25,17 @@ export class ContractsRdsCluster {
         this.defaultSgName = OdmdNames.create(vpc.build, vpc.vpcName + rdsId + 'security')
     }
 
-    public addAllowProducer(producer: ContractsCrossRefProducer<AnyContractsEnVer>) {
-        this.allowingCIDRS.push(new ContractsCrossRefConsumer(this.vpc.ipAddresses.enver, producer.name, producer, {
+    public addAllowProducer(producer: OdmdCrossRefProducer<AnyOdmdEnVer>) {
+        this.allowingCIDRS.push(new OdmdCrossRefConsumer(this.vpc.ipAddresses.enver, producer.name, producer, {
             defaultIfAbsent: '0.0.0.0/32',
             trigger: "directly"
         }))
     }
 
-    public readonly allowingCIDRS: Array<ContractsCrossRefConsumer<AnyContractsEnVer, AnyContractsEnVer>> = []
+    public readonly allowingCIDRS: Array<OdmdCrossRefConsumer<AnyOdmdEnVer, AnyOdmdEnVer>> = []
 
     public readonly rdsId: string;
-    public readonly vpc: ContractsVpc;
+    public readonly vpc: OdmdVpc;
     public readonly clusterIdentifier: string
     public readonly rootSecretName: string;
     public readonly defaultSgName: string;
@@ -49,18 +49,18 @@ export class ContractsRdsCluster {
     public readonly copyTagsToSnapshot: boolean = true;
     public readonly schemaRoleUsers = [] as PgSchemaUsersProps[];
 
-    public readonly clusterHostname: ContractsCrossRefProducer<AnyContractsEnVer>
-    public readonly clusterPort: ContractsCrossRefProducer<AnyContractsEnVer>
-    public readonly clusterSocketAddress: ContractsCrossRefProducer<AnyContractsEnVer>
-    public readonly clusterMasterRoleArn: ContractsCrossRefProducer<AnyContractsEnVer>
+    public readonly clusterHostname: OdmdCrossRefProducer<AnyOdmdEnVer>
+    public readonly clusterPort: OdmdCrossRefProducer<AnyOdmdEnVer>
+    public readonly clusterSocketAddress: OdmdCrossRefProducer<AnyOdmdEnVer>
+    public readonly clusterMasterRoleArn: OdmdCrossRefProducer<AnyOdmdEnVer>
     // public readonly clusterReadHostname: ContractsCrossRefProducer<AnyContractsEnVer>
     // public readonly clusterReadPort: ContractsCrossRefProducer<AnyContractsEnVer>
     // public readonly clusterReadSocketAddress: ContractsCrossRefProducer<AnyContractsEnVer>
 
-    public readonly usernameToSecretId = new Map<string, ContractsCrossRefProducer<AnyContractsEnVer>>()
+    public readonly usernameToSecretId = new Map<string, OdmdCrossRefProducer<AnyOdmdEnVer>>()
 }
 
 
 export interface WithRds extends WithVpc {
-    readonly rdsConfig: ContractsRdsCluster
+    readonly rdsConfig: OdmdRdsCluster
 }

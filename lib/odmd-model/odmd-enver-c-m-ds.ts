@@ -1,5 +1,5 @@
-import {ContractsBuild, SRC_Rev_REF} from "./contracts-build";
-import {ContractsEnver} from "./contracts-enver";
+import {OdmdBuild, SRC_Rev_REF} from "./odmd-build";
+import {OdmdEnver} from "./odmd-enver";
 import {Stack} from "aws-cdk-lib";
 
 /**
@@ -7,7 +7,7 @@ import {Stack} from "aws-cdk-lib";
  * Only cdk enver implement producers
  *
  */
-export abstract class ContractsEnverCMDs extends ContractsEnver<ContractsBuild<ContractsEnverCMDs>> {
+export abstract class OdmdEnverCMDs extends OdmdEnver<OdmdBuild<OdmdEnverCMDs>> {
 
     abstract generateBuildCmds(stack: Stack, ...args: any[]): string[]
 

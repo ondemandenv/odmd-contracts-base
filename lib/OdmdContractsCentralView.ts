@@ -1,5 +1,5 @@
-import {ContractsBuild, GithubRepo} from "./odmd-model/contracts-build";
-import {AnyContractsEnVer} from "./odmd-model/contracts-enver";
+import {OdmdBuild, GithubRepo} from "./odmd-model/odmd-build";
+import {AnyOdmdEnVer} from "./odmd-model/odmd-enver";
 import {OdmdConfigNetworking} from "./repos/__networking/odmd-config-networking";
 import {OdmdBuildEksCluster} from "./repos/__eks/odmd-build-eks-cluster";
 import {OdmdBuildDefaultVpcRds} from "./repos/_default-vpc-rds/odmd-build-default-vpc-rds";
@@ -33,12 +33,12 @@ export interface OdmdContractsCentralView<A extends AccountsCentralView,
 
     getAccountName(accId: string): keyof A
 
-    getTargetEnver(): AnyContractsEnVer | undefined
+    getTargetEnver(): AnyOdmdEnVer | undefined
 
     get allAccounts(): string[]
 
 
-    get odmdBuilds(): Array<ContractsBuild<AnyContractsEnVer>>;
+    get odmdBuilds(): Array<OdmdBuild<AnyOdmdEnVer>>;
 
 
     readonly networking?: OdmdConfigNetworking
@@ -47,7 +47,7 @@ export interface OdmdContractsCentralView<A extends AccountsCentralView,
     readonly defaultVpcRds?: OdmdBuildDefaultVpcRds
     readonly defaultEcrEks?: OdmdBuildDefaultKubeEks
 
-    readonly DEFAULTS_SVC?: ContractsBuild<AnyContractsEnVer>[]
+    readonly DEFAULTS_SVC?: OdmdBuild<AnyOdmdEnVer>[]
 
 
 }

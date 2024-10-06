@@ -1,14 +1,14 @@
-import {ContractsEnverCdk} from "../../odmd-model/contracts-enver-cdk";
+import {OdmdEnverCdk} from "../../odmd-model/odmd-enver-cdk";
 import {OdmdBuildDefaultKubeEks} from "./odmd-build-default-kube-eks";
-import {SRC_Rev_REF} from "../../odmd-model/contracts-build";
-import {AnyContractsEnVer, IContractsEnver} from "../../odmd-model/contracts-enver";
-import {ContractsEnverEksCluster, KubeCtlThruCentral} from "../../odmd-model/contracts-enver-eks-cluster";
+import {SRC_Rev_REF} from "../../odmd-model/odmd-build";
+import {AnyOdmdEnVer, IOdmdEnver} from "../../odmd-model/odmd-enver";
+import {OdmdEnverEksCluster, KubeCtlThruCentral} from "../../odmd-model/odmd-enver-eks-cluster";
 import {DeploymentProps, IngressProps, JobProps, ServiceProps} from "cdk8s-plus-29";
 
-export class ContractsEnverCdkDefaultEcrEks extends ContractsEnverCdk implements KubeCtlThruCentral {
+export class ContractsEnverCdkDefaultEcrEks extends OdmdEnverCdk implements KubeCtlThruCentral {
 
 
-    constructor(owner: OdmdBuildDefaultKubeEks, user: AnyContractsEnVer, targetEksCluster: ContractsEnverEksCluster, targetNamespace: string, defaultRev = new SRC_Rev_REF("b", user.targetRevision.value)) {
+    constructor(owner: OdmdBuildDefaultKubeEks, user: AnyOdmdEnVer, targetEksCluster: OdmdEnverEksCluster, targetNamespace: string, defaultRev = new SRC_Rev_REF("b", user.targetRevision.value)) {
         //always to user's account, so that it can be taken over by user
         super(owner, user.targetAWSAccountID, process.env.CDK_DEFAULT_REGION!, defaultRev);
         this.userEnver = user
@@ -16,9 +16,9 @@ export class ContractsEnverCdkDefaultEcrEks extends ContractsEnverCdk implements
         this.targetEksCluster = targetEksCluster
     }
 
-    public readonly userEnver: IContractsEnver
+    public readonly userEnver: IOdmdEnver
     public readonly targetNamespace: string
-    public readonly targetEksCluster: ContractsEnverEksCluster
+    public readonly targetEksCluster: OdmdEnverEksCluster
 
 
     deployment: DeploymentProps

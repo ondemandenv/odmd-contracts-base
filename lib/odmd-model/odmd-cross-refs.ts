@@ -1,9 +1,9 @@
 import {Construct} from "constructs";
 import * as crypto from 'crypto';
-import {AnyContractsEnVer} from "./contracts-enver";
-import {ContractsShareIn} from "./contracts-share-values";
+import {AnyOdmdEnVer} from "./odmd-enver";
+import {OdmdShareIn} from "./odmd-share-refs";
 import {Stack} from "aws-cdk-lib";
-import {ContractsEnverCtnImg} from "./contracts-enver-ctn-img";
+import {OdmdEnverCtnImg} from "./odmd-enver-ctn-img";
 
 export interface RefProducerProps {
     pathPart?: string
@@ -11,7 +11,7 @@ export interface RefProducerProps {
     children?: RefProducerProps[]
 }
 
-export class ContractsCrossRefProducer<T extends AnyContractsEnVer> extends Construct {
+export class OdmdCrossRefProducer<T extends AnyOdmdEnVer> extends Construct {
     constructor(owner: T, id: string, props?: RefProducerProps) {
         super(owner, id)
         const name = props?.pathPart ?? id
@@ -29,7 +29,7 @@ export class ContractsCrossRefProducer<T extends AnyContractsEnVer> extends Cons
         }
 
         this.children = props?.children?.map((c, i) => {
-            return new ContractsCrossRefProducer(owner, id + '-' + (c.pathPart ?? i), {
+            return new OdmdCrossRefProducer(owner, id + '-' + (c.pathPart ?? i), {
                 pathPart: c.pathPart,
                 parentPathPart: this.name,
                 children: c.children
@@ -38,13 +38,13 @@ export class ContractsCrossRefProducer<T extends AnyContractsEnVer> extends Cons
     }
 
     readonly name: string
-    readonly children?: ContractsCrossRefProducer<T>[]
+    readonly children?: OdmdCrossRefProducer<T>[]
 
     get owner(): T {
         return this.node.scope as T
     }
 
-    readonly consumers = new Map<ContractsCrossRefConsumer<AnyContractsEnVer, T>, Set<string>>()
+    readonly consumers = new Map<OdmdCrossRefConsumer<AnyOdmdEnVer, T>, Set<string>>()
 
     public toEnverPath() {
         return this.owner.targetRevision.toPathPartStr() + '/' + this.name
@@ -70,12 +70,12 @@ export type RefConsumerOption = {
         | 'pubsub'//todo
         | 'queue'//todo
     //todo:
-    schemaValidator?: ContractsCrossRefConsumer<AnyContractsEnVer, AnyContractsEnVer>
+    schemaValidator?: OdmdCrossRefConsumer<AnyOdmdEnVer, AnyOdmdEnVer>
 }
 
-export class ContractsCrossRefConsumer<C extends AnyContractsEnVer, P extends AnyContractsEnVer> extends Construct {
+export class OdmdCrossRefConsumer<C extends AnyOdmdEnVer, P extends AnyOdmdEnVer> extends Construct {
 
-    constructor(scope: C, id: string, producer: ContractsCrossRefProducer<P>, options: RefConsumerOption
+    constructor(scope: C, id: string, producer: OdmdCrossRefProducer<P>, options: RefConsumerOption
         = {trigger: 'directly', defaultIfAbsent: '__dummy'}) {
         super(scope, id);
         if (producer.owner.owner.buildId == scope.owner.buildId) {
@@ -84,7 +84,7 @@ export class ContractsCrossRefConsumer<C extends AnyContractsEnVer, P extends An
         if (scope.owner == scope.owner.contracts.contractsLibBuild) {
             throw new Error(`OdmdBuildOdmdContracts should not consume anything! only depends on its src`)
         }
-        if (scope instanceof ContractsEnverCtnImg) {
+        if (scope instanceof OdmdEnverCtnImg) {
             throw new Error(`ContractsEnverCtnImg should not consume anything! only depends on its src and contractsLib`)
         }
         if (!producer.consumers.has(this)) {
@@ -103,8 +103,8 @@ export class ContractsCrossRefConsumer<C extends AnyContractsEnVer, P extends An
         return this.node.scope as C
     }
 
-    private readonly _producer: ContractsCrossRefProducer<P>;
-    public get producer(): ContractsCrossRefProducer<P> {
+    private readonly _producer: OdmdCrossRefProducer<P>;
+    public get producer(): OdmdCrossRefProducer<P> {
         return this._producer
     }
 
@@ -115,7 +115,7 @@ export class ContractsCrossRefConsumer<C extends AnyContractsEnVer, P extends An
     }
 
     public toOdmdRef(): string {
-        return `${ContractsCrossRefConsumer.OdmdRef_prefix}\${${this.node.path}}`
+        return `${OdmdCrossRefConsumer.OdmdRef_prefix}\${${this.node.path}}`
     }
 
     public static readonly OdmdRef_prefix = 'OdmdRefConsumer: ';
@@ -126,7 +126,7 @@ export class ContractsCrossRefConsumer<C extends AnyContractsEnVer, P extends An
         // @ts-ignore
         const sharingIns = this.owner.owner.contracts._sharingIns;
         if (!sharingIns.has(key)) {
-            sharingIns.set(key, new ContractsShareIn(stack, this.owner.owner.buildId, [this]))
+            sharingIns.set(key, new OdmdShareIn(stack, this.owner.owner.buildId, [this]))
         } else {
             sharingIns.get(key)!.addRefProducer(this)
         }

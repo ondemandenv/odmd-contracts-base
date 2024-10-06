@@ -1,12 +1,12 @@
 import {Construct} from "constructs";
 import {CustomResource, Fn, Stack} from "aws-cdk-lib";
-import {ContractsCrossRefConsumer, OdmdNames} from "./contracts-cross-refs";
-import {WithRds} from "./contracts-rds-cluster";
-import {AnyContractsEnVer} from "./contracts-enver";
+import {OdmdCrossRefConsumer, OdmdNames} from "./odmd-cross-refs";
+import {WithRds} from "./odmd-rds-cluster";
+import {AnyOdmdEnVer} from "./odmd-enver";
 import {IPAM_AB} from "../repos/__networking/odmd-config-networking";
 
 export function GET_PG_USR_ROLE_PROVIDER_NAME(ownerBuildId: string, ownerRegion: string, ownerAccount: string,
-                                              ipam: ContractsCrossRefConsumer<AnyContractsEnVer, IPAM_AB>) {
+                                              ipam: OdmdCrossRefConsumer<AnyOdmdEnVer, IPAM_AB>) {
     //The Name field of every Export member must be specified and consist only of alphanumeric characters, colons, or hyphens.
     return `odmd-ctl-${ownerBuildId}-${ownerRegion}-${ownerAccount}-${ipam.toOdmdRef()}:pg_usr_role-provider`.replace(/[^a-zA-Z0-9:-]/g, '-');
 }
@@ -74,10 +74,10 @@ export class PgSchemaUsers extends Construct {
             serviceToken = Fn.importValue(GET_PG_USR_ROLE_PROVIDER_NAME(props.enver.vpcConfig.build.buildId, scope.region, scope.account, props.enver.vpcConfig.ipAddresses.ipv4IpamPoolRef));
         }
 
-        const clusterHostname = new ContractsCrossRefConsumer(props.enver, 'clusterHostname', props.enver.rdsConfig.clusterHostname).getSharedValue(scope)
-        const clusterPort = new ContractsCrossRefConsumer(props.enver, 'clusterPort', props.enver.rdsConfig.clusterPort).getSharedValue(scope)
-        const clusterSocketAddress = new ContractsCrossRefConsumer(props.enver, 'clusterSocketAddress', props.enver.rdsConfig.clusterSocketAddress).getSharedValue(scope)
-        const clusterMasterRoleArn = new ContractsCrossRefConsumer(props.enver, 'clusterMasterRoleArn', props.enver.rdsConfig.clusterMasterRoleArn).getSharedValue(scope)
+        const clusterHostname = new OdmdCrossRefConsumer(props.enver, 'clusterHostname', props.enver.rdsConfig.clusterHostname).getSharedValue(scope)
+        const clusterPort = new OdmdCrossRefConsumer(props.enver, 'clusterPort', props.enver.rdsConfig.clusterPort).getSharedValue(scope)
+        const clusterSocketAddress = new OdmdCrossRefConsumer(props.enver, 'clusterSocketAddress', props.enver.rdsConfig.clusterSocketAddress).getSharedValue(scope)
+        const clusterMasterRoleArn = new OdmdCrossRefConsumer(props.enver, 'clusterMasterRoleArn', props.enver.rdsConfig.clusterMasterRoleArn).getSharedValue(scope)
         let schrole: CustomResource | undefined
         if (newSchema) {
             schrole = new CustomResource(this, `rds-usr-${props.schema}`, {

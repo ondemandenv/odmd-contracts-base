@@ -1,14 +1,14 @@
-import {ContractsBuild, SRC_Rev_REF} from "../../odmd-model/contracts-build";
+import {OdmdBuild, SRC_Rev_REF} from "../../odmd-model/odmd-build";
 import {OndemandContracts} from "../../OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
-import {ContractsEnverCMDs} from "../../odmd-model/contracts-enver-c-m-ds";
-import {ContractsCrossRefProducer} from "../../odmd-model/contracts-cross-refs";
+import {OdmdEnverCMDs} from "../../odmd-model/odmd-enver-c-m-ds";
+import {OdmdCrossRefProducer} from "../../odmd-model/odmd-cross-refs";
 import {Stack} from "aws-cdk-lib";
 
 export abstract class OdmdBuildContractsLib<
     A extends AccountsCentralView,
     G extends GithubReposCentralView
-> extends ContractsBuild<OdmdEnverContractsLib> {
+> extends OdmdBuild<OdmdEnverContractsLib> {
 
     /*
     the s3 bucket object key for saving the latest contracts ver info
@@ -40,19 +40,19 @@ export abstract class OdmdBuildContractsLib<
 }
 
 
-export class OdmdEnverContractsLib extends ContractsEnverCMDs {
+export class OdmdEnverContractsLib extends OdmdEnverCMDs {
     /**
      *
      * @see the build cmds which populate this producer and
      * cp to the bucket which drives the sqs passing to seed central root
      */
-    readonly contractsLibLatest: ContractsCrossRefProducer<OdmdEnverContractsLib>;
+    readonly contractsLibLatest: OdmdCrossRefProducer<OdmdEnverContractsLib>;
 
     readonly owner: OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>;
 
     constructor(owner: OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF) {
         super(owner, targetAWSAccountID, targetAWSRegion, targetRevision);
-        this.contractsLibLatest = new ContractsCrossRefProducer(this, 'contractsLibLatest')
+        this.contractsLibLatest = new OdmdCrossRefProducer(this, 'contractsLibLatest')
     }
 
     /*

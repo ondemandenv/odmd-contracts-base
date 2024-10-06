@@ -2,9 +2,9 @@ import {OndemandContracts} from "../lib/OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../lib/OdmdContractsCentralView";
 import {App} from "aws-cdk-lib";
 import {OdmdBuildContractsLib, OdmdEnverContractsLib} from "../lib/repos/__contracts/odmd-build-contracts-lib";
-import {ContractsEnverCMDs} from "../lib/odmd-model/contracts-enver-c-m-ds";
-import {SRC_Rev_REF} from "../lib/odmd-model/contracts-build";
-import {ContractsCrossRefConsumer} from "../lib/odmd-model/contracts-cross-refs";
+import {OdmdEnverCMDs} from "../lib/odmd-model/odmd-enver-c-m-ds";
+import {SRC_Rev_REF} from "../lib/odmd-model/odmd-build";
+import {OdmdCrossRefConsumer} from "../lib/odmd-model/odmd-cross-refs";
 
 
 export class TmpTstOdmdBuildContractsLib extends OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {

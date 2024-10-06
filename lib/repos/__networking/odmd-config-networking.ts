@@ -1,12 +1,12 @@
-import {ContractsBuild, SRC_Rev_REF} from "../../odmd-model/contracts-build";
-import {ContractsEnverCdk} from "../../odmd-model/contracts-enver-cdk";
-import {ContractsCrossRefConsumer, ContractsCrossRefProducer} from "../../odmd-model/contracts-cross-refs";
+import {OdmdBuild, SRC_Rev_REF} from "../../odmd-model/odmd-build";
+import {OdmdEnverCdk} from "../../odmd-model/odmd-enver-cdk";
+import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "../../odmd-model/odmd-cross-refs";
 import {OndemandContracts} from "../../OndemandContracts";
-import {AnyContractsEnVer} from "../../odmd-model/contracts-enver";
+import {AnyOdmdEnVer} from "../../odmd-model/odmd-enver";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
 
-export class OdmdConfigNetworking extends ContractsBuild<ContractsEnverCdk> {
+export class OdmdConfigNetworking extends OdmdBuild<OdmdEnverCdk> {
 
 
     ownerEmail = undefined
@@ -25,14 +25,14 @@ export class OdmdConfigNetworking extends ContractsBuild<ContractsEnverCdk> {
     }
 }
 
-export abstract class IPAM_AB extends ContractsEnverCdk {
+export abstract class IPAM_AB extends OdmdEnverCdk {
 
-    readonly centralVpcCidr: ContractsCrossRefProducer<IPAM_AB> = new ContractsCrossRefProducer(this, 'central-Vpc-Cidr')
-    readonly ipamPoolName: ContractsCrossRefProducer<IPAM_AB> = new ContractsCrossRefProducer(this, 'share-pool')
-    readonly transitGatewayShareName: ContractsCrossRefProducer<IPAM_AB> = new ContractsCrossRefProducer(this, 'share-tgw')
+    readonly centralVpcCidr: OdmdCrossRefProducer<IPAM_AB> = new OdmdCrossRefProducer(this, 'central-Vpc-Cidr')
+    readonly ipamPoolName: OdmdCrossRefProducer<IPAM_AB> = new OdmdCrossRefProducer(this, 'share-pool')
+    readonly transitGatewayShareName: OdmdCrossRefProducer<IPAM_AB> = new OdmdCrossRefProducer(this, 'share-tgw')
 
     //todo if wanted multiple NAT,  have to declare each separatedly
-    readonly natPublicIP: ContractsCrossRefProducer<IPAM_AB> = new ContractsCrossRefProducer(this, 'nat-pub-ip')
+    readonly natPublicIP: OdmdCrossRefProducer<IPAM_AB> = new OdmdCrossRefProducer(this, 'nat-pub-ip')
 
     readonly ephemeral: boolean = false
 
@@ -48,14 +48,14 @@ export abstract class IPAM_AB extends ContractsEnverCdk {
      * 3) this means dns delegation won't support dynamic enver.
      */
     abstract readonly hostedZoneName: string
-    readonly subdomainNameservers = new Map<string, ContractsCrossRefConsumer<IPAM_AB, AnyContractsEnVer>>()
+    readonly subdomainNameservers = new Map<string, OdmdCrossRefConsumer<IPAM_AB, AnyOdmdEnVer>>()
 
-    public addSubdomainServer(d: string, nsServers: ContractsCrossRefProducer<AnyContractsEnVer>) {
+    public addSubdomainServer(d: string, nsServers: OdmdCrossRefProducer<AnyOdmdEnVer>) {
         if (this.subdomainNameservers.has(d)) {
             throw new Error('already exist!')
         }
 
-        this.subdomainNameservers.set(d, new ContractsCrossRefConsumer<IPAM_AB, AnyContractsEnVer>(this, 'nameServer_' + d, nsServers))
+        this.subdomainNameservers.set(d, new OdmdCrossRefConsumer<IPAM_AB, AnyOdmdEnVer>(this, 'nameServer_' + d, nsServers))
     }
 
     constructor(owner: OdmdConfigNetworking, region: string, rev: SRC_Rev_REF) {

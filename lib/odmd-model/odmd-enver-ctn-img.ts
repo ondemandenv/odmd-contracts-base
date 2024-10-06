@@ -1,14 +1,14 @@
 import {RepositoryProps} from "aws-cdk-lib/aws-ecr";
-import {ContractsCrossRefProducer} from "./contracts-cross-refs";
-import {ContractsEnverCMDs} from "./contracts-enver-c-m-ds";
+import {OdmdCrossRefProducer} from "./odmd-cross-refs";
+import {OdmdEnverCMDs} from "./odmd-enver-c-m-ds";
 import {IGrantable} from "aws-cdk-lib/aws-iam";
 
 /**
  * this is implemented by central.
  */
-export class CtnImgRefProducer extends ContractsCrossRefProducer<ContractsEnverCtnImg> {
+export class CtnImgRefProducer extends OdmdCrossRefProducer<OdmdEnverCtnImg> {
 
-    constructor(owner: ContractsEnverCtnImg, id: string, props?: {
+    constructor(owner: OdmdEnverCtnImg, id: string, props?: {
         repoPathPart?: string,
         latestShaPathPart?: string
     }) {
@@ -24,7 +24,7 @@ export class CtnImgRefProducer extends ContractsCrossRefProducer<ContractsEnverC
 }
 
 
-export abstract class ContractsEnverCtnImg extends ContractsEnverCMDs {
+export abstract class OdmdEnverCtnImg extends OdmdEnverCMDs {
 
 
     abstract readonly builtImgNameToRepo: {
