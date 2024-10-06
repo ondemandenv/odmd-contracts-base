@@ -1,5 +1,5 @@
-import {OdmdBuild} from "../../odmd-model/odmd-build";
-import {OdmdEnverCdk} from "../../odmd-model/odmd-enver-cdk";
+import {OdmdBuild} from "../../model/odmd-build";
+import {OdmdEnverCdk} from "../../model/odmd-enver-cdk";
 import {OndemandContracts} from "../../OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";

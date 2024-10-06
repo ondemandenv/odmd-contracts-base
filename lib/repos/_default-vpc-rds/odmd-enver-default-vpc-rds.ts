@@ -1,12 +1,12 @@
 //vpc->rds->schema->user
-import {OdmdEnverCdk} from "../../odmd-model/odmd-enver-cdk";
-import {ContractsIpAddresses, OdmdVpc, WithVpc} from "../../odmd-model/odmd-vpc";
-import {OdmdRdsCluster} from "../../odmd-model/odmd-rds-cluster";
+import {OdmdEnverCdk} from "../../model/odmd-enver-cdk";
+import {ContractsIpAddresses, OdmdVpc, WithVpc} from "../../model/odmd-vpc";
+import {OdmdRdsCluster} from "../../model/odmd-rds-cluster";
 import {OdmdBuildDefaultVpcRds, SimpleVpc} from "./odmd-build-default-vpc-rds";
-import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "../../odmd-model/odmd-cross-refs";
-import {AnyOdmdEnVer} from "../../odmd-model/odmd-enver";
-import {PgSchemaUsersProps} from "../../odmd-model/odmd-pg-schema-usrs";
-import {SRC_Rev_REF} from "../../odmd-model/odmd-build";
+import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "../../model/odmd-cross-refs";
+import {AnyOdmdEnVer} from "../../model/odmd-enver";
+import {PgSchemaUsersProps} from "../../model/odmd-pg-schema-usrs";
+import {SRC_Rev_REF} from "../../model/odmd-build";
 import {OndemandContracts} from "../../OndemandContracts";
 import {IPAM_AB} from "../__networking/odmd-config-networking";
 import {AccountsCentralView} from "../../OdmdContractsCentralView";

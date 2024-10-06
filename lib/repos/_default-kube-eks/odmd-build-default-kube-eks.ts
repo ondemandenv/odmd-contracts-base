@@ -1,9 +1,9 @@
 import {ContractsEnverCdkDefaultEcrEks} from "./odmd-enver-default-ecr-eks";
-import {OdmdBuild} from "../../odmd-model/odmd-build";
-import {OdmdEnverCdk} from "../../odmd-model/odmd-enver-cdk";
-import {AnyOdmdEnVer} from "../../odmd-model/odmd-enver";
+import {OdmdBuild} from "../../model/odmd-build";
+import {OdmdEnverCdk} from "../../model/odmd-enver-cdk";
+import {AnyOdmdEnVer} from "../../model/odmd-enver";
 import {OndemandContracts} from "../../OndemandContracts";
-import {OdmdEnverEksCluster} from "../../odmd-model/odmd-enver-eks-cluster";
+import {OdmdEnverEksCluster} from "../../model/odmd-enver-eks-cluster";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
 

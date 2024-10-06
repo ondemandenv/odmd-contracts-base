@@ -1,10 +1,10 @@
-import {OdmdEnverEksCluster, ContractsEnverEksClusterArgoCd} from "../../odmd-model/odmd-enver-eks-cluster";
+import {OdmdEnverEksCluster, ContractsEnverEksClusterArgoCd} from "../../model/odmd-enver-eks-cluster";
 import {OndemandContracts} from "../../OndemandContracts";
 import {OdmdBuildEks} from "./odmd-build-eks";
-import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "../../odmd-model/odmd-cross-refs";
-import {OdmdBuild, SRC_Rev_REF} from "../../odmd-model/odmd-build";
-import {OdmdEnverCdk} from "../../odmd-model/odmd-enver-cdk";
-import {ContractsIpAddresses, OdmdVpc, WithVpc} from "../../odmd-model/odmd-vpc";
+import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "../../model/odmd-cross-refs";
+import {OdmdBuild, SRC_Rev_REF} from "../../model/odmd-build";
+import {OdmdEnverCdk} from "../../model/odmd-enver-cdk";
+import {ContractsIpAddresses, OdmdVpc, WithVpc} from "../../model/odmd-vpc";
 import {IPAM_AB} from "../__networking/odmd-config-networking";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";

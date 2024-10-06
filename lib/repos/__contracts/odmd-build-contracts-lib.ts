@@ -1,8 +1,8 @@
-import {OdmdBuild, SRC_Rev_REF} from "../../odmd-model/odmd-build";
+import {OdmdBuild, SRC_Rev_REF} from "../../model/odmd-build";
 import {OndemandContracts} from "../../OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
-import {OdmdEnverCMDs} from "../../odmd-model/odmd-enver-c-m-ds";
-import {OdmdCrossRefProducer} from "../../odmd-model/odmd-cross-refs";
+import {OdmdEnverCMDs} from "../../model/odmd-enver-c-m-ds";
+import {OdmdCrossRefProducer} from "../../model/odmd-cross-refs";
 import {Stack} from "aws-cdk-lib";
 
 export abstract class OdmdBuildContractsLib<

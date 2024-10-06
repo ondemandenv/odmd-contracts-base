@@ -1,5 +1,5 @@
 import {App} from "aws-cdk-lib";
-import {OdmdEnverCtnImg} from "../lib/odmd-model/odmd-enver-ctn-img";
+import {OdmdEnverCtnImg} from "../lib/model/odmd-enver-ctn-img";
 import {TmpTstContracts} from "./tmp-tst-contracts";
 
 

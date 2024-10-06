@@ -1,5 +1,5 @@
-import {OdmdBuild, GithubRepo} from "./odmd-model/odmd-build";
-import {AnyOdmdEnVer} from "./odmd-model/odmd-enver";
+import {OdmdBuild, GithubRepo} from "./model/odmd-build";
+import {AnyOdmdEnVer} from "./model/odmd-enver";
 import {OdmdConfigNetworking} from "./repos/__networking/odmd-config-networking";
 import {OdmdBuildEksCluster} from "./repos/__eks/odmd-build-eks-cluster";
 import {OdmdBuildDefaultVpcRds} from "./repos/_default-vpc-rds/odmd-build-default-vpc-rds";

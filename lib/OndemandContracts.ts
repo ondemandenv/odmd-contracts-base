@@ -2,17 +2,17 @@ import {Construct, IConstruct} from "constructs";
 import {OdmdConfigNetworking} from "./repos/__networking/odmd-config-networking";
 import {OdmdBuildEksCluster} from "./repos/__eks/odmd-build-eks-cluster";
 import {OdmdBuildDefaultVpcRds} from "./repos/_default-vpc-rds/odmd-build-default-vpc-rds";
-import {AnyOdmdEnVer} from "./odmd-model/odmd-enver";
-import {OdmdBuild, SRC_Rev_REF} from "./odmd-model/odmd-build";
+import {AnyOdmdEnVer} from "./model/odmd-enver";
+import {OdmdBuild, SRC_Rev_REF} from "./model/odmd-build";
 import {OdmdBuildDefaultKubeEks} from "./repos/_default-kube-eks/odmd-build-default-kube-eks";
 import {Aspects} from "aws-cdk-lib";
-import {OdmdAspect} from "./odmd-model/odmd-aspect";
+import {OdmdAspect} from "./model/odmd-aspect";
 import {execSync} from "child_process";
 import {AccountsCentralView, GithubReposCentralView, OdmdContractsCentralView} from "./OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "./repos/__contracts/odmd-build-contracts-lib";
-import {OdmdCrossRefConsumer} from "./odmd-model/odmd-cross-refs";
-import {OdmdShareIn} from "./odmd-model/odmd-share-refs";
-import {OdmdEnverCtnImg} from "./odmd-model/odmd-enver-ctn-img";
+import {OdmdCrossRefConsumer} from "./model/odmd-cross-refs";
+import {OdmdShareIn} from "./model/odmd-share-refs";
+import {OdmdEnverCtnImg} from "./model/odmd-enver-ctn-img";
 
 
 export abstract class OndemandContracts<

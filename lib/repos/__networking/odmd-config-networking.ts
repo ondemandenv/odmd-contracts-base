@@ -1,8 +1,8 @@
-import {OdmdBuild, SRC_Rev_REF} from "../../odmd-model/odmd-build";
-import {OdmdEnverCdk} from "../../odmd-model/odmd-enver-cdk";
-import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "../../odmd-model/odmd-cross-refs";
+import {OdmdBuild, SRC_Rev_REF} from "../../model/odmd-build";
+import {OdmdEnverCdk} from "../../model/odmd-enver-cdk";
+import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "../../model/odmd-cross-refs";
 import {OndemandContracts} from "../../OndemandContracts";
-import {AnyOdmdEnVer} from "../../odmd-model/odmd-enver";
+import {AnyOdmdEnVer} from "../../model/odmd-enver";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
 

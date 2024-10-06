@@ -1,6 +1,6 @@
-import {OdmdBuild} from "../../odmd-model/odmd-build";
-import {OdmdEnverCdk} from "../../odmd-model/odmd-enver-cdk";
-import {AnyOdmdEnVer, IOdmdEnver} from "../../odmd-model/odmd-enver";
+import {OdmdBuild} from "../../model/odmd-build";
+import {OdmdEnverCdk} from "../../model/odmd-enver-cdk";
+import {AnyOdmdEnVer, IOdmdEnver} from "../../model/odmd-enver";
 import {IPAM_AB} from "../__networking/odmd-config-networking";
 import {ContractsEnverCdkDefaultVpc} from "./odmd-enver-default-vpc-rds";
 import {OndemandContracts} from "../../OndemandContracts";
