@@ -1,6 +1,6 @@
 //vpc->rds->schema->user
 import {OdmdEnverCdk} from "../../model/odmd-enver-cdk";
-import {ContractsIpAddresses, OdmdVpc, WithVpc} from "../../model/odmd-vpc";
+import {OdmdIpAddresses, OdmdVpc, WithVpc} from "../../model/odmd-vpc";
 import {OdmdRdsCluster} from "../../model/odmd-rds-cluster";
 import {OdmdBuildDefaultVpcRds, SimpleVpc} from "./odmd-build-default-vpc-rds";
 import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "../../model/odmd-cross-refs";
@@ -11,12 +11,12 @@ import {OndemandContracts} from "../../OndemandContracts";
 import {IPAM_AB} from "../__networking/odmd-config-networking";
 import {AccountsCentralView} from "../../OdmdContractsCentralView";
 
-export class ContractsEnverCdkDefaultVpc extends OdmdEnverCdk implements WithVpc {
+export class OdmdEnverCdkDefaultVpc extends OdmdEnverCdk implements WithVpc {
 
     readonly vpcConfig: OdmdVpc
-    readonly vpcIpv4Cidr: OdmdCrossRefProducer<ContractsEnverCdkDefaultVpc>
+    readonly vpcIpv4Cidr: OdmdCrossRefProducer<OdmdEnverCdkDefaultVpc>
     readonly rdsConfigs = [] as OdmdRdsCluster[]
-    readonly nameServers: OdmdCrossRefProducer<ContractsEnverCdkDefaultVpc>
+    readonly nameServers: OdmdCrossRefProducer<OdmdEnverCdkDefaultVpc>
     readonly centralVpcCidr: OdmdCrossRefConsumer<this, IPAM_AB>;
     readonly rdsTrustCentralRoleName: string
     readonly clientEnvers: Set<AnyOdmdEnVer> = new Set()
@@ -28,7 +28,7 @@ export class ContractsEnverCdkDefaultVpc extends OdmdEnverCdk implements WithVpc
 
         this.centralVpcCidr = new OdmdCrossRefConsumer(this, 'centralVpcCidr', vpc.ipamEnver.centralVpcCidr)
 
-        const adr = new ContractsIpAddresses(this, vpc.ipamEnver.ipamPoolName, vpc.ipv4NetmaskLength, vpc.defaultSubnetIpv4NetmaskLength)
+        const adr = new OdmdIpAddresses(this, vpc.ipamEnver.ipamPoolName, vpc.ipv4NetmaskLength, vpc.defaultSubnetIpv4NetmaskLength)
 
         const tgw = new OdmdCrossRefConsumer(
             this, 'tgw', vpc.ipamEnver.transitGatewayShareName

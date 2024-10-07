@@ -36,10 +36,10 @@ export abstract class OdmdEnverEksCluster extends OdmdEnverCdk implements WithVp
     }
 }
 
-export abstract class ContractsEnverEksClusterArgoCd extends OdmdEnverEksCluster {
+export abstract class OdmdEnverEksClusterArgoCd extends OdmdEnverEksCluster {
 
 
-    readonly argocdRepoSa = new OdmdCrossRefProducer<ContractsEnverEksClusterArgoCd>(this, 'argocd-repo-sa')
+    readonly argocdRepoSa = new OdmdCrossRefProducer<OdmdEnverEksClusterArgoCd>(this, 'argocd-repo-sa')
     readonly argocdRepoName = new OdmdCrossRefProducer(this, 'argocdRepoName')
 
     constructor(owner: OdmdBuild<OdmdEnverCdk>, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF) {

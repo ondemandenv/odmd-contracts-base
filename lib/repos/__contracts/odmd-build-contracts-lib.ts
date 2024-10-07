@@ -91,7 +91,7 @@ export class OdmdEnverContractsLib extends OdmdEnverCMDs {
  export AWS_ACCESS_KEY_ID=$(echo $assume_role_output | jq -r '.Credentials.AccessKeyId')
  export AWS_SECRET_ACCESS_KEY=$(echo $assume_role_output | jq -r '.Credentials.SecretAccessKey')
  export AWS_SESSION_TOKEN=$(echo $assume_role_output | jq -r '.Credentials.SessionToken')
- aws ssm put-parameter --name /odmd-share/${this.owner.buildId}/${this.contractsLibLatest.toEnverPath()} --type String --value "$GITHUB_SHA\n${this.owner.packageName}:$PKG_VER" --overwrite
+ aws ssm put-parameter --name ${this.contractsLibLatest.toSharePath()} --type String --value "$GITHUB_SHA\n${this.owner.packageName}:$PKG_VER" --overwrite
  echo "$GITHUB_SHA\n${this.owner.packageName}:$PKG_VER" | aws s3 cp - s3://${targetBucketName}${OdmdBuildContractsLib.LATEST_CONTRACTS_LIB_VER_KEY}
  npm dist-tag add ${this.owner.packageName}@$PKG_VER $GITHUB_SHA --registry=https://npm.pkg.github.com`,
         )

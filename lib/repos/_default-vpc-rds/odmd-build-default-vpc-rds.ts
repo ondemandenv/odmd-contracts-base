@@ -2,7 +2,7 @@ import {OdmdBuild} from "../../model/odmd-build";
 import {OdmdEnverCdk} from "../../model/odmd-enver-cdk";
 import {AnyOdmdEnVer, IOdmdEnver} from "../../model/odmd-enver";
 import {IPAM_AB} from "../__networking/odmd-config-networking";
-import {ContractsEnverCdkDefaultVpc} from "./odmd-enver-default-vpc-rds";
+import {OdmdEnverCdkDefaultVpc} from "./odmd-enver-default-vpc-rds";
 import {OndemandContracts} from "../../OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
@@ -25,7 +25,7 @@ export class OdmdBuildDefaultVpcRds extends OdmdBuild<OdmdEnverCdk> {
     }
 
     ownerEmail?: string | undefined;
-    readonly envers: Array<ContractsEnverCdkDefaultVpc> = []
+    readonly envers: Array<OdmdEnverCdkDefaultVpc> = []
 
     public getOrCreateOne(client: AnyOdmdEnVer, vpc: SimpleVpc) {
         let rt =
@@ -36,7 +36,7 @@ export class OdmdBuildDefaultVpcRds extends OdmdBuild<OdmdEnverCdk> {
             return rt
         }
 
-        rt = new ContractsEnverCdkDefaultVpc(this, client.targetAWSRegion, client.owner.contracts.getAccountName(client.targetAWSAccountID), vpc);
+        rt = new OdmdEnverCdkDefaultVpc(this, client.targetAWSRegion, client.owner.contracts.getAccountName(client.targetAWSAccountID), vpc);
         this.envers.push(rt)
         rt.addClient(client)
         return rt;
@@ -45,5 +45,5 @@ export class OdmdBuildDefaultVpcRds extends OdmdBuild<OdmdEnverCdk> {
 }
 
 export interface BorrowVpcRds extends IOdmdEnver {
-    vpcRdsProvidingEnver: ContractsEnverCdkDefaultVpc
+    vpcRdsProvidingEnver: OdmdEnverCdkDefaultVpc
 }

@@ -5,7 +5,7 @@ import {AnyOdmdEnVer, IOdmdEnver} from "../../model/odmd-enver";
 import {OdmdEnverEksCluster, KubeCtlThruCentral} from "../../model/odmd-enver-eks-cluster";
 import {DeploymentProps, IngressProps, JobProps, ServiceProps} from "cdk8s-plus-29";
 
-export class ContractsEnverCdkDefaultEcrEks extends OdmdEnverCdk implements KubeCtlThruCentral {
+export class OdmdEnverCdkDefaultEcrEks extends OdmdEnverCdk implements KubeCtlThruCentral {
 
 
     constructor(owner: OdmdBuildDefaultKubeEks, user: AnyOdmdEnVer, targetEksCluster: OdmdEnverEksCluster, targetNamespace: string, defaultRev = new SRC_Rev_REF("b", user.targetRevision.value)) {

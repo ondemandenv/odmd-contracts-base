@@ -4,7 +4,7 @@ import {OdmdBuild} from "../lib/model/odmd-build";
 import {RegionInfo} from "aws-cdk-lib/region-info";
 import {OdmdEnverCtnImg} from "../lib/model/odmd-enver-ctn-img";
 import {OdmdEnverCdk} from "../lib/model/odmd-enver-cdk";
-import {ContractsIpAddresses, WithVpc} from "../lib/model/odmd-vpc";
+import {OdmdIpAddresses, WithVpc} from "../lib/model/odmd-vpc";
 import {OdmdEnverCMDs} from "../lib/model/odmd-enver-c-m-ds";
 import {OdmdNames} from "../lib/model/odmd-cross-refs";
 import {App, Stack} from "aws-cdk-lib";
@@ -21,7 +21,7 @@ function checkVpcEnver(enver: WithVpc) {
     if (!enver.vpcConfig.ipAddresses) {
         throw new Error(`vpcConfig.ipAddresses has to be defined, but found BUILD:${enver.owner.buildId}, Branch: ${enver.targetRevision}, Vpc: ${enver.vpcConfig.vpcName} is NOT `)
     }
-    if (!(enver.vpcConfig.ipAddresses instanceof ContractsIpAddresses)) {
+    if (!(enver.vpcConfig.ipAddresses instanceof OdmdIpAddresses)) {
         throw new Error(`vpcConfig.ipAddresses has to be OdmdIpAddresses, but found BUILD:${enver.owner.buildId}, Branch: ${enver.targetRevision}, Vpc: ${enver.vpcConfig.vpcName} is NOT `)
     }
     if (!enver.vpcConfig.ipAddresses!.ipv4NetmaskLength) {
@@ -66,7 +66,7 @@ try replace(/[^A-Za-z0-9_$]/g,'_')`
             throw new Error(`can't find rds's vpc in its build's envers: ${JSON.stringify(enver)}`)
         }
 
-        if (!(enver.rdsConfig.vpc.ipAddresses instanceof ContractsIpAddresses)) {
+        if (!(enver.rdsConfig.vpc.ipAddresses instanceof OdmdIpAddresses)) {
             throw new Error("rds only accept OdmdI")
         }
         if (enver.rdsConfig.schemaRoleUsers.length > 0) {

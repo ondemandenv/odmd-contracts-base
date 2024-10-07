@@ -1,4 +1,4 @@
-import {ContractsEnverCdkDefaultEcrEks} from "./odmd-enver-default-ecr-eks";
+import {OdmdEnverCdkDefaultEcrEks} from "./odmd-enver-default-ecr-eks";
 import {OdmdBuild} from "../../model/odmd-build";
 import {OdmdEnverCdk} from "../../model/odmd-enver-cdk";
 import {AnyOdmdEnVer} from "../../model/odmd-enver";
@@ -18,7 +18,7 @@ export class OdmdBuildDefaultKubeEks extends OdmdBuild<OdmdEnverCdk> {
     }
 
     ownerEmail?: string | undefined;
-    readonly envers: Array<ContractsEnverCdkDefaultEcrEks> = []
+    readonly envers: Array<OdmdEnverCdkDefaultEcrEks> = []
 
     public getOrCreateOne(usr: AnyOdmdEnVer, targetEksCluster: OdmdEnverEksCluster, targetNamespace: string) {
         let rt = this.envers.find(e => e.userEnver == usr)
@@ -26,7 +26,7 @@ export class OdmdBuildDefaultKubeEks extends OdmdBuild<OdmdEnverCdk> {
             return rt
         }
 
-        rt = new ContractsEnverCdkDefaultEcrEks(this, usr, targetEksCluster, targetNamespace);
+        rt = new OdmdEnverCdkDefaultEcrEks(this, usr, targetEksCluster, targetNamespace);
         this.envers.push(rt)
         return rt;
     }

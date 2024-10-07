@@ -15,7 +15,7 @@ export class OdmdVpc implements VpcProps {
 
     public readonly build: OdmdBuild<AnyOdmdEnVer>
 
-    constructor(addresses: ContractsIpAddresses, name: string) {
+    constructor(addresses: OdmdIpAddresses, name: string) {
         this.ipAddresses = addresses
         this.build = addresses.enver.owner
         this.vpcName = name.startsWith(this.build.buildId) ? name : this.build.buildId + name
@@ -28,7 +28,7 @@ export class OdmdVpc implements VpcProps {
     }
 
     public readonly transitGatewayRef: OdmdCrossRefConsumer<AnyOdmdEnVer, IPAM_AB>
-    public readonly ipAddresses: ContractsIpAddresses;
+    public readonly ipAddresses: OdmdIpAddresses;
     public readonly vpcName: string;
     public readonly maxAzs: number;
     public readonly natGateways: number;
@@ -41,7 +41,7 @@ export interface WithVpc extends IOdmdEnver {
     readonly vpcCidr?: OdmdCrossRefProducer<WithVpc>
 }
 
-export class ContractsIpAddresses implements IIpAddresses {
+export class OdmdIpAddresses implements IIpAddresses {
 
     readonly enver: AnyOdmdEnVer;
 
