@@ -35,16 +35,10 @@ export class TmpTstOdmdBuildContractsLib extends OdmdBuildContractsLib<AccountsC
 
 
 export class TmpTstContracts extends OndemandContracts<AccountsCentralView, GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>> {
-    private _odmdBuildContractsLib: OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>;
-
-    constructor(app: App) {
-        super(app);
-        this._odmdBuildContractsLib = new TmpTstOdmdBuildContractsLib(this, 'aaa');
+    createContractsLibBuild(): OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
+        return new TmpTstOdmdBuildContractsLib(this, 'aaa')
     }
 
-    get contractsLibBuild(): OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
-        return this._odmdBuildContractsLib
-    }
 
     private _accounts: AccountsCentralView
     get accounts(): AccountsCentralView {
@@ -90,20 +84,15 @@ export class TmpTstContracts extends OndemandContracts<AccountsCentralView, Gith
 }
 
 export class TmpTstContracts1 extends OndemandContracts<AccountsCentralView, GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>> {
-    private _odmdConfigOdmdContractsNpm: OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>;
+    createContractsLibBuild(): OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
+        return new TmpTstOdmdBuildContractsLib(this, 'aaa')
+    }
 
     // readonly networking?: OdmdConfigNetworking
     constructor(app: App) {
         super(app, 'TmpTstContracts1');
-
-        // this.networking = new OdmdConfigNetworking(this)
-        this._odmdConfigOdmdContractsNpm = new TmpTstOdmdBuildContractsLib(this, 'aaa');
-
     }
 
-    get contractsLibBuild(): OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
-        return this._odmdConfigOdmdContractsNpm
-    }
 
     private _accounts: AccountsCentralView
     get accounts(): AccountsCentralView {

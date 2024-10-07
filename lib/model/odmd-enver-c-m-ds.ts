@@ -1,4 +1,4 @@
-import {OdmdBuild, SRC_Rev_REF} from "./odmd-build";
+import {OdmdBuild} from "./odmd-build";
 import {OdmdEnver} from "./odmd-enver";
 import {Stack} from "aws-cdk-lib";
 
@@ -12,10 +12,11 @@ export abstract class OdmdEnverCMDs extends OdmdEnver<OdmdBuild<OdmdEnverCMDs>> 
     abstract generateBuildCmds(stack: Stack, ...args: any[]): string[]
 
     genNpmRcCmds(): string[] {
+        const thePkgOrg = this.owner.contracts.contractsLibBuild.pkgOrg;
         return [
 
-            `echo "${this.owner.contracts.contractsLibBuild.pkgOrg
-            }:registry=https://npm.pkg.github.com/" >> .npmrc`,
+            `echo "@ondemandenv:registry=https://npm.pkg.github.com/" >> .npmrc`,
+            `echo "${thePkgOrg}:registry=https://npm.pkg.github.com/" >> .npmrc`,
             'echo "//npm.pkg.github.com/:_authToken=$github_token" >> .npmrc'
 
         ]

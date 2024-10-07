@@ -50,6 +50,10 @@ export class OdmdCrossRefProducer<T extends AnyOdmdEnVer> extends Construct {
         return this.owner.targetRevision.toPathPartStr() + '/' + this.name
     }
 
+    public toSharePath() {
+        return `/odmd-share/${this.owner.owner.buildId + '/' + this.toEnverPath()}`
+    }
+
 }
 
 export type RefConsumerOption = {

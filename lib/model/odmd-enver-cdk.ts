@@ -1,8 +1,20 @@
-import {OdmdBuild} from "./odmd-build";
+import {OdmdBuild, SRC_Rev_REF} from "./odmd-build";
 import {AnyOdmdEnVer, OdmdEnver} from "./odmd-enver";
 import {OdmdCrossRefConsumer} from "./odmd-cross-refs";
 
 export class OdmdEnverCdk extends OdmdEnver<OdmdBuild<OdmdEnverCdk>> {
+
+    constructor(owner: OdmdBuild<OdmdEnverCdk>, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF) {
+        super(owner, targetAWSAccountID, targetAWSRegion, targetRevision);
+        const thePkgOrg = this.owner.contracts.contractsLibBuild.pkgOrg;
+        this.preInstallCmds = [
+
+            `echo "@ondemandenv:registry=https://npm.pkg.github.com/" >> .npmrc`,
+            `echo "${thePkgOrg}:registry=https://npm.pkg.github.com/" >> .npmrc`,
+            'echo "//npm.pkg.github.com/:_authToken=$github_token" >> .npmrc'
+
+        ]
+    }
 
     /**
      * initial deployment will disable rollback withno changeset or approval automatically
@@ -16,11 +28,7 @@ export class OdmdEnverCdk extends OdmdEnver<OdmdBuild<OdmdEnverCdk>> {
     //todo: when team IAM is ready
     readonly approvalRole?: OdmdCrossRefConsumer<this, AnyOdmdEnVer>[]
 
-    readonly preInstallCmds: Array<string> = [
-        //todo: get the org dynamically
-        'echo "@ondemandenv:registry=https://npm.pkg.github.com/" >> .npmrc',
-        'echo "//npm.pkg.github.com/:_authToken=$github_token" >> .npmrc'
-    ]
+    readonly preInstallCmds: Array<string>
 
     readonly preCdkCmds: Array<string> = []
 

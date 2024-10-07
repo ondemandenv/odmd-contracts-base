@@ -47,7 +47,11 @@ export abstract class OndemandContracts<
 
     abstract get allAccounts(): string[]
 
-    abstract get contractsLibBuild(): C
+    private _contractsLibBuild: C
+    get contractsLibBuild(): C {
+        return this._contractsLibBuild
+    }
+    abstract createContractsLibBuild():C
 
     abstract get accounts(): A
 
@@ -92,6 +96,7 @@ export abstract class OndemandContracts<
         if (!aspects.all.find(a => a instanceof OdmdAspect)) {
             aspects.add(new OdmdAspect())
         }
+        this._contractsLibBuild = this.createContractsLibBuild()
 
         if (this.githubRepos.__networking) {
             this.networking = new OdmdConfigNetworking(this)
