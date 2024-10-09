@@ -11,7 +11,6 @@ import {Construct, Node} from "constructs";
 import {AnyOdmdEnVer, OdmdEnver} from "./odmd-enver";
 import {OdmdEnverCdk} from "./odmd-enver-cdk";
 import {OdmdEnverCtnImg} from "./odmd-enver-ctn-img";
-import {OdmdEnverCMDs} from "./odmd-enver-c-m-ds";
 import {OndemandContracts} from "../OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "../repos/__contracts/odmd-build-contracts-lib";
@@ -37,7 +36,8 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
         this.buildId = id
         this.gitHubRepo = repo
     }
-    public get contracts(){
+
+    public get contracts() {
         return this.node.scope as OndemandContracts<
             AccountsCentralView,
             GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
@@ -124,7 +124,7 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
     }
 
     static SUPPORTED_ENVER_CLASSES = [
-        OdmdEnverCdk, OdmdEnverCtnImg, OdmdEnverCMDs
+        OdmdEnverCdk, OdmdEnverCtnImg, OdmdEnver
     ]
 }
 

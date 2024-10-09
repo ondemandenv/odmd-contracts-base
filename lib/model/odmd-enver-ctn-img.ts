@@ -1,7 +1,8 @@
 import {RepositoryProps} from "aws-cdk-lib/aws-ecr";
 import {OdmdCrossRefProducer} from "./odmd-cross-refs";
-import {OdmdEnverCMDs} from "./odmd-enver-c-m-ds";
 import {IGrantable} from "aws-cdk-lib/aws-iam";
+import {OdmdBuild} from "./odmd-build";
+import {OdmdEnver} from "./odmd-enver";
 
 /**
  * this is implemented by central.
@@ -24,7 +25,7 @@ export class CtnImgRefProducer extends OdmdCrossRefProducer<OdmdEnverCtnImg> {
 }
 
 
-export abstract class OdmdEnverCtnImg extends OdmdEnverCMDs {
+export abstract class OdmdEnverCtnImg extends OdmdEnver<OdmdBuild<OdmdEnverCtnImg>> {
 
 
     abstract readonly builtImgNameToRepo: {

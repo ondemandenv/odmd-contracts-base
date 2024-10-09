@@ -5,7 +5,6 @@ import {RegionInfo} from "aws-cdk-lib/region-info";
 import {OdmdEnverCtnImg} from "../lib/model/odmd-enver-ctn-img";
 import {OdmdEnverCdk} from "../lib/model/odmd-enver-cdk";
 import {OdmdIpAddresses, WithVpc} from "../lib/model/odmd-vpc";
-import {OdmdEnverCMDs} from "../lib/model/odmd-enver-c-m-ds";
 import {OdmdNames} from "../lib/model/odmd-cross-refs";
 import {App, Stack} from "aws-cdk-lib";
 import {IConstruct} from "constructs";
@@ -236,20 +235,13 @@ describe('mkss1', () => {
         if ((enver as any as WithVpc).vpcConfig) {
             checkVpcEnver(enver as any as WithVpc)
         }
-        if (enver.owner.gitHubRepo) {
-            if (enver instanceof OdmdEnverCMDs || enver instanceof OdmdEnverCtnImg) {
-                enver.generateBuildCmds(stack)?.forEach(c => {
-                    if (c.includes(`\${{`)) {
-                        throw new Error(`${c} includes \${{}} which won't work, try put it in env and use $`)
-                    }
-                })
-            } else if (enver instanceof OdmdEnverCdk) {
-                enver.preInstallCmds?.forEach(c => {
-                    if (c.includes(`\${{`)) {
-                        throw new Error(`${c} includes \${{}} which won't work, try put it in env and use $`)
-                    }
-                })
-            }
+        if (enver.owner.gitHubRepo && enver instanceof OdmdEnverCdk) {
+            enver.preInstallCmds?.forEach(c => {
+                if (c.includes(`\${{`)) {
+                    throw new Error(`${c} includes \${{}} which won't work, try put it in env and use $`)
+                }
+            })
+
         }
     })
 
