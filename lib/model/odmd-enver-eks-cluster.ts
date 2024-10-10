@@ -42,10 +42,6 @@ export abstract class OdmdEnverEksClusterArgoCd extends OdmdEnverEksCluster {
     readonly argocdRepoSa = new OdmdCrossRefProducer<OdmdEnverEksClusterArgoCd>(this, 'argocd-repo-sa')
     readonly argocdRepoName = new OdmdCrossRefProducer(this, 'argocdRepoName')
 
-    constructor(owner: OdmdBuild<OdmdEnverCdk>, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF) {
-        super(owner, targetAWSAccountID, targetAWSRegion, targetRevision);
-        this.preCdkCmds.push('npm --prefix lib/update-argocd-appOfApps install')
-    }
 }
 
 

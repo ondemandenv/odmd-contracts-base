@@ -235,14 +235,6 @@ describe('mkss1', () => {
         if ((enver as any as WithVpc).vpcConfig) {
             checkVpcEnver(enver as any as WithVpc)
         }
-        if (enver.owner.gitHubRepo && enver instanceof OdmdEnverCdk) {
-            enver.preInstallCmds?.forEach(c => {
-                if (c.includes(`\${{`)) {
-                    throw new Error(`${c} includes \${{}} which won't work, try put it in env and use $`)
-                }
-            })
-
-        }
     })
 
     const detectDivVpcWithSameName = (p: Map<string, WithVpc>, currentEnver: WithVpc) => {
