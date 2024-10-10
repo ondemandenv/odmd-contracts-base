@@ -2,7 +2,7 @@ import {OdmdBuild, SRC_Rev_REF} from "./odmd-build";
 import {AnyOdmdEnVer, OdmdEnver} from "./odmd-enver";
 import {OdmdCrossRefConsumer} from "./odmd-cross-refs";
 
-export class OdmdEnverCdk extends OdmdEnver<OdmdBuild<OdmdEnverCdk>> {
+export abstract class OdmdEnverCdk extends OdmdEnver<OdmdBuild<OdmdEnverCdk>> {
 
     constructor(owner: OdmdBuild<OdmdEnverCdk>, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF) {
         super(owner, targetAWSAccountID, targetAWSRegion, targetRevision);

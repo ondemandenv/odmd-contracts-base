@@ -22,6 +22,8 @@ import {OdmdCrossRefProducer, OdmdNames} from "./odmd-cross-refs";
 
 export interface IOdmdEnver extends IConstruct {
 
+    readonly entryCmd: string
+
     readonly targetAWSAccountID: string;
     readonly targetAWSRegion: string
     readonly targetRevision: SRC_Rev_REF
@@ -75,7 +77,10 @@ export abstract class OdmdEnver<T extends OdmdBuild<OdmdEnver<T>>> extends Const
         this.targetAWSAccountID = targetAWSAccountID;
         this.targetAWSRegion = targetAWSRegion;
         this.targetRevision = targetRevision;
+
     }
+
+    readonly entryCmd: string = `scripts/build.sh`
 
     readonly description?: string
 
@@ -159,5 +164,5 @@ export abstract class OdmdEnver<T extends OdmdBuild<OdmdEnver<T>>> extends Const
 
 }
 
-export class AnyOdmdEnVer extends OdmdEnver<OdmdBuild<AnyOdmdEnVer>> implements IOdmdEnver {
+export abstract class AnyOdmdEnVer extends OdmdEnver<OdmdBuild<AnyOdmdEnVer>> implements IOdmdEnver {
 }
