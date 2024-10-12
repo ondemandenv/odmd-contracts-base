@@ -83,7 +83,7 @@ export abstract class OndemandContracts<
         return this._builds
     }
 
-    public static readonly REV_REF_name = 'target_rev_ref'
+    public static readonly REV_REF_name = 'ODMD_rev_ref'
 
     public static get REV_REF_value(): string {
         return process.env[this.REV_REF_name]!
@@ -137,13 +137,12 @@ export abstract class OndemandContracts<
         }
     }
 
-    getTargetEnver() {
-        const buildId = process.env['target_build_id']
+    getTargetEnver( buildId = process.env['ODMD_build_id'], enverRef = OndemandContracts.REV_REF_value ) {
 
-        //target_rev_ref=b..master-_b..ta
-        const enverRef = OndemandContracts.REV_REF_value
+        //ODMD_rev_ref=b..master-_b..ta
+
         if (!buildId || !enverRef) {
-            throw new Error(`if (!buildId || !enverRef): ${buildId} || ${enverRef} check: env: target_build_id`);
+            throw new Error(`if (!buildId || !enverRef): ${buildId} || ${enverRef} check: env: ODMD_build_id`);
         }
         const b = this.odmdBuilds.find(b => b.buildId == buildId)
         if (!b) {

@@ -94,8 +94,8 @@ export class OdmdShareIn extends Construct {
 
 export class OdmdShareOut extends Construct {
 
-    constructor(scope: Stack, refToVal: Map<OdmdCrossRefProducer<AnyOdmdEnVer>, any>) {
-        super(scope, 'odmd-share-out_' + OndemandContracts.REV_REF_value);
+    constructor(scope: Stack, refToVal: Map<OdmdCrossRefProducer<AnyOdmdEnVer>, any>, enverRef = OndemandContracts.REV_REF_value) {
+        super(scope, 'odmd-share-out_' + enverRef);
 
         if (refToVal.size == 0) {
             throw new Error("odmd-share-out input size is 0 can't proceed !")
@@ -110,12 +110,12 @@ export class OdmdShareOut extends Construct {
 
         const refProducers = Array.from(refToVal.keys());
         const misMatchEnver = refProducers.find(
-            r => r.owner.targetRevision.toPathPartStr() != OndemandContracts.REV_REF_value
+            r => r.owner.targetRevision.toPathPartStr() != enverRef
         )
 
         if (misMatchEnver) {
             throw new Error(`producing some enver else's ref? 
-            ${OndemandContracts.REV_REF_value}  <> ${misMatchEnver.owner.targetRevision.toPathPartStr()}`)
+            ${enverRef}  <> ${misMatchEnver.owner.targetRevision.toPathPartStr()}`)
         }
 
         let tmp: AnyOdmdEnVer | undefined = undefined;

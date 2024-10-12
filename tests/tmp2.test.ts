@@ -11,8 +11,8 @@ test('make_sense2', () => {
     const theContracts = new TmpTstContracts(app)
 
 
-    process.env['target_build_id'] = theContracts.networking!.buildId
-    process.env['target_rev_ref'] = "b..ipam_west1_le"
+    process.env['ODMD_build_id'] = theContracts.networking!.buildId
+    process.env['ODMD_rev_ref'] = "b..ipam_west1_le"
     let targetEnver = theContracts.getTargetEnver();
     if (targetEnver!.targetRevision.origin != undefined
         || targetEnver != theContracts.networking!.envers[0]
@@ -20,7 +20,7 @@ test('make_sense2', () => {
         throw new Error("no!")
     }
 
-    process.env['target_rev_ref'] = "b..master-_b..ta"
+    process.env['ODMD_rev_ref'] = "b..master-_b..ta"
 
     const nwEnvr = targetEnver
     const nwEnvr1 = targetEnver
