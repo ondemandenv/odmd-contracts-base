@@ -80,7 +80,7 @@ export type RefConsumerOption = {
 export class OdmdCrossRefConsumer<C extends AnyOdmdEnVer, P extends AnyOdmdEnVer> extends Construct {
 
     constructor(scope: C, id: string, producer: OdmdCrossRefProducer<P>, options: RefConsumerOption
-        = {trigger: 'directly', defaultIfAbsent: '__dummy'}) {
+        = {trigger: 'directly', defaultIfAbsent: '-'}) {
         super(scope, id);
         if (producer.owner.owner.buildId == scope.owner.buildId) {
             throw new Error('consuming from same build is ILLEGAL!')

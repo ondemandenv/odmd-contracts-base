@@ -33,9 +33,6 @@ export interface IOdmdEnver extends IConstruct {
 
     readonly ephemeral: boolean
     readonly overwriteGhWf: boolean
-    // readonly sharingIns: Map<string, ContractsShareIn>
-
-    // getSharedValue(stack: Stack, refProducer: ContractsCrossRefProducer<AnyContractsEnVer>): string
 
     readonly centralRoleName: string
     readonly centralRolePath: string
@@ -80,7 +77,7 @@ export abstract class OdmdEnver<T extends OdmdBuild<OdmdEnver<T>>> extends Const
 
     }
 
-    readonly entryCmd: string = `scripts/build.sh`
+    readonly entryCmd: string = `.scripts/build.sh`
 
     readonly description?: string
 

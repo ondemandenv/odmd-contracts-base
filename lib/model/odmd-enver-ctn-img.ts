@@ -39,8 +39,8 @@ export abstract class OdmdEnverCtnImg extends OdmdEnver<OdmdBuild<OdmdEnverCtnIm
         [imgName: string]: CtnImgRefProducer
     }
 
-    genRepoName(repoDifferName: string) {
-        return (this.owner.buildId + '/' + this.targetRevision.toPathPartStr() + '/' + repoDifferName).toLowerCase().replace(/[^a-z0-9-/]/g, '')
+    genRepoName(ecrImgRepoNamePart: string) {
+        return (this.owner.buildId + '/' + this.targetRevision.toPathPartStr() + '/' + ecrImgRepoNamePart).toLowerCase().replace(/[^a-z0-9-/]/g, '')
     }
 
 

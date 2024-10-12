@@ -1,21 +1,10 @@
-/**
- * a "build" here is a process to a repo without outputs
- * the process can have multiple versions
- * output can be:
- * 1) artifacts like npm package and container
- * 2) deployments without referencable resources like endpoints, arns
- */
-
-import {PolicyStatement} from "aws-cdk-lib/aws-iam";
-import {Construct, Node} from "constructs";
-import {AnyOdmdEnVer, OdmdEnver} from "./odmd-enver";
+import {Construct} from "constructs";
+import {OdmdEnver} from "./odmd-enver";
 import {OdmdEnverCdk} from "./odmd-enver-cdk";
 import {OdmdEnverCtnImg} from "./odmd-enver-ctn-img";
 import {OndemandContracts} from "../OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "../repos/__contracts/odmd-build-contracts-lib";
-
-type CentralConfigConstr = new (...args: any[]) => OdmdBuild<AnyOdmdEnVer>;
 
 
 export type GithubRepo = {
@@ -26,7 +15,6 @@ export type GithubRepo = {
 
 // export abstract class OdmdBuild<T extends OdmdEnVerConfig> extends Construct {
 export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Construct {
-
 
     constructor(scope: OndemandContracts<
         AccountsCentralView,
@@ -65,20 +53,6 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
      * notification
      */
     abstract readonly ownerEmail?: string
-
-    /**
-     * will be used for IAM
-     */
-    readonly canonicalPath?: string[]
-
-
-    /**
-     * extra permissions to build this app( running cdk deploy <stack1> <stack2> )
-     * todo: is it necessary to move it into OdmdEnVerConfig, so that each branch/env
-     * can have different role.
-     */
-    readonly extraBuildStatement?: PolicyStatement[]
-
 
     private getPathToRoot(obj: T): object[] {
         const path = [];
