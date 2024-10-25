@@ -10,15 +10,7 @@
  */
 
 import {Construct, IConstruct} from "constructs";
-import {Stack} from "aws-cdk-lib";
-import {OdmdShareIn} from "./odmd-share-refs";
-import {OndemandContracts} from "../OndemandContracts";
 import {OdmdBuild, SRC_Rev_REF} from "./odmd-build";
-import {OdmdCrossRefProducer, OdmdNames} from "./odmd-cross-refs";
-
-// type CentralConfigConstr = new (...args: any[]) => ContractsBuild<AnyContractsEnVer>;
-//
-// export type GitHubRepo = { owner: string, repo: string, odmdGhAppInstallationID?: number };
 
 export interface IOdmdEnver extends IConstruct {
 
