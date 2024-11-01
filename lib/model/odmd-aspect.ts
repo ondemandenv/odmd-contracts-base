@@ -1,7 +1,7 @@
-import {CfnOutput, CfnParameter, IAspect, NestedStack, Stack} from "aws-cdk-lib";
+import {CfnOutput, CfnParameter, CustomResource, Fn, IAspect, NestedStack, Stack} from "aws-cdk-lib";
 import {IConstruct} from "constructs";
 import {OndemandContracts} from "../OndemandContracts";
-import {OdmdShareIn, OdmdShareOut} from "./odmd-share-refs";
+import {GET_SHARE_THRU_SSM_PROVIDER_NAME, OdmdShareIn, OdmdShareOut} from "./odmd-share-refs";
 
 export class OdmdAspect implements IAspect {
     visit(node: IConstruct): void {
@@ -66,9 +66,10 @@ Debugging Challenges: Errors in nested stacks can be harder to diagnose because 
                 key: OdmdShareIn.ODMD_NOW,
                 value: buildSrcRevParam.valueAsString + '-' + odmdNowParam.valueAsString
             })
-
-            this.shareInVers(s);
-            this.shareOutVers(s);
+            if (OndemandContracts.REV_REF_value) {
+                this.shareInVers(s);
+                this.shareOutVers(s);
+            }
         }
     }
 
@@ -104,6 +105,21 @@ Debugging Challenges: Errors in nested stacks can be harder to diagnose because 
             new CfnOutput(s, 'odmdShareInVersionMapOut', {
                 key: 'odmdShareInVersionMapOut',
                 value: JSON.stringify(Object.fromEntries(odmdShareInVersionMapOut))
+            })
+
+            const vi64arr = [] as string[]
+            odmdShareInVersionMapOut.forEach((v, k) => {
+                vi64arr.push(k + ':' + v)
+            })
+
+            new CustomResource(s, 'enver-envar-ver--' + OndemandContracts.REV_REF_value, {
+                serviceToken: Fn.importValue(GET_SHARE_THRU_SSM_PROVIDER_NAME(process.env.ODMD_build_id!, s.region, s.account)),
+                resourceType: 'Custom::OutputToCentralSSM',
+                properties: {
+                    [OndemandContracts.REV_REF_name]: OndemandContracts.REV_REF_value,
+                    [OndemandContracts.REV_REF_name + '...']: s.stackName,
+                    "share..version": JSON.stringify(vi64arr)
+                }
             })
         }
     }

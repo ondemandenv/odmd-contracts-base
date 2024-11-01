@@ -85,8 +85,8 @@ export abstract class OndemandContracts<
 
     public static readonly REV_REF_name = 'ODMD_rev_ref'
 
-    public static get REV_REF_value(): string {
-        return process.env[this.REV_REF_name]!
+    public static get REV_REF_value(): string|undefined {
+        return process.env[this.REV_REF_name]
     }
 
     constructor(scope: IConstruct, id?: string) {

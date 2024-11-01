@@ -69,7 +69,8 @@ export abstract class OdmdEnver<T extends OdmdBuild<OdmdEnver<T>>> extends Const
 
     }
 
-    readonly entryCmd: string = `.scripts/build.sh`
+    readonly entryCmd: string = `chmod +x .scripts/build.sh
+.scripts/build.sh`
 
     readonly description?: string
 
