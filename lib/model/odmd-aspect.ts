@@ -1,7 +1,7 @@
 import {CfnOutput, CfnParameter, CustomResource, Fn, IAspect, NestedStack, Stack} from "aws-cdk-lib";
 import {IConstruct} from "constructs";
 import {OndemandContracts} from "../OndemandContracts";
-import {GET_SHARE_THRU_SSM_PROVIDER_NAME, OdmdShareIn, OdmdShareOut} from "./odmd-share-refs";
+import {GET_SHARE_THRU_SSM_PROVIDER_NAME, OdmdShareIn, OdmdShareOut, SHARE_VERSIONS} from "./odmd-share-refs";
 
 export class OdmdAspect implements IAspect {
     visit(node: IConstruct): void {
@@ -66,7 +66,11 @@ Debugging Challenges: Errors in nested stacks can be harder to diagnose because 
                 key: OdmdShareIn.ODMD_NOW,
                 value: buildSrcRevParam.valueAsString + '-' + odmdNowParam.valueAsString
             })
-            if (OndemandContracts.REV_REF_value) {
+            if (
+                OndemandContracts.REV_REF_value
+                && process.env['ODMD_build_id']
+                && s.stackName.startsWith(process.env['ODMD_build_id']!)
+            ) {
                 this.shareInVers(s);
                 this.shareOutVers(s);
             }
@@ -118,7 +122,7 @@ Debugging Challenges: Errors in nested stacks can be harder to diagnose because 
                 properties: {
                     [OndemandContracts.REV_REF_name]: OndemandContracts.REV_REF_value,
                     [OndemandContracts.REV_REF_name + '...']: s.stackName,
-                    "share..version": JSON.stringify(vi64arr)
+                    [SHARE_VERSIONS]: JSON.stringify(vi64arr)
                 }
             })
         }

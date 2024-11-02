@@ -9,7 +9,7 @@ export function GET_SHARE_THRU_SSM_PROVIDER_NAME(ownerBuildId: string, ownerRegi
     return `odmd-ctl-${ownerBuildId}-${ownerRegion}-${ownerAccount}:share-thru-ssm-provider`.replace(/[^a-zA-Z0-9:-]/g, '-');
 }
 
-const SHARE_VERSIONS = "share..version";
+export const SHARE_VERSIONS = "share..version";
 
 export class OdmdShareIn extends Construct {
 
