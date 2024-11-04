@@ -14,7 +14,7 @@ import {OdmdBuild, SRC_Rev_REF} from "./odmd-build";
 
 export interface IOdmdEnver extends IConstruct {
 
-    readonly entryCmd: string
+    readonly buildScript: string
 
     readonly targetAWSAccountID: string;
     readonly targetAWSRegion: string
@@ -69,8 +69,7 @@ export abstract class OdmdEnver<T extends OdmdBuild<OdmdEnver<T>>> extends Const
 
     }
 
-    readonly entryCmd: string = `chmod +x .scripts/build.sh
-.scripts/build.sh`
+    readonly buildScript: string = `.scripts/build.sh`
 
     readonly description?: string
 
