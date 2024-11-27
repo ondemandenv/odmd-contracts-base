@@ -5,6 +5,7 @@ import {OdmdEnverCtnImg} from "./odmd-enver-ctn-img";
 import {OndemandContracts} from "../OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "../repos/__contracts/odmd-build-contracts-lib";
+import {PolicyStatement} from "aws-cdk-lib/aws-iam";
 
 
 export type GithubRepo = {
@@ -31,6 +32,8 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
             GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
         >
     }
+
+    public readonly extraIamStatements: PolicyStatement[]
 
     public readonly buildId: string
 

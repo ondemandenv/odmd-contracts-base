@@ -56,9 +56,7 @@ export interface IOdmdEnver extends IConstruct {
  */
 export abstract class OdmdEnver<T extends OdmdBuild<OdmdEnver<T>>> extends Construct implements IOdmdEnver {
 
-
     readonly owner: T
-
 
     constructor(owner: T, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF) {
         super(owner, targetRevision.toPathPartStr());

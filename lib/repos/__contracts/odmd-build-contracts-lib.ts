@@ -34,8 +34,6 @@ export abstract class OdmdBuildContractsLib<
     //     return new OdmdEnverContractsLib(this, this.contracts.accounts.workspace0, region, ref)
     // }
 
-    public abstract get theOne(): OdmdEnverContractsLib
-
 }
 
 

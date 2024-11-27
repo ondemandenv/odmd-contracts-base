@@ -51,7 +51,8 @@ export abstract class OndemandContracts<
     get contractsLibBuild(): C {
         return this._contractsLibBuild
     }
-    abstract createContractsLibBuild():C
+
+    abstract createContractsLibBuild(): C
 
     abstract get accounts(): A
 
@@ -85,7 +86,7 @@ export abstract class OndemandContracts<
 
     public static readonly REV_REF_name = 'ODMD_rev_ref'
 
-    public static get REV_REF_value(): string|undefined {
+    public static get REV_REF_value(): string | undefined {
         return process.env[this.REV_REF_name]
     }
 
@@ -137,7 +138,7 @@ export abstract class OndemandContracts<
         }
     }
 
-    getTargetEnver( buildId = process.env['ODMD_build_id'], enverRef = OndemandContracts.REV_REF_value ) {
+    getTargetEnver(buildId = process.env['ODMD_build_id'], enverRef = OndemandContracts.REV_REF_value) {
 
         //ODMD_rev_ref=b..master-_b..ta
 
@@ -229,6 +230,14 @@ export abstract class OndemandContracts<
                     onlyProducerAllowed(enver);
                 }
             })
+        })
+
+
+        this.node.findAll().filter(enver => enver instanceof OdmdCrossRefConsumer).forEach(enver => {
+            const c = enver as OdmdCrossRefConsumer<AnyOdmdEnVer, AnyOdmdEnVer>
+            if (c.owner.targetAWSRegion != c.producer.owner.targetAWSRegion) {
+                throw new Error(` cross region is not supported: consumer ${c.owner.node.path} in region ${c.owner.targetAWSRegion}, but producer ${c.producer.node.path} is in region ${c.producer.owner.targetRevision}`)
+            }
         })
     }
 }
