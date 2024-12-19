@@ -1,18 +1,18 @@
 {
   "name": "@ondemandenv/contracts-lib-base",
-  "version": "0.0.43",
+  "version": "0.0.44",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
   "dependencies": {
-    "aws-cdk-lib": "2.164.1",
+    "aws-cdk-lib": "2.173.2",
     "cdk8s": "2.69.10",
     "cdk8s-plus-29": "2.5.6",
     "constructs": "^10.0.0",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
-    "aws-cdk": "2.164.1",
+    "aws-cdk": "2.173.2",
     "@types/node": "^22.5.4",
     "@types/jest": "^29.5.12",
     "@types/js-yaml": "^4.0.9",
@@ -25,7 +25,7 @@
   },
   "peerDependencies": {
     "constructs": "^10.0.0",
-    "aws-cdk-lib": "2.164.1"
+    "aws-cdk-lib": "2.173.2"
   },
   "scripts": {
     "build": "tsc --build",
