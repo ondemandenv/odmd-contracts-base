@@ -1,4 +1,4 @@
-import {CfnOutput, CfnParameter, CustomResource, Fn, IAspect, NestedStack, Stack} from "aws-cdk-lib";
+import {CfnElement, CfnOutput, CfnParameter, CustomResource, Fn, IAspect, NestedStack, Stack, Tags} from "aws-cdk-lib";
 import {IConstruct} from "constructs";
 import {OndemandContracts} from "../OndemandContracts";
 import {GET_SHARE_THRU_SSM_PROVIDER_NAME, OdmdShareIn, OdmdShareOut, SHARE_VERSIONS} from "./odmd-share-refs";
@@ -74,6 +74,11 @@ Debugging Challenges: Errors in nested stacks can be harder to diagnose because 
                 this.shareInVers(s);
                 this.shareOutVers(s);
             }
+        }
+        else if (node instanceof CfnElement) {
+            const logicalId = node.stack.getLogicalId(node);
+            Tags.of(node).add("stackName", node.stack.stackName)
+            Tags.of(node).add("logicalId", logicalId)
         }
     }
 

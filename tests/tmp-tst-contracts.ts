@@ -51,7 +51,6 @@ export class TmpTstContracts extends OndemandContracts<AccountsCentralView, Gith
 
         if (!this._allAccounts) {
 
-
             const accEntries = Object.entries(this.accounts);
             if (Array.from(accEntries.keys()).length != Array.from(accEntries.values()).length) {
                 throw new Error("Account name to number has to be 1:1!")
