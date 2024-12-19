@@ -103,19 +103,6 @@ export abstract class OndemandContracts<
             this.DEFAULTS_SVC.push(this.defaultEcrEks)
         }
 
-        if (this.networking) {
-            this._builds.push(this.networking)
-        }
-        if (this.eksCluster) {
-            this._builds.push(this.eksCluster)
-        }
-        if (this.defaultVpcRds) {
-            this._builds.push(this.defaultVpcRds)
-        }
-        if (this.defaultEcrEks) {
-            this._builds.push(this.defaultEcrEks)
-        }
-
         if (!process.env.CDK_CLI_VERSION) {
             throw new Error("have to have process.env.CDK_CLI_VERSION!")
         }
@@ -237,5 +224,17 @@ export abstract class OndemandContracts<
                 throw new Error(` cross region is not supported: consumer ${c.owner.node.path} in region ${c.owner.targetAWSRegion}, but producer ${c.producer.node.path} is in region ${c.producer.owner.targetRevision}`)
             }
         })
+
+
+
+        let tmpSet = new Set(this.odmdBuilds);
+        if (tmpSet.size != this.odmdBuilds.length) {
+            tmpSet.forEach( b=>{
+                const i = this.odmdBuilds.indexOf(b)
+                this.odmdBuilds.splice(i, 1)
+            })
+
+            throw new Error('duplicated envers?!')
+        }
     }
 }
