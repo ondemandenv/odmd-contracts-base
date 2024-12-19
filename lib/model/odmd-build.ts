@@ -24,7 +24,9 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
         super(scope, id);
         this.buildId = id
         this.gitHubRepo = repo
-        scope.odmdBuilds.push(this)
+
+        // @ts-ignore
+        scope._builds.push(this)
     }
 
     public get contracts() {

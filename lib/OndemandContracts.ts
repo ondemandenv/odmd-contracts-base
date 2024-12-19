@@ -49,6 +49,9 @@ export abstract class OndemandContracts<
 
     private _contractsLibBuild: C
     get contractsLibBuild(): C {
+        if (!this._contractsLibBuild) {
+            throw new Error('Contracts Lib not initialized yet')
+        }
         return this._contractsLibBuild
     }
 
@@ -60,27 +63,9 @@ export abstract class OndemandContracts<
         throw new Error("abstract!")
     }
 
-    private _builds: Array<OdmdBuild<AnyOdmdEnVer>>
+    private _builds: Array<OdmdBuild<AnyOdmdEnVer>> = []
 
     public get odmdBuilds(): Array<OdmdBuild<AnyOdmdEnVer>> {
-        if (!this._builds) {
-            this._builds = [
-                this.contractsLibBuild
-            ]
-
-            if (this.networking) {
-                this._builds.push(this.networking)
-            }
-            if (this.eksCluster) {
-                this._builds.push(this.eksCluster)
-            }
-            if (this.defaultVpcRds) {
-                this._builds.push(this.defaultVpcRds)
-            }
-            if (this.defaultEcrEks) {
-                this._builds.push(this.defaultEcrEks)
-            }
-        }
         return this._builds
     }
 
@@ -116,6 +101,19 @@ export abstract class OndemandContracts<
         if (this.githubRepos._defaultKubeEks) {
             this.defaultEcrEks = new OdmdBuildDefaultKubeEks(this)
             this.DEFAULTS_SVC.push(this.defaultEcrEks)
+        }
+
+        if (this.networking) {
+            this._builds.push(this.networking)
+        }
+        if (this.eksCluster) {
+            this._builds.push(this.eksCluster)
+        }
+        if (this.defaultVpcRds) {
+            this._builds.push(this.defaultVpcRds)
+        }
+        if (this.defaultEcrEks) {
+            this._builds.push(this.defaultEcrEks)
         }
 
         if (!process.env.CDK_CLI_VERSION) {
