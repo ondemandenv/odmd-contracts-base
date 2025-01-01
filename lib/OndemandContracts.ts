@@ -33,27 +33,27 @@ export abstract class OndemandContracts<
     static readonly STACK_PARAM_BUILD_SRC_REPO = 'buildSrcRepo'
 
 
-    private _userAuth?: OdmdBuildUserAuth;
+    protected _userAuth?: OdmdBuildUserAuth;
     get userAuth(): OdmdBuildUserAuth | undefined {
         return this._userAuth;
     }
 
-    private _networking?: OdmdConfigNetworking;
+    protected _networking?: OdmdConfigNetworking;
     get networking(): OdmdConfigNetworking | undefined {
         return this._networking;
     }
 
-    private _eksCluster?: OdmdBuildEksCluster;
+    protected _eksCluster?: OdmdBuildEksCluster;
     get eksCluster(): OdmdBuildEksCluster | undefined {
         return this._eksCluster;
     }
 
-    private _defaultVpcRds?: OdmdBuildDefaultVpcRds;
+    protected _defaultVpcRds?: OdmdBuildDefaultVpcRds;
     get defaultVpcRds(): OdmdBuildDefaultVpcRds | undefined {
         return this._defaultVpcRds;
     }
 
-    private _defaultEcrEks?: OdmdBuildDefaultKubeEks;
+    protected _defaultEcrEks?: OdmdBuildDefaultKubeEks;
     get defaultEcrEks(): OdmdBuildDefaultKubeEks | undefined {
         return this._defaultEcrEks;
     }
@@ -64,7 +64,7 @@ export abstract class OndemandContracts<
 
     abstract get allAccounts(): string[]
 
-    private _contractsLibBuild: C;
+    protected _contractsLibBuild: C;
     get contractsLibBuild(): C {
         if (!this._contractsLibBuild) {
             throw new Error('Contracts Lib not initialized yet')
@@ -80,7 +80,7 @@ export abstract class OndemandContracts<
         throw new Error("abstract!")
     }
 
-    private _builds: Array<OdmdBuild<AnyOdmdEnVer>> = []
+    protected _builds: Array<OdmdBuild<AnyOdmdEnVer>> = []
 
     public get odmdBuilds(): Array<OdmdBuild<AnyOdmdEnVer>> {
         return this._builds
@@ -213,7 +213,7 @@ export abstract class OndemandContracts<
 
     /**
      *
-     * @param s  `${ContractsCrossRefConsumer.OdmdRef_prefix}\${${this.node.path}}`
+     * @param s  `${OdmdCrossRefConsumer.OdmdRef_prefix}\${${this.node.path}}`
      * @param s  "OdmdRefConsumer: ${a/b/c}"
      *
      */
@@ -234,7 +234,7 @@ export abstract class OndemandContracts<
         throw new Error('/')
     }
 
-    //used in ContractsCrossRefConsumer.getSharedValue
+    //being used in OdmdCrossRefConsumer.getSharedValue
     private readonly _sharingIns: Map<string, OdmdShareIn> = new Map<string, OdmdShareIn>();
 
 
