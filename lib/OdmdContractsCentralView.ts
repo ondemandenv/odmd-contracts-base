@@ -12,7 +12,7 @@ export type GithubReposCentralView = {
     githubAppId: string;
 
     __contracts: GithubRepo
-    __userAuth: GithubRepo
+    __userAuth?: GithubRepo
     __eks?: GithubRepo
     __networking?: GithubRepo
     _defaultKubeEks?: GithubRepo

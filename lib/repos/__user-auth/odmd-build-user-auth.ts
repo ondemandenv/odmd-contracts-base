@@ -16,7 +16,7 @@ export class OdmdBuildUserAuth extends OdmdBuild<OdmdEnverUserAuth> {
         AccountsCentralView,
         GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
     >) {
-        super(scope, "OdmdBuildUserAuth", scope.githubRepos.__userAuth);
+        super(scope, "OdmdBuildUserAuth", scope.githubRepos.__userAuth!);
     }
 
     protected initializeEnvers(): void {
