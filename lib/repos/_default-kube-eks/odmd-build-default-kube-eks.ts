@@ -18,16 +18,23 @@ export class OdmdBuildDefaultKubeEks extends OdmdBuild<OdmdEnverCdk> {
     }
 
     ownerEmail?: string | undefined;
-    readonly envers: Array<OdmdEnverCdkDefaultEcrEks> = []
+    private _envers: Array<OdmdEnverCdkDefaultEcrEks>;
+    public get envers(): Array<OdmdEnverCdkDefaultEcrEks> {
+        return this._envers;
+    }
+
+    protected initializeEnvers(): void {
+        this._envers = [];
+    }
 
     public getOrCreateOne(usr: AnyOdmdEnVer, targetEksCluster: OdmdEnverEksCluster, targetNamespace: string) {
-        let rt = this.envers.find(e => e.userEnver == usr)
+        let rt = this._envers.find(e => e.userEnver == usr);
         if (rt) {
-            return rt
+            return rt;
         }
 
         rt = new OdmdEnverCdkDefaultEcrEks(this, usr, targetEksCluster, targetNamespace);
-        this.envers.push(rt)
+        this._envers.push(rt);
         return rt;
     }
 

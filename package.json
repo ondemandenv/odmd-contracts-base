@@ -32,7 +32,7 @@
     "watch": "tsc --build -w",
     "clean": "tsc --build --clean",
     "audit": "npm audit fix",
-    "test": "tsc --build --clean && tsc --build && cross-env target_rev_ref=b..odmdSbxUsw1 CDK_DEFAULT_ACCOUNT=123 CDK_DEFAULT_REGION=us-west-1 CDK_CLI_VERSION=2.163.0 jest --verbose --detectOpenHandles",
+    "test": "tsc --build --clean && tsc --build && cross-env target_rev_ref=b..odmdSbxUsw1 CDK_DEFAULT_ACCOUNT=123 CDK_DEFAULT_REGION=us-west-1 CDK_CLI_VERSION=2.163.0 jest --verbose --detectOpenHandles --forceExit",
     "buildversion": "tsc --build && npm version patch",
     "cdk-ls": "tsc --build --clean && tsc --build && cross-env target_rev_ref=b..main cdk ls -v --profile sandbox-workspace3",
     "pubpub": "npm run test && npm publish --access=public",

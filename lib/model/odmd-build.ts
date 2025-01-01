@@ -27,7 +27,13 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
 
         // @ts-ignore
         scope._builds.push(this)
+        
+        // Initialize envers through dedicated method
+        this.initializeEnvers()
     }
+
+    // New method for initializing envers
+    protected abstract initializeEnvers(): void;
 
     public get contracts() {
         return this.node.scope as OndemandContracts<
@@ -51,7 +57,7 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
      *
      * this means implementation
      */
-    abstract readonly envers: Array<T>
+    abstract get envers(): Array<T>;
 
     readonly workDirs?: Array<string>
 

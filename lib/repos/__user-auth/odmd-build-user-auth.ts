@@ -6,7 +6,10 @@ import {OdmdCrossRefProducer} from "../../model/odmd-cross-refs";
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
 
 export class OdmdBuildUserAuth extends OdmdBuild<OdmdEnverUserAuth> {
-    envers: OdmdEnverUserAuth[] = [];
+    private _envers: OdmdEnverUserAuth[];
+    public get envers(): OdmdEnverUserAuth[] {
+        return this._envers;
+    }
     ownerEmail?: string | undefined;
 
     constructor(scope: OndemandContracts<
@@ -16,6 +19,9 @@ export class OdmdBuildUserAuth extends OdmdBuild<OdmdEnverUserAuth> {
         super(scope, "OdmdBuildUserAuth", scope.githubRepos.__userAuth);
     }
 
+    protected initializeEnvers(): void {
+        this._envers = [];
+    }
 }
 
 export class OdmdEnverUserAuth extends OdmdEnver<OdmdBuild<OdmdEnverUserAuth>> {
@@ -26,7 +32,7 @@ export class OdmdEnverUserAuth extends OdmdEnver<OdmdBuild<OdmdEnverUserAuth>> {
     readonly idProviderClientId: OdmdCrossRefProducer<OdmdEnverUserAuth>
 
 
-    constructor(owner: OdmdBuild<OdmdEnverUserAuth>, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF) {
+    constructor(owner: OdmdBuildUserAuth, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF) {
         super(owner, targetAWSAccountID, targetAWSRegion, targetRevision);
         this.owner = owner;
         this.idProviderName = new OdmdCrossRefProducer(this, 'id-provider-name')

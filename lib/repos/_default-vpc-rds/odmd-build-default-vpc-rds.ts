@@ -16,6 +16,11 @@ export type SimpleVpc = {
 };
 
 export class OdmdBuildDefaultVpcRds extends OdmdBuild<OdmdEnverCdk> {
+    ownerEmail?: string | undefined;
+    private _envers: Array<OdmdEnverCdkDefaultVpc>;
+    public get envers(): Array<OdmdEnverCdkDefaultVpc> {
+        return this._envers;
+    }
 
     constructor(scope: OndemandContracts<
         AccountsCentralView,
@@ -24,20 +29,20 @@ export class OdmdBuildDefaultVpcRds extends OdmdBuild<OdmdEnverCdk> {
         super(scope, 'OdmdBuildDefaultVpcRds', scope.githubRepos._defaultVpcRds!);
     }
 
-    ownerEmail?: string | undefined;
-    readonly envers: Array<OdmdEnverCdkDefaultVpc> = []
+    protected initializeEnvers(): void {
+        this._envers = [];
+    }
 
     public getOrCreateOne(client: AnyOdmdEnVer, vpc: SimpleVpc) {
-        let rt =
-            this.envers.find(e => e.targetAWSAccountID == client.targetAWSAccountID
-                && e.targetAWSRegion == client.targetAWSRegion && e.vpcConfig.vpcName == vpc.vpcName)
+        let rt = this._envers.find(e => e.targetAWSAccountID == client.targetAWSAccountID
+            && e.targetAWSRegion == client.targetAWSRegion && e.vpcConfig.vpcName == vpc.vpcName)
         if (rt) {
             rt.addClient(client)
             return rt
         }
 
         rt = new OdmdEnverCdkDefaultVpc(this, client.targetAWSRegion, client.owner.contracts.getAccountName(client.targetAWSAccountID), vpc);
-        this.envers.push(rt)
+        this._envers.push(rt)
         rt.addClient(client)
         return rt;
     }

@@ -7,21 +7,25 @@ import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCe
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
 
 export class OdmdConfigNetworking extends OdmdBuild<OdmdEnverCdk> {
-
-
-    ownerEmail = undefined
-
-    public readonly ipam_west1_le: IPAM_AB;
-    readonly envers: IPAM_AB[]
+    ownerEmail = undefined;
+    public ipam_west1_le!: IPAM_AB;
+    
+    private _envers: IPAM_AB[];
+    public get envers(): IPAM_AB[] {
+        return this._envers;
+    }
 
     constructor(scope: OndemandContracts<
         AccountsCentralView,
         GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
     >) {
         super(scope, 'networking', scope.githubRepos.__networking!);
-        this.envers = [
-            this.ipam_west1_le = new IPAM_WEST1_LE(this, new SRC_Rev_REF("b", "ipam_west1_le")),
-        ]
+    }
+
+    protected initializeEnvers(): void {
+        this._envers = [];
+        this.ipam_west1_le = new IPAM_WEST1_LE(this, new SRC_Rev_REF("b", "ipam_west1_le"));
+        this._envers.push(this.ipam_west1_le);
     }
 }
 

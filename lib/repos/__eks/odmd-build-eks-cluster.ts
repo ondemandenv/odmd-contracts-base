@@ -10,26 +10,27 @@ import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCe
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
 
 export class OdmdBuildEksCluster extends OdmdBuildEks {
-
-    public readonly envers: Array<OdmdEnverEksCluster>
-
-    // public readonly clusterEnver: ContractsEnverEksCluster
-    public readonly argoClusterEnver: EksClusterEnverArgo
+    private _envers: Array<OdmdEnverEksCluster>;
+    public get envers(): Array<OdmdEnverEksCluster> {
+        return this._envers;
+    }
+    
+    private _argoClusterEnver!: EksClusterEnverArgo;
+    public get argoClusterEnver(): EksClusterEnverArgo {
+        return this._argoClusterEnver;
+    }
 
     constructor(scope: OndemandContracts<
         AccountsCentralView,
         GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
     >) {
         super(scope, 'eks');
+    }
 
-        // this.clusterEnver = new EksCluster(this, 'odmdSbxUsw1');
-
-        this.argoClusterEnver = new EksClusterEnverArgo(this, 'odmdSbxUsw1argo')
-
-        this.envers = [
-            // this.clusterEnver,
-            this.argoClusterEnver
-        ]
+    protected initializeEnvers(): void {
+        this._envers = [];
+        this._argoClusterEnver = new EksClusterEnverArgo(this, 'odmdSbxUsw1argo');
+        this._envers.push(this.argoClusterEnver);
     }
 }
 

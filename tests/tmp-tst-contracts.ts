@@ -6,6 +6,16 @@ import {SRC_Rev_REF} from "../lib/model/odmd-build";
 
 
 export class TmpTstOdmdBuildContractsLib extends OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
+    protected initializeEnvers(): void {
+        this.envers = [
+            new OdmdEnverContractsLib(
+                this,
+                this.contracts.accounts.workspace0,
+                'us-west-1',
+                new SRC_Rev_REF("b", "odmd_us_west_1__sandbox")
+            )
+        ]
+    }
     public get packageName(): string {
         return '@ondemandenv/contracts-lib-base'
     }
@@ -20,14 +30,6 @@ export class TmpTstOdmdBuildContractsLib extends OdmdBuildContractsLib<AccountsC
 
     constructor(scope: OndemandContracts<AccountsCentralView, GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>>, id: string) {
         super(scope, id);
-        this.envers = [
-            new OdmdEnverContractsLib(
-                this,
-                this.contracts.accounts.workspace0,
-                'us-west-1',
-                new SRC_Rev_REF("b", "odmd_us_west_1__sandbox")
-            )
-        ]
     }
 }
 

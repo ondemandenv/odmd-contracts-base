@@ -10,7 +10,6 @@ import {IConstruct} from "constructs";
 import {PgSchemaUsersProps} from "../lib/model/odmd-pg-schema-usrs";
 import {WithRds} from "../lib/model/odmd-rds-cluster";
 import * as fs from "node:fs";
-import {describe} from "node:test";
 import {TmpTstContracts} from "./tmp-tst-contracts";
 
 
