@@ -33,15 +33,30 @@ export abstract class OndemandContracts<
     static readonly STACK_PARAM_BUILD_SRC_REPO = 'buildSrcRepo'
 
 
-    readonly userAuth?: OdmdBuildUserAuth
-    readonly networking?: OdmdConfigNetworking
+    private _userAuth?: OdmdBuildUserAuth;
+    get userAuth(): OdmdBuildUserAuth | undefined {
+        return this._userAuth;
+    }
 
-    readonly eksCluster?: OdmdBuildEksCluster
-    readonly defaultVpcRds?: OdmdBuildDefaultVpcRds
-    readonly defaultEcrEks?: OdmdBuildDefaultKubeEks
+    private _networking?: OdmdConfigNetworking;
+    get networking(): OdmdConfigNetworking | undefined {
+        return this._networking;
+    }
 
-    readonly DEFAULTS_SVC?: OdmdBuild<AnyOdmdEnVer>[]
+    private _eksCluster?: OdmdBuildEksCluster;
+    get eksCluster(): OdmdBuildEksCluster | undefined {
+        return this._eksCluster;
+    }
 
+    private _defaultVpcRds?: OdmdBuildDefaultVpcRds;
+    get defaultVpcRds(): OdmdBuildDefaultVpcRds | undefined {
+        return this._defaultVpcRds;
+    }
+
+    private _defaultEcrEks?: OdmdBuildDefaultKubeEks;
+    get defaultEcrEks(): OdmdBuildDefaultKubeEks | undefined {
+        return this._defaultEcrEks;
+    }
 
     public getAccountName(accId: string) {
         return Object.entries(this.accounts).find(([k, v]) => v == accId)![0] as keyof AccountsCentralView
@@ -49,7 +64,7 @@ export abstract class OndemandContracts<
 
     abstract get allAccounts(): string[]
 
-    private _contractsLibBuild: C
+    private _contractsLibBuild: C;
     get contractsLibBuild(): C {
         if (!this._contractsLibBuild) {
             throw new Error('Contracts Lib not initialized yet')
@@ -84,29 +99,9 @@ export abstract class OndemandContracts<
         if (!aspects.all.find(a => a instanceof OdmdAspect)) {
             aspects.add(new OdmdAspect())
         }
-        this._contractsLibBuild = this.createContractsLibBuild()
 
-        if (this.githubRepos.__userAuth) {
-            this.userAuth = new OdmdBuildUserAuth(this)
-        }
-        if (this.githubRepos.__networking) {
-            this.networking = new OdmdConfigNetworking(this)
-        }
-
-        if (this.githubRepos.__eks) {
-            this.eksCluster = new OdmdBuildEksCluster(this)
-        }
-
-        this.DEFAULTS_SVC = [] as OdmdBuild<AnyOdmdEnVer>[]
-        if (this.githubRepos._defaultVpcRds) {
-            this.defaultVpcRds = new OdmdBuildDefaultVpcRds(this)
-            this.DEFAULTS_SVC.push(this.defaultVpcRds)
-        }
-
-        if (this.githubRepos._defaultKubeEks) {
-            this.defaultEcrEks = new OdmdBuildDefaultKubeEks(this)
-            this.DEFAULTS_SVC.push(this.defaultEcrEks)
-        }
+        // Initialize all builds
+        this.initializeBuilds();
 
         if (!process.env.CDK_CLI_VERSION) {
             throw new Error("have to have process.env.CDK_CLI_VERSION!")
@@ -126,6 +121,47 @@ export abstract class OndemandContracts<
         if (!buildRegion || !buildAccount) {
             throw new Error("buildRegion>" + buildRegion + "; buildAccount>" + buildAccount)
         }
+    }
+
+    // Main initialization method
+    protected initializeBuilds(): void {
+        this._contractsLibBuild = this.createContractsLibBuild();
+        if (this.githubRepos.__userAuth) {
+            this.initializeUserAuth();
+        }
+        if (this.githubRepos.__networking) {
+            this.initializeNetworking();
+        }
+        if (this.githubRepos.__eks) {
+            this.initializeEksCluster();
+        }
+        if (this.githubRepos._defaultVpcRds) {
+            this.initializeDefaultVpcRds()
+        }
+        if (this.githubRepos._defaultKubeEks) {
+            this.initializeDefaultKubeEks()
+        }
+    }
+
+
+    protected initializeUserAuth(): void {
+        this._userAuth = new OdmdBuildUserAuth(this);
+    }
+
+    protected initializeNetworking(): void {
+        this._networking = new OdmdConfigNetworking(this);
+    }
+
+    protected initializeEksCluster(): void {
+        this._eksCluster = new OdmdBuildEksCluster(this);
+    }
+
+    protected initializeDefaultVpcRds(): void {
+        this._defaultVpcRds = new OdmdBuildDefaultVpcRds(this);
+    }
+
+    protected initializeDefaultKubeEks(): void {
+        this._defaultEcrEks = new OdmdBuildDefaultKubeEks(this);
     }
 
     getTargetEnver(buildId = process.env['ODMD_build_id'], enverRef = OndemandContracts.REV_REF_value) {
@@ -231,10 +267,9 @@ export abstract class OndemandContracts<
         })
 
 
-
         let tmpSet = new Set(this.odmdBuilds);
         if (tmpSet.size != this.odmdBuilds.length) {
-            tmpSet.forEach( b=>{
+            tmpSet.forEach(b => {
                 const i = this.odmdBuilds.indexOf(b)
                 this.odmdBuilds.splice(i, 1)
             })
