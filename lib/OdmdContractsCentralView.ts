@@ -5,12 +5,14 @@ import {OdmdBuildEksCluster} from "./repos/__eks/odmd-build-eks-cluster";
 import {OdmdBuildDefaultVpcRds} from "./repos/_default-vpc-rds/odmd-build-default-vpc-rds";
 import {OdmdBuildDefaultKubeEks} from "./repos/_default-kube-eks/odmd-build-default-kube-eks";
 import {OdmdBuildContractsLib} from "./repos/__contracts/odmd-build-contracts-lib";
+import {OdmdBuildUserAuth} from "./repos/__user-auth/odmd-build-user-auth";
 
 export type GithubReposCentralView = {
 
     githubAppId: string;
 
     __contracts: GithubRepo
+    __userAuth: GithubRepo
     __eks?: GithubRepo
     __networking?: GithubRepo
     _defaultKubeEks?: GithubRepo
@@ -22,8 +24,11 @@ export type AccountsCentralView = {
     workspace0: string,
 }
 
-export interface OdmdContractsCentralView<A extends AccountsCentralView,
-    G extends GithubReposCentralView, C extends OdmdBuildContractsLib<A, G>> {
+export interface OdmdContractsCentralView<
+    A extends AccountsCentralView,
+    G extends GithubReposCentralView,
+    C extends OdmdBuildContractsLib<A, G>
+> {
 
     get contractsLibBuild(): C
 
@@ -41,6 +46,7 @@ export interface OdmdContractsCentralView<A extends AccountsCentralView,
     get odmdBuilds(): Array<OdmdBuild<AnyOdmdEnVer>>;
 
 
+    readonly userAuth?: OdmdBuildUserAuth
     readonly networking?: OdmdConfigNetworking
 
     readonly eksCluster?: OdmdBuildEksCluster

@@ -32,7 +32,11 @@ export class TmpTstOdmdBuildContractsLib extends OdmdBuildContractsLib<AccountsC
 }
 
 
-export class TmpTstContracts extends OndemandContracts<AccountsCentralView, GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>> {
+export class TmpTstContracts extends OndemandContracts<
+    AccountsCentralView,
+    GithubReposCentralView,
+    OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
+> {
     createContractsLibBuild(): OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
         return new TmpTstOdmdBuildContractsLib(this, 'aaa')
     }
@@ -66,8 +70,9 @@ export class TmpTstContracts extends OndemandContracts<AccountsCentralView, Gith
     get githubRepos(): GithubReposCentralView {
         if (!this._githubRepos) {
             this._githubRepos = {
-
                 githubAppId: "123",
+
+                __userAuth: {owner: 'odmd', name: 'userAuth', ghAppInstallID: 1234},
                 __contracts: {owner: 'odmd', name: 'contracts', ghAppInstallID: 1234},
                 __eks: {owner: 'odmd', name: 'eks', ghAppInstallID: 1234},
                 __networking: {owner: 'odmd', name: 'networking', ghAppInstallID: 1234},
@@ -122,6 +127,7 @@ export class TmpTstContracts1 extends OndemandContracts<AccountsCentralView, Git
             this._githubRepos = {
 
                 githubAppId: "123",
+                __userAuth: {owner: 'odmd', name: 'userAuth', ghAppInstallID: 1234},
                 __contracts: {owner: 'odmd', name: 'contracts', ghAppInstallID: 1234},
                 __eks: {owner: 'odmd', name: 'eks', ghAppInstallID: 1234},
                 __networking: {owner: 'odmd', name: 'networking', ghAppInstallID: 1234},

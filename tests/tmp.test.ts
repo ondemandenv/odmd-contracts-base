@@ -2,7 +2,6 @@ import {AnyOdmdEnVer} from "../lib/model/odmd-enver";
 import {OndemandContracts} from "../lib/OndemandContracts";
 import {OdmdBuild} from "../lib/model/odmd-build";
 import {RegionInfo} from "aws-cdk-lib/region-info";
-import {OdmdEnverCtnImg} from "../lib/model/odmd-enver-ctn-img";
 import {OdmdEnverCdk} from "../lib/model/odmd-enver-cdk";
 import {OdmdIpAddresses, WithVpc} from "../lib/model/odmd-vpc";
 import {OdmdNames} from "../lib/model/odmd-cross-refs";

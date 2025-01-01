@@ -13,6 +13,7 @@ import {OdmdBuildContractsLib} from "./repos/__contracts/odmd-build-contracts-li
 import {OdmdCrossRefConsumer} from "./model/odmd-cross-refs";
 import {OdmdShareIn} from "./model/odmd-share-refs";
 import {OdmdEnverCtnImg} from "./model/odmd-enver-ctn-img";
+import {OdmdBuildUserAuth} from "./repos/__user-auth/odmd-build-user-auth";
 
 
 export abstract class OndemandContracts<
@@ -32,6 +33,7 @@ export abstract class OndemandContracts<
     static readonly STACK_PARAM_BUILD_SRC_REPO = 'buildSrcRepo'
 
 
+    readonly userAuth?: OdmdBuildUserAuth
     readonly networking?: OdmdConfigNetworking
 
     readonly eksCluster?: OdmdBuildEksCluster
@@ -84,6 +86,9 @@ export abstract class OndemandContracts<
         }
         this._contractsLibBuild = this.createContractsLibBuild()
 
+        if (this.githubRepos.__userAuth) {
+            this.userAuth = new OdmdBuildUserAuth(this)
+        }
         if (this.githubRepos.__networking) {
             this.networking = new OdmdConfigNetworking(this)
         }
