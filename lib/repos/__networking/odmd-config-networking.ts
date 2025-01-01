@@ -9,8 +9,8 @@ import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
 export class OdmdConfigNetworking extends OdmdBuild<OdmdEnverCdk> {
     ownerEmail = undefined;
     public ipam_west1_le!: IPAM_AB;
-    
-    private _envers: IPAM_AB[];
+
+    protected _envers: IPAM_AB[];
     public get envers(): IPAM_AB[] {
         return this._envers;
     }

@@ -18,7 +18,7 @@ export class OdmdBuildDefaultKubeEks extends OdmdBuild<OdmdEnverCdk> {
     }
 
     ownerEmail?: string | undefined;
-    private _envers: Array<OdmdEnverCdkDefaultEcrEks>;
+    protected _envers: Array<OdmdEnverCdkDefaultEcrEks>;
     public get envers(): Array<OdmdEnverCdkDefaultEcrEks> {
         return this._envers;
     }

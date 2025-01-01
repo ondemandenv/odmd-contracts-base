@@ -17,7 +17,7 @@ export type SimpleVpc = {
 
 export class OdmdBuildDefaultVpcRds extends OdmdBuild<OdmdEnverCdk> {
     ownerEmail?: string | undefined;
-    private _envers: Array<OdmdEnverCdkDefaultVpc>;
+    protected _envers: Array<OdmdEnverCdkDefaultVpc>;
     public get envers(): Array<OdmdEnverCdkDefaultVpc> {
         return this._envers;
     }

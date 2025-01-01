@@ -10,11 +10,11 @@ import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCe
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
 
 export class OdmdBuildEksCluster extends OdmdBuildEks {
-    private _envers: Array<OdmdEnverEksCluster>;
+    protected _envers: Array<OdmdEnverEksCluster>;
     public get envers(): Array<OdmdEnverEksCluster> {
         return this._envers;
     }
-    
+
     private _argoClusterEnver!: EksClusterEnverArgo;
     public get argoClusterEnver(): EksClusterEnverArgo {
         return this._argoClusterEnver;

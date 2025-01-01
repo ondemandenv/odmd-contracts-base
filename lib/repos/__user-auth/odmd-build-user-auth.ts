@@ -6,7 +6,7 @@ import {OdmdCrossRefProducer} from "../../model/odmd-cross-refs";
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
 
 export class OdmdBuildUserAuth extends OdmdBuild<OdmdEnverUserAuth> {
-    private _envers: OdmdEnverUserAuth[];
+    protected _envers: OdmdEnverUserAuth[];
     public get envers(): OdmdEnverUserAuth[] {
         return this._envers;
     }
