@@ -1,15 +1,16 @@
 import {OdmdBuild, SRC_Rev_REF} from "../../model/odmd-build";
 import {OndemandContracts} from "../../OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
-import {OdmdEnver} from "../../model/odmd-enver";
 import {OdmdCrossRefProducer} from "../../model/odmd-cross-refs";
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
+import {OdmdEnverCdk} from "../../model/odmd-enver-cdk";
 
 export class OdmdBuildUserAuth extends OdmdBuild<OdmdEnverUserAuth> {
     protected _envers: OdmdEnverUserAuth[];
     public get envers(): OdmdEnverUserAuth[] {
         return this._envers;
     }
+
     ownerEmail?: string | undefined;
 
     constructor(scope: OndemandContracts<
@@ -24,7 +25,7 @@ export class OdmdBuildUserAuth extends OdmdBuild<OdmdEnverUserAuth> {
     }
 }
 
-export class OdmdEnverUserAuth extends OdmdEnver<OdmdBuild<OdmdEnverUserAuth>> {
+export class OdmdEnverUserAuth extends OdmdEnverCdk {
 
     readonly owner: OdmdBuildUserAuth
 
