@@ -71,11 +71,10 @@ export abstract class OdmdEnver<T extends OdmdBuild<OdmdEnver<T>>> extends Const
 
     readonly description?: string
 
-    //todo:
     /**
      * contracts is doing it in github action, we want to abstract it into a function
      */
-    readonly productsReplicaToRegions?: string[]
+    readonly productsReplicaToRegions = new Set<string>()
 
     /**
      * this branch/environment will be deployed to specific account and region,
