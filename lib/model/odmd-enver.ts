@@ -34,6 +34,8 @@ export interface IOdmdEnver extends IConstruct {
     readonly buildRolePath: string
     readonly buildRoleArn: string
 
+    readonly productsReplicaToRegions: Set<string>
+
     generateDynamicEnver(org: SRC_Rev_REF): IOdmdEnver
 
 }
