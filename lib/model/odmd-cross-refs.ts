@@ -80,7 +80,7 @@ export type RefConsumerOption = {
 export class OdmdCrossRefConsumer<C extends AnyOdmdEnVer, P extends AnyOdmdEnVer> extends Construct {
 
     constructor(scope: C, id: string, producer: OdmdCrossRefProducer<P>, options: RefConsumerOption
-        = {trigger: 'directly', defaultIfAbsent: '-'}) {
+    = {trigger: 'directly', defaultIfAbsent: '-'}) {
         super(scope, id);
         if (producer.owner.owner.buildId == scope.owner.buildId) {
             throw new Error('consuming from same build is ILLEGAL!')
@@ -156,7 +156,7 @@ export class OdmdNames {
     public generate() {
         const regex = new RegExp(this.allowedSpecialCharacters ? `[^A-Za-z0-9${this.allowedSpecialCharacters}]` : '[^A-Za-z0-9]', 'g');
 
-        const orgPath = this.constru.node.scopes.map(s => s.node.id).join(this.separator) + this.varName ?? '';
+        const orgPath = this.constru.node.scopes.map(s => s.node.id).join(this.separator) + (this.varName ?? '');
         const orgRpl = orgPath.replace(regex, '')
 
         if (orgRpl.length > this.maxLength) {
