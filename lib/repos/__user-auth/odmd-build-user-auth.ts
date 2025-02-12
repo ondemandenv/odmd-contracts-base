@@ -32,11 +32,20 @@ export class OdmdEnverUserAuth extends OdmdEnverCdk {
     readonly idProviderName: OdmdCrossRefProducer<OdmdEnverUserAuth>
     readonly idProviderClientId: OdmdCrossRefProducer<OdmdEnverUserAuth>
 
+    /*
+    provided by central
+     */
+    readonly appsyncHttpEndpoint: OdmdCrossRefProducer<OdmdEnverUserAuth>
+    readonly appsyncWssEndpoint: OdmdCrossRefProducer<OdmdEnverUserAuth>
+
 
     constructor(owner: OdmdBuildUserAuth, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF) {
         super(owner, targetAWSAccountID, targetAWSRegion, targetRevision);
         this.owner = owner;
         this.idProviderName = new OdmdCrossRefProducer(this, 'id-provider-name')
-        this.idProviderClientId = new OdmdCrossRefProducer(this, 'id-provider-clientId')
+
+
+        this.appsyncHttpEndpoint = new OdmdCrossRefProducer(this, 'appsyncHttpEndpoint')
+        this.appsyncWssEndpoint = new OdmdCrossRefProducer(this, 'appsyncWssEndpoint')
     }
 }
