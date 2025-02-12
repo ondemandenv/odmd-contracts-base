@@ -43,6 +43,7 @@ export class OdmdEnverUserAuth extends OdmdEnverCdk {
         super(owner, targetAWSAccountID, targetAWSRegion, targetRevision);
         this.owner = owner;
         this.idProviderName = new OdmdCrossRefProducer(this, 'id-provider-name')
+        this.idProviderClientId = new OdmdCrossRefProducer(this, 'id-provider-clientId')
 
 
         this.appsyncHttpEndpoint = new OdmdCrossRefProducer(this, 'appsyncHttpEndpoint')
