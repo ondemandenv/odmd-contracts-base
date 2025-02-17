@@ -3,7 +3,6 @@ import {OdmdBuildDefaultKubeEks} from "./odmd-build-default-kube-eks";
 import {SRC_Rev_REF} from "../../model/odmd-build";
 import {AnyOdmdEnVer, IOdmdEnver} from "../../model/odmd-enver";
 import {OdmdEnverEksCluster, KubeCtlThruCentral} from "../../model/odmd-enver-eks-cluster";
-import {DeploymentProps, IngressProps, JobProps, ServiceProps} from "cdk8s-plus-29";
 
 export class OdmdEnverCdkDefaultEcrEks extends OdmdEnverCdk implements KubeCtlThruCentral {
 
@@ -21,9 +20,11 @@ export class OdmdEnverCdkDefaultEcrEks extends OdmdEnverCdk implements KubeCtlTh
     public readonly targetEksCluster: OdmdEnverEksCluster
 
 
-    deployment: DeploymentProps
-    job?: JobProps
-    service?: ServiceProps
-    ingress?: IngressProps
+    // import {DeploymentProps, IngressProps, JobProps, ServiceProps} from "cdk8s-plus-29";
+
+    deployment:any // DeploymentProps
+    job?:any // JobProps
+    service?:any // ServiceProps
+    ingress?:any // IngressProps
 
 }

@@ -1,6 +1,5 @@
 import {Construct, IConstruct} from "constructs";
 import {OdmdConfigNetworking} from "./repos/__networking/odmd-config-networking";
-import {OdmdBuildEksCluster} from "./repos/__eks/odmd-build-eks-cluster";
 import {OdmdBuildDefaultVpcRds} from "./repos/_default-vpc-rds/odmd-build-default-vpc-rds";
 import {AnyOdmdEnVer} from "./model/odmd-enver";
 import {OdmdBuild, SRC_Rev_REF} from "./model/odmd-build";
@@ -14,6 +13,7 @@ import {OdmdCrossRefConsumer} from "./model/odmd-cross-refs";
 import {OdmdShareIn} from "./model/odmd-share-refs";
 import {OdmdEnverCtnImg} from "./model/odmd-enver-ctn-img";
 import {OdmdBuildUserAuth} from "./repos/__user-auth/odmd-build-user-auth";
+import {OdmdEnverCdk} from "./model/odmd-enver-cdk";
 
 
 export abstract class OndemandContracts<
@@ -43,8 +43,8 @@ export abstract class OndemandContracts<
         return this._networking;
     }
 
-    protected _eksCluster?: OdmdBuildEksCluster;
-    get eksCluster(): OdmdBuildEksCluster | undefined {
+    protected _eksCluster?: OdmdBuild<OdmdEnverCdk>;
+    get eksCluster(): OdmdBuild<OdmdEnverCdk> | undefined {
         return this._eksCluster;
     }
 
@@ -153,7 +153,7 @@ export abstract class OndemandContracts<
     }
 
     protected initializeEksCluster(): void {
-        this._eksCluster = new OdmdBuildEksCluster(this);
+        throw new Error( 'EksCluster build is not implemented yet')
     }
 
     protected initializeDefaultVpcRds(): void {

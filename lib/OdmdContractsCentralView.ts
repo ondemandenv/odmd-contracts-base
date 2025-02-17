@@ -1,11 +1,11 @@
 import {OdmdBuild, GithubRepo} from "./model/odmd-build";
 import {AnyOdmdEnVer} from "./model/odmd-enver";
 import {OdmdConfigNetworking} from "./repos/__networking/odmd-config-networking";
-import {OdmdBuildEksCluster} from "./repos/__eks/odmd-build-eks-cluster";
 import {OdmdBuildDefaultVpcRds} from "./repos/_default-vpc-rds/odmd-build-default-vpc-rds";
 import {OdmdBuildDefaultKubeEks} from "./repos/_default-kube-eks/odmd-build-default-kube-eks";
 import {OdmdBuildContractsLib} from "./repos/__contracts/odmd-build-contracts-lib";
 import {OdmdBuildUserAuth} from "./repos/__user-auth/odmd-build-user-auth";
+import {OdmdEnverCdk} from "./model/odmd-enver-cdk";
 
 export type GithubReposCentralView = {
 
@@ -49,7 +49,7 @@ export interface OdmdContractsCentralView<
     readonly userAuth?: OdmdBuildUserAuth
     readonly networking?: OdmdConfigNetworking
 
-    readonly eksCluster?: OdmdBuildEksCluster
+    readonly eksCluster?: OdmdBuild<OdmdEnverCdk>
     readonly defaultVpcRds?: OdmdBuildDefaultVpcRds
     readonly defaultEcrEks?: OdmdBuildDefaultKubeEks
 

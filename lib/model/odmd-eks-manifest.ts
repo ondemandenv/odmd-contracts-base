@@ -1,7 +1,6 @@
 import {Construct} from "constructs";
 import {CustomResource, Fn, Stack} from "aws-cdk-lib";
 import {AnyOdmdEnVer, IOdmdEnver} from "./odmd-enver";
-import {ApiObject, Chart} from "cdk8s";
 import {OdmdEnverEksCluster} from "./odmd-enver-eks-cluster";
 import * as yaml from 'js-yaml';
 import {OdmdCrossRefConsumer} from "./odmd-cross-refs";
@@ -13,7 +12,8 @@ export function GET_EKS_MANIFEST_ROLE_PROVIDER_NAME(ownerBuildId: string, ownerR
 
 export interface EksManifestProps {
 
-    readonly manifest: ApiObject | Chart;
+    // import {ApiObject, Chart} from "cdk8s";
+    readonly manifest: any //ApiObject | Chart;
     readonly targetEksCluster: OdmdEnverEksCluster;
     readonly k8sNamespace?: string
     readonly enver: IOdmdEnver

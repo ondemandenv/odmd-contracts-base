@@ -3,12 +3,9 @@ import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "./odmd-cross-refs";
 import {IOdmdEnver} from "./odmd-enver";
 import {OdmdVpc, WithVpc} from "./odmd-vpc";
 import {OdmdBuild, SRC_Rev_REF} from "./odmd-build";
-import {OndemandContracts} from "../OndemandContracts";
 import {IPAM_AB} from "../repos/__networking/odmd-config-networking";
 
-
 export abstract class OdmdEnverEksCluster extends OdmdEnverCdk implements WithVpc {
-
 
     readonly vpcConfig: OdmdVpc
     readonly vpcCidr: OdmdCrossRefProducer<OdmdEnverEksCluster> = new OdmdCrossRefProducer<OdmdEnverEksCluster>(this, 'vpcCidr')
@@ -35,15 +32,6 @@ export abstract class OdmdEnverEksCluster extends OdmdEnverCdk implements WithVp
         this.natPublicIP = new OdmdCrossRefConsumer(this, 'natPublicIP', owner.contracts.networking!.ipam_west1_le.natPublicIP)
     }
 }
-
-export abstract class OdmdEnverEksClusterArgoCd extends OdmdEnverEksCluster {
-
-
-    readonly argocdRepoSa = new OdmdCrossRefProducer<OdmdEnverEksClusterArgoCd>(this, 'argocd-repo-sa')
-    readonly argocdRepoName = new OdmdCrossRefProducer(this, 'argocdRepoName')
-
-}
-
 
 export interface KubeCtlThruCentral extends IOdmdEnver {
 

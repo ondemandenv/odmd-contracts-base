@@ -76,7 +76,7 @@ export class TmpTstContracts extends OndemandContracts<
 
                 __userAuth: {owner: 'odmd', name: 'userAuth', ghAppInstallID: 1234},
                 __contracts: {owner: 'odmd', name: 'contracts', ghAppInstallID: 1234},
-                __eks: {owner: 'odmd', name: 'eks', ghAppInstallID: 1234},
+                // __eks: {owner: 'odmd', name: 'eks', ghAppInstallID: 1234},
                 __networking: {owner: 'odmd', name: 'networking', ghAppInstallID: 1234},
                 _defaultKubeEks: {owner: 'odmd', name: 'defaultKubeEks', ghAppInstallID: 1234},
                 _defaultVpcRds: {owner: 'odmd', name: 'defaultVpcRds', ghAppInstallID: 1234}
@@ -131,7 +131,7 @@ export class TmpTstContracts1 extends OndemandContracts<AccountsCentralView, Git
                 githubAppId: "123",
                 __userAuth: {owner: 'odmd', name: 'userAuth', ghAppInstallID: 1234},
                 __contracts: {owner: 'odmd', name: 'contracts', ghAppInstallID: 1234},
-                __eks: {owner: 'odmd', name: 'eks', ghAppInstallID: 1234},
+                // __eks: {owner: 'odmd', name: 'eks', ghAppInstallID: 1234},
                 __networking: {owner: 'odmd', name: 'networking', ghAppInstallID: 1234},
                 _defaultKubeEks: {owner: 'odmd', name: 'defaultKubeEks', ghAppInstallID: 1234},
                 _defaultVpcRds: {owner: 'odmd', name: 'defaultVpcRds', ghAppInstallID: 1234}
