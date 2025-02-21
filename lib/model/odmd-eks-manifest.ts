@@ -14,10 +14,16 @@ export interface EksManifestProps {
 
     // import {ApiObject, Chart} from "cdk8s";
     readonly manifest: any //ApiObject | Chart;
+    /**
+     * which Eks cluster to deploy
+     */
     readonly targetEksCluster: OdmdEnverEksCluster;
     readonly k8sNamespace?: string
-    readonly enver: IOdmdEnver
 
+    /**
+     * which Enver owns this resource
+     */
+    readonly enver: IOdmdEnver
 
     readonly skipValidate: boolean
     readonly overWrite: boolean
