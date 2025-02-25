@@ -35,8 +35,7 @@ export class OdmdEnverUserAuth extends OdmdEnverCdk {
     /*
     provided by central
      */
-    readonly appsyncHttpEndpoint: OdmdCrossRefProducer<OdmdEnverUserAuth>
-    readonly appsyncWssEndpoint: OdmdCrossRefProducer<OdmdEnverUserAuth>
+    readonly appsyncGraphqlUrl: OdmdCrossRefProducer<OdmdEnverUserAuth>
     readonly identityPoolId: OdmdCrossRefProducer<OdmdEnverUserAuth>
 
     constructor(owner: OdmdBuildUserAuth, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF) {
@@ -45,9 +44,7 @@ export class OdmdEnverUserAuth extends OdmdEnverCdk {
         this.idProviderName = new OdmdCrossRefProducer(this, 'id-provider-name')
         this.idProviderClientId = new OdmdCrossRefProducer(this, 'id-provider-clientId')
 
-
-        this.appsyncHttpEndpoint = new OdmdCrossRefProducer(this, 'appsyncHttpEndpoint')
-        this.appsyncWssEndpoint = new OdmdCrossRefProducer(this, 'appsyncWssEndpoint')
+        this.appsyncGraphqlUrl = new OdmdCrossRefProducer(this, 'appsyncGraphqlUrl')
 
         this.identityPoolId = new OdmdCrossRefProducer(this, "IdentityPoolId");
     }
