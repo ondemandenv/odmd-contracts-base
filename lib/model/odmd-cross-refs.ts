@@ -122,6 +122,21 @@ export class OdmdCrossRefConsumer<C extends AnyOdmdEnVer, P extends AnyOdmdEnVer
         return `${OdmdCrossRefConsumer.OdmdRef_prefix}\${${this.node.path}}`
     }
 
+    /**
+     * this is for declaring OdmdCrossRefConsumer's string value in contractsLib without Stack :
+     *
+     *         defaultEcrEks.deployment = {
+     *             containers: [{
+     *                 image: new OdmdCrossRefConsumer(defaultEcrEks, 'appContainer', this.appImgRefProducer).toOdmdRef(),
+     *                 envVariables: {
+     *                     "RDS_user": {value: pgUsrMigrate.userName},
+     *                     "RDS_secret": {value: new OdmdCrossRefConsumer(defaultEcrEks, 'migrus', this.rdsConfig.usernameToSecretId.get(pgUsrMigrate.userName)!).toOdmdRef()}
+     *                 }
+     *             }]
+     *         }
+     * and then default-ecr-eks\lib\default-ecr-eks-stack.ts  decode with implementConsumerRef where there is stack to get token by getSharedValue( stack )
+     *
+     */
     public static readonly OdmdRef_prefix = 'OdmdRefConsumer: ';
 
 

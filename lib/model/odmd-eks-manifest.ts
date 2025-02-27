@@ -64,7 +64,7 @@ export class EksManifest extends Construct {
                 clusterName: props.targetEksCluster.clusterName,
 
                 manifest: ymlStr.split('\n'),
-                k8sNamespace: props.k8sNamespace ?? enver.owner.buildId + '_' + enver.targetRevision,
+                k8sNamespace: props.k8sNamespace ?? enver.owner.buildId + '_' + enver.targetRevision.toPathPartStr(),
                 targetRevision: enver.targetRevision.toPathPartStr(),
 
                 skipValidate: props.skipValidate,
