@@ -14,6 +14,13 @@ export abstract class OdmdEnverEksCluster extends OdmdEnverCdk implements WithVp
     readonly clusterEndpoint: OdmdCrossRefProducer<OdmdEnverEksCluster> = new OdmdCrossRefProducer<OdmdEnverEksCluster>(this, 'clusterEndpoint')
 
     readonly kubectlRoleArn: OdmdCrossRefProducer<OdmdEnverEksCluster> = new OdmdCrossRefProducer<OdmdEnverEksCluster>(this, 'kubectlRoleArn')
+    /**
+     * https://docs.aws.amazon.com/AmazonECR/latest/userguide/ECR_on_EKS.html
+     * the default node group role for consuming
+     *
+     * user can add more for extra node groups
+     */
+    readonly defaultNodeGroupRoleArn: OdmdCrossRefProducer<OdmdEnverEksCluster> = new OdmdCrossRefProducer<OdmdEnverEksCluster>(this, 'defaultNodeGroupRoleArn')
 
 
     readonly kubeTrustCentralRoleName: string
@@ -35,8 +42,7 @@ export abstract class OdmdEnverEksCluster extends OdmdEnverCdk implements WithVp
 
 export interface KubeCtlThruCentral extends IOdmdEnver {
 
-    readonly userEnver: IOdmdEnver
-    readonly targetNamespace: string
-    readonly targetEksCluster: OdmdEnverEksCluster
+    readonly targetNamespace?: string
+    readonly targetEksClusterEndpoint: OdmdCrossRefConsumer<KubeCtlThruCentral, OdmdEnverEksCluster>
 
 }

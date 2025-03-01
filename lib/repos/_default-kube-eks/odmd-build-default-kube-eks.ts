@@ -33,7 +33,7 @@ export class OdmdBuildDefaultKubeEks extends OdmdBuild<OdmdEnverCdk> {
             return rt;
         }
 
-        rt = new OdmdEnverCdkDefaultEcrEks(this, usr, targetEksCluster, targetNamespace);
+        rt = new OdmdEnverCdkDefaultEcrEks(this, usr, targetEksCluster.clusterEndpoint);
         this._envers.push(rt);
         return rt;
     }
