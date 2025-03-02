@@ -10,7 +10,14 @@ export abstract class OdmdEnverEksCluster extends OdmdEnverCdk implements WithVp
     readonly vpcConfig: OdmdVpc
     readonly vpcCidr: OdmdCrossRefProducer<OdmdEnverEksCluster> = new OdmdCrossRefProducer<OdmdEnverEksCluster>(this, 'vpcCidr')
 
-    readonly oidcProviderArn: OdmdCrossRefProducer<OdmdEnverEksCluster> = new OdmdCrossRefProducer<OdmdEnverEksCluster>(this, 'oidcProviderArn')
+    /*
+openIdConnectProviderIssuer/openIdConnectProvider:
+oidc.eks.<region>.amazonaws.com/id/<id>
+
+openIdConnectProviderArn:
+arn:aws:iam::<account>:oidc-provider/<openIdConnectProviderIssuer/openIdConnectProvider>
+     */
+    readonly oidcProvider: OdmdCrossRefProducer<OdmdEnverEksCluster> = new OdmdCrossRefProducer<OdmdEnverEksCluster>(this, 'oidcProvider')
     readonly clusterEndpoint: OdmdCrossRefProducer<OdmdEnverEksCluster> = new OdmdCrossRefProducer<OdmdEnverEksCluster>(this, 'clusterEndpoint')
 
     readonly kubectlRoleArn: OdmdCrossRefProducer<OdmdEnverEksCluster> = new OdmdCrossRefProducer<OdmdEnverEksCluster>(this, 'kubectlRoleArn')
