@@ -13,6 +13,9 @@ export function GET_EKS_MANIFEST_ROLE_PROVIDER_NAME(ownerBuildId: string, ownerR
 export interface EksManifestProps {
 
     // import {ApiObject, Chart} from "cdk8s";
+    /*
+    * ApiObject, Chart that has toJson() method
+    * */
     readonly manifest: any //ApiObject | Chart;
     /**
      * which Eks cluster to deploy
@@ -27,7 +30,7 @@ export interface EksManifestProps {
 
     readonly skipValidate: boolean
     readonly overWrite: boolean
-    readonly pruneLabels: string
+    readonly pruneLabels?: string
 
 }
 
@@ -64,7 +67,7 @@ export class EksManifest extends Construct {
                 clusterName: props.targetEksCluster.clusterName,
 
                 manifest: ymlStr.split('\n'),
-                k8sNamespace: props.k8sNamespace ?? enver.owner.buildId + '_' + enver.targetRevision.toPathPartStr(),
+                k8sNamespace: props.k8sNamespace ?? EksManifest.createDefaultNamespace(enver),
                 targetRevision: enver.targetRevision.toPathPartStr(),
 
                 skipValidate: props.skipValidate,
@@ -73,4 +76,32 @@ export class EksManifest extends Construct {
             }
         })
     }
+
+    static createDefaultNamespace(enver: AnyOdmdEnVer): string {
+        return this.sanitizeKubernetesNamespace(enver.owner.buildId + '-' + enver.targetRevision.toPathPartStr());
+    }
+
+    /**
+     * Sanitizes a Kubernetes namespace to conform to naming rules.
+     */
+    static sanitizeKubernetesNamespace(namespace: string): string {
+        // Kubernetes namespace naming rules:
+        // - At most 63 characters.
+        // - Only lowercase alphanumeric characters or '-'.
+        // - Must start and end with an alphanumeric character.
+        let sanitized = namespace.toLowerCase().replace(/[^a-z0-9-]+/g, '-');
+        sanitized = sanitized.replace(/^-+|-+$/g, '');
+        sanitized = sanitized.replace(/-{2,}/g, '-');
+        if (sanitized.length > 63) {
+            sanitized = sanitized.substring(0, 63);
+        }
+        if (!/^[a-z0-9]/.test(sanitized)) {
+            sanitized = sanitized.length > 0 ? "a" + sanitized : "default";
+        }
+        if (!/[a-z0-9]$/.test(sanitized)) {
+            sanitized = sanitized + "a";
+        }
+        return sanitized;
+    }
+
 }

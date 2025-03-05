@@ -2,7 +2,7 @@ import {RepositoryProps} from "aws-cdk-lib/aws-ecr";
 import {OdmdCrossRefProducer} from "./odmd-cross-refs";
 import {IGrantable} from "aws-cdk-lib/aws-iam";
 import {OdmdBuild} from "./odmd-build";
-import {OdmdEnver} from "./odmd-enver";
+import {AnyOdmdEnVer, OdmdEnver} from "./odmd-enver";
 
 /**
  * this is implemented by central.
@@ -31,8 +31,12 @@ export abstract class OdmdEnverCtnImg extends OdmdEnver<OdmdBuild<OdmdEnverCtnIm
     abstract readonly builtImgNameToRepo: {
         [imgName: string]: RepositoryProps//imgName has to start with buildId !
     }
+
+    /**
+     * grantee: IGrantable | OdmdCrossRefProducer<AnyOdmdEnVer> will be resolved to string as role ARN.
+     */
     abstract readonly builtImgNameToRepoGrants: {
-        [imgName: string]: [grantee: IGrantable, ...actions: string[]][]
+        [imgName: string]: [grantee: IGrantable|OdmdCrossRefProducer<AnyOdmdEnVer>, ...actions: string[]][]
     }
 
     abstract readonly builtImgNameToRepoProducer: {
