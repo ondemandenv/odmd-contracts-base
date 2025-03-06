@@ -1,5 +1,5 @@
 import {RepositoryProps} from "aws-cdk-lib/aws-ecr";
-import {OdmdCrossRefProducer} from "./odmd-cross-refs";
+import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "./odmd-cross-refs";
 import {IGrantable} from "aws-cdk-lib/aws-iam";
 import {OdmdBuild} from "./odmd-build";
 import {AnyOdmdEnVer, OdmdEnver} from "./odmd-enver";
@@ -33,10 +33,10 @@ export abstract class OdmdEnverCtnImg extends OdmdEnver<OdmdBuild<OdmdEnverCtnIm
     }
 
     /**
-     * grantee: IGrantable | OdmdCrossRefProducer<AnyOdmdEnVer> will be resolved to string as role ARN.
+     * grantee: IGrantable | OdmdCrossRefConsumer<OdmdEnverCtnImg, AnyOdmdEnVer> this container enver consuming others resolved to string as role ARN.
      */
     abstract readonly builtImgNameToRepoGrants: {
-        [imgName: string]: [grantee: IGrantable|OdmdCrossRefProducer<AnyOdmdEnVer>, ...actions: string[]][]
+        [imgName: string]: [grantee: IGrantable | OdmdCrossRefConsumer<OdmdEnverCtnImg, AnyOdmdEnVer>, ...actions: string[]][]
     }
 
     abstract readonly builtImgNameToRepoProducer: {

@@ -88,9 +88,6 @@ export class OdmdCrossRefConsumer<C extends AnyOdmdEnVer, P extends AnyOdmdEnVer
         if (scope.owner == scope.owner.contracts.contractsLibBuild) {
             throw new Error(`OdmdBuildOdmdContracts should not consume anything! only depends on its src`)
         }
-        if (scope instanceof OdmdEnverCtnImg) {
-            throw new Error(`ContractsEnverCtnImg should not consume anything! only depends on its src and contractsLib`)
-        }
         if (!producer.consumers.has(this)) {
             producer.consumers.set(this, new Set())
         }
