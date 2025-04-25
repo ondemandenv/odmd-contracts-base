@@ -28,6 +28,7 @@ export class OdmdBuildUserAuth extends OdmdBuild<OdmdEnverUserAuth> {
 export class OdmdEnverUserAuth extends OdmdEnverCdk {
 
     readonly owner: OdmdBuildUserAuth
+    readonly ephemeral: boolean = false;
 
     readonly idProviderName: OdmdCrossRefProducer<OdmdEnverUserAuth>
     readonly idProviderClientId: OdmdCrossRefProducer<OdmdEnverUserAuth>

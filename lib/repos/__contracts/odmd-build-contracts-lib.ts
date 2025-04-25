@@ -47,6 +47,8 @@ export class OdmdEnverContractsLib extends OdmdEnver<OdmdBuild<OdmdEnverContract
 
     readonly owner: OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>;
 
+    readonly ephemeral: boolean = false;
+
     constructor(owner: OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF) {
         super(owner, targetAWSAccountID, targetAWSRegion, targetRevision);
         this.contractsLibLatest = new OdmdCrossRefProducer(this, 'contractsLibLatest')
