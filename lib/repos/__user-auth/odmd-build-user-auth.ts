@@ -1,9 +1,10 @@
 import {OdmdBuild, SRC_Rev_REF} from "../../model/odmd-build";
 import {OndemandContracts} from "../../OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
-import {OdmdCrossRefProducer} from "../../model/odmd-cross-refs";
+import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "../../model/odmd-cross-refs";
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
 import {OdmdEnverCdk} from "../../model/odmd-enver-cdk";
+import {IOdmdEnver} from "../../model/odmd-enver";
 
 export class OdmdBuildUserAuth extends OdmdBuild<OdmdEnverUserAuth> {
     protected _envers: OdmdEnverUserAuth[];
@@ -43,6 +44,9 @@ export abstract class OdmdEnverUserAuth extends OdmdEnverCdk {
     readonly appsyncGraphqlUrl: OdmdCrossRefProducer<OdmdEnverUserAuth>
     readonly identityPoolId: OdmdCrossRefProducer<OdmdEnverUserAuth>
 
+    readonly callbackUrls: OdmdCrossRefConsumer<this, IOdmdEnver>[]
+    readonly logoutUrls: OdmdCrossRefConsumer<this, IOdmdEnver>[]
+
     constructor(owner: OdmdBuildUserAuth, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF) {
         super(owner, targetAWSAccountID, targetAWSRegion, targetRevision);
         this.owner = owner;
@@ -52,5 +56,7 @@ export abstract class OdmdEnverUserAuth extends OdmdEnverCdk {
         this.appsyncGraphqlUrl = new OdmdCrossRefProducer(this, 'appsyncGraphqlUrl')
 
         this.identityPoolId = new OdmdCrossRefProducer(this, "IdentityPoolId");
+        this.callbackUrls = []
+        this.logoutUrls = []
     }
 }
