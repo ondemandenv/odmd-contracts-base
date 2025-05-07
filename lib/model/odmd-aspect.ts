@@ -78,11 +78,16 @@ Debugging Challenges: Errors in nested stacks can be harder to diagnose because 
                 value: buildSrcRevParam.valueAsString + '-' + odmdNowParam.valueAsString
             })
 
+/*
+
             s.node.findAll().filter(n => TagManager.isTaggable(n)
                 && n.tags
+                //todo: this is not working because TagManager is thru Aspects and tags.tagValues() is empty all the time.
                 && n.tags.tagValues()[OdmdShareIn.ODMD_NOW] != undefined)
                 .map(n => TagManager.of(n)!)
                 .forEach(n => n.setTag(OdmdShareIn.ODMD_NOW, odmdNowParam.valueAsString))
+*/
+
 
             if (
                 OndemandContracts.REV_REF_value
