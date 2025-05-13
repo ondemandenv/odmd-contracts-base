@@ -7,7 +7,6 @@ import {
     IAspect,
     NestedStack,
     Stack,
-    TagManager,
     Tags
 } from "aws-cdk-lib";
 import {IConstruct} from "constructs";

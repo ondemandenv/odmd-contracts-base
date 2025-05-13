@@ -28,10 +28,6 @@ export class OdmdBuildUserAuth extends OdmdBuild<OdmdEnverUserAuth> {
 
 export abstract class OdmdEnverUserAuth extends OdmdEnverCdk {
 
-    abstract readonly hostedZoneId:string
-    abstract readonly hostedZoneName:string
-    abstract readonly subDomainName:string
-
     readonly owner: OdmdBuildUserAuth
     readonly ephemeral: boolean = false;
 
