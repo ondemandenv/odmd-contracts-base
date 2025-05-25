@@ -8,7 +8,7 @@ import {AnyOdmdEnVer} from "../../model/odmd-enver";
 import {PgSchemaUsersProps} from "../../model/odmd-pg-schema-usrs";
 import {SRC_Rev_REF} from "../../model/odmd-build";
 import {OndemandContracts} from "../../OndemandContracts";
-import {IPAM_AB} from "../__networking/odmd-config-networking";
+import {IPAM_AB} from "../__networking/odmd-build-networking";
 import {AccountsCentralView} from "../../OdmdContractsCentralView";
 
 export class OdmdEnverCdkDefaultVpc extends OdmdEnverCdk implements WithVpc {

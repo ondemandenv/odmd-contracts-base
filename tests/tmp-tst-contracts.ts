@@ -3,6 +3,7 @@ import {AccountsCentralView, GithubReposCentralView} from "../lib/OdmdContractsC
 import {App} from "aws-cdk-lib";
 import {OdmdBuildContractsLib, OdmdEnverContractsLib} from "../lib/repos/__contracts/odmd-build-contracts-lib";
 import {SRC_Rev_REF} from "../lib/model/odmd-build";
+import {OdmdBuildNetworking} from "../lib/repos/__networking/odmd-build-networking";
 
 
 export class TmpTstOdmdBuildContractsLib extends OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
@@ -16,6 +17,7 @@ export class TmpTstOdmdBuildContractsLib extends OdmdBuildContractsLib<AccountsC
             )
         ]
     }
+
     public get packageName(): string {
         return '@ondemandenv/contracts-lib-base'
     }
@@ -34,7 +36,7 @@ export class TmpTstOdmdBuildContractsLib extends OdmdBuildContractsLib<AccountsC
 }
 
 
-export class TmpTstContracts extends OndemandContracts<
+export class OdmdContractsNoNetworking extends OndemandContracts<
     AccountsCentralView,
     GithubReposCentralView,
     OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
@@ -47,7 +49,11 @@ export class TmpTstContracts extends OndemandContracts<
     private _accounts: AccountsCentralView
     get accounts(): AccountsCentralView {
         if (!this._accounts) {
-            this._accounts = {central: 'ccc', networking: 'nnn', workspace0: 'www'}
+            this._accounts = {
+                central: 'ccc',
+                // networking: 'nnn',
+                workspace0: 'www'
+            }
         }
         return this._accounts
     }
@@ -74,10 +80,10 @@ export class TmpTstContracts extends OndemandContracts<
             this._githubRepos = {
                 githubAppId: "123",
 
-                __userAuth: {owner: 'odmd', name: 'userAuth', ghAppInstallID: 1234},
+                // __userAuth: {owner: 'odmd', name: 'userAuth', ghAppInstallID: 1234},
                 __contracts: {owner: 'odmd', name: 'contracts', ghAppInstallID: 1234},
                 // __eks: {owner: 'odmd', name: 'eks', ghAppInstallID: 1234},
-                __networking: {owner: 'odmd', name: 'networking', ghAppInstallID: 1234},
+                // __networking: {owner: 'odmd', name: 'networking', ghAppInstallID: 1234},
                 _defaultKubeEks: {owner: 'odmd', name: 'defaultKubeEks', ghAppInstallID: 1234},
                 _defaultVpcRds: {owner: 'odmd', name: 'defaultVpcRds', ghAppInstallID: 1234}
             }
@@ -87,7 +93,7 @@ export class TmpTstContracts extends OndemandContracts<
 
 }
 
-export class TmpTstContracts1 extends OndemandContracts<AccountsCentralView, GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>> {
+export class OdmdContractsWithNetworking extends OndemandContracts<AccountsCentralView, GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>> {
     createContractsLibBuild(): OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
         return new TmpTstOdmdBuildContractsLib(this, 'aaa')
     }
@@ -140,4 +146,8 @@ export class TmpTstContracts1 extends OndemandContracts<AccountsCentralView, Git
         return this._githubRepos
     }
 
+
+    protected initializeNetworking() {
+        this._networking = new OdmdBuildNetworking(this);
+    }
 }

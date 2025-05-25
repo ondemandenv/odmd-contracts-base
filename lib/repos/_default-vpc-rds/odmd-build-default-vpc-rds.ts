@@ -1,7 +1,7 @@
 import {OdmdBuild} from "../../model/odmd-build";
 import {OdmdEnverCdk} from "../../model/odmd-enver-cdk";
 import {AnyOdmdEnVer, IOdmdEnver} from "../../model/odmd-enver";
-import {IPAM_AB} from "../__networking/odmd-config-networking";
+import {IPAM_AB} from "../__networking/odmd-build-networking";
 import {OdmdEnverCdkDefaultVpc} from "./odmd-enver-default-vpc-rds";
 import {OndemandContracts} from "../../OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";

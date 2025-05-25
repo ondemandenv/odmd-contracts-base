@@ -6,7 +6,7 @@ import {AnyOdmdEnVer} from "../../model/odmd-enver";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
 
-export class OdmdConfigNetworking extends OdmdBuild<OdmdEnverCdk> {
+export class OdmdBuildNetworking extends OdmdBuild<OdmdEnverCdk> {
     ownerEmail = undefined;
     public ipam_west1_le!: IPAM_AB;
 
@@ -62,8 +62,8 @@ export abstract class IPAM_AB extends OdmdEnverCdk {
         this.subdomainNameservers.set(d, new OdmdCrossRefConsumer<IPAM_AB, AnyOdmdEnVer>(this, 'nameServer_' + d, nsServers))
     }
 
-    constructor(owner: OdmdConfigNetworking, region: string, rev: SRC_Rev_REF) {
-        super(owner, owner.contracts.accounts.networking, region, rev);
+    constructor(owner: OdmdBuildNetworking, region: string, rev: SRC_Rev_REF) {
+        super(owner, owner.contracts.accounts.networking!, region, rev);
     }
 
     getRevStackNames() {
@@ -78,7 +78,7 @@ export abstract class IPAM_AB extends OdmdEnverCdk {
 
 class IPAM_WEST1_LE extends IPAM_AB {
 
-    constructor(owner: OdmdConfigNetworking, rev: SRC_Rev_REF) {
+    constructor(owner: OdmdBuildNetworking, rev: SRC_Rev_REF) {
         super(owner, 'us-west-1', rev);
     }
 

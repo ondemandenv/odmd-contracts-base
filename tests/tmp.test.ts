@@ -10,7 +10,7 @@ import {IConstruct} from "constructs";
 import {PgSchemaUsersProps} from "../lib/model/odmd-pg-schema-usrs";
 import {WithRds} from "../lib/model/odmd-rds-cluster";
 import * as fs from "node:fs";
-import {TmpTstContracts} from "./tmp-tst-contracts";
+import {OdmdContractsNoNetworking} from "./tmp-tst-contracts";
 
 
 function checkVpcEnver(enver: WithVpc) {
@@ -97,7 +97,7 @@ describe('mkss1', () => {
 
     let app = new App();
     const stack = new Stack(app)
-    const theContracts = new TmpTstContracts(app)
+    const theContracts = new OdmdContractsNoNetworking(app)
 
     it("package name wrong", () => {
         expect(JSON.parse(fs.readFileSync('package.json').toString()).name)

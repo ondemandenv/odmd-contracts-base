@@ -1,5 +1,5 @@
 import {Construct, IConstruct} from "constructs";
-import {OdmdConfigNetworking} from "./repos/__networking/odmd-config-networking";
+import {OdmdBuildNetworking} from "./repos/__networking/odmd-build-networking";
 import {OdmdBuildDefaultVpcRds} from "./repos/_default-vpc-rds/odmd-build-default-vpc-rds";
 import {AnyOdmdEnVer} from "./model/odmd-enver";
 import {OdmdBuild, SRC_Rev_REF} from "./model/odmd-build";
@@ -38,8 +38,8 @@ export abstract class OndemandContracts<
         return this._userAuth;
     }
 
-    protected _networking?: OdmdConfigNetworking;
-    get networking(): OdmdConfigNetworking | undefined {
+    protected _networking?: OdmdBuildNetworking;
+    get networking(): OdmdBuildNetworking | undefined {
         return this._networking;
     }
 
@@ -129,8 +129,15 @@ export abstract class OndemandContracts<
         if (this.githubRepos.__userAuth) {
             this.initializeUserAuth();
         }
-        if (this.githubRepos.__networking) {
+        if (this.githubRepos.__networking && this.accounts.networking) {
             this.initializeNetworking();
+        } else if (this.githubRepos.__networking || this.accounts.networking) {
+            throw new Error(`githubRepos.__networking: ${
+                this.githubRepos.__networking
+            } accounts.networking: ${
+                this.accounts.networking
+            } have to be defined together to define networking `);
+
         }
         if (this.githubRepos.__eks) {
             this.initializeEksCluster();
@@ -150,7 +157,6 @@ export abstract class OndemandContracts<
     }
 
     protected initializeNetworking(): void {
-        // this._networking = new OdmdConfigNetworking(this);
         throw new Error('initializeNetworking is not implemented/overridden !')
     }
 
@@ -280,7 +286,8 @@ export abstract class OndemandContracts<
         }
 
         this._builds.forEach(b => {
-            if (b.envers == undefined || b.envers.length == 0) {
+            if (!(b instanceof OdmdBuildDefaultVpcRds || b instanceof OdmdBuildDefaultKubeEks)
+                && (b.envers == undefined || b.envers.length == 0)) {
                 throw new Error(b.buildId + ' has 0 envers defined!')
             }
         })

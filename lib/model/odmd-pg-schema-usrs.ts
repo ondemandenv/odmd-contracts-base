@@ -3,7 +3,7 @@ import {CustomResource, Fn, Stack} from "aws-cdk-lib";
 import {OdmdCrossRefConsumer, OdmdNames} from "./odmd-cross-refs";
 import {WithRds} from "./odmd-rds-cluster";
 import {AnyOdmdEnVer} from "./odmd-enver";
-import {IPAM_AB} from "../repos/__networking/odmd-config-networking";
+import {IPAM_AB} from "../repos/__networking/odmd-build-networking";
 
 export function GET_PG_USR_ROLE_PROVIDER_NAME(ownerBuildId: string, ownerRegion: string, ownerAccount: string,
                                               ipam: OdmdCrossRefConsumer<AnyOdmdEnVer, IPAM_AB>) {

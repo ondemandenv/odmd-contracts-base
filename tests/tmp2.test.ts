@@ -1,6 +1,6 @@
 import {App} from "aws-cdk-lib";
 import {OdmdEnverCtnImg} from "../lib/model/odmd-enver-ctn-img";
-import {TmpTstContracts} from "./tmp-tst-contracts";
+import {OdmdContractsNoNetworking} from "./tmp-tst-contracts";
 
 
 test('make_sense2', () => {
@@ -8,14 +8,14 @@ test('make_sense2', () => {
     process.env.CDK_DEFAULT_ACCOUNT = 'aaaaaa'
     process.env.CDK_DEFAULT_REGION = 'us-west-1'
     const app = new App()
-    const theContracts = new TmpTstContracts(app)
+    const theContracts = new OdmdContractsNoNetworking(app)
 
 
-    process.env['ODMD_build_id'] = theContracts.networking!.buildId
-    process.env['ODMD_rev_ref'] = "b..ipam_west1_le"
+    process.env['ODMD_build_id'] = theContracts.contractsLibBuild.buildId
+    process.env['ODMD_rev_ref'] = theContracts.contractsLibBuild.envers[0].targetRevision.toPathPartStr()
     let targetEnver = theContracts.getTargetEnver();
     if (targetEnver!.targetRevision.origin != undefined
-        || targetEnver != theContracts.networking!.envers[0]
+        || targetEnver != theContracts.contractsLibBuild!.envers[0]
     ) {
         throw new Error("no!")
     }

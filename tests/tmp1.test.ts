@@ -1,7 +1,7 @@
 import {OdmdEnverCtnImg} from "../lib/model/odmd-enver-ctn-img";
 import {App, Stack} from "aws-cdk-lib";
 import {Repository, RepositoryProps} from "aws-cdk-lib/aws-ecr";
-import {TmpTstContracts, TmpTstContracts1} from "./tmp-tst-contracts";
+import {OdmdContractsNoNetworking, OdmdContractsWithNetworking} from "./tmp-tst-contracts";
 
 
 test('make_sense1', () => {
@@ -9,7 +9,7 @@ test('make_sense1', () => {
     process.env.CDK_DEFAULT_ACCOUNT = 'aaaaaa'
     process.env.CDK_DEFAULT_REGION = 'us-west-1'
     const app = new App()
-    const theContracts = new TmpTstContracts(app)
+    const theContracts = new OdmdContractsNoNetworking(app)
 
     const buildRegion = process.env.CDK_DEFAULT_REGION;
     const buildAccount = process.env.CDK_DEFAULT_ACCOUNT

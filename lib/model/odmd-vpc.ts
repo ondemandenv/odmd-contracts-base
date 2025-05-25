@@ -9,7 +9,7 @@ import {
 import {OdmdBuild} from "./odmd-build";
 import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "./odmd-cross-refs";
 import {AnyOdmdEnVer, IOdmdEnver} from "./odmd-enver";
-import {IPAM_AB} from "../repos/__networking/odmd-config-networking";
+import {IPAM_AB} from "../repos/__networking/odmd-build-networking";
 
 export class OdmdVpc implements VpcProps {
 

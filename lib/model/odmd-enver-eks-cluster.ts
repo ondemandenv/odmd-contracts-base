@@ -3,7 +3,7 @@ import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "./odmd-cross-refs";
 import {IOdmdEnver} from "./odmd-enver";
 import {OdmdVpc, WithVpc} from "./odmd-vpc";
 import {OdmdBuild, SRC_Rev_REF} from "./odmd-build";
-import {IPAM_AB} from "../repos/__networking/odmd-config-networking";
+import {IPAM_AB} from "../repos/__networking/odmd-build-networking";
 
 export abstract class OdmdEnverEksCluster extends OdmdEnverCdk implements WithVpc {
 
