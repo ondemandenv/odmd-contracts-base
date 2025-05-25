@@ -145,15 +145,17 @@ export abstract class OndemandContracts<
 
 
     protected initializeUserAuth(): void {
-        this._userAuth = new OdmdBuildUserAuth(this);
+        // this._userAuth = new OdmdBuildUserAuth(this);
+        throw new Error('initializeUserAuth is not implemented/overridden !')
     }
 
     protected initializeNetworking(): void {
-        this._networking = new OdmdConfigNetworking(this);
+        // this._networking = new OdmdConfigNetworking(this);
+        throw new Error('initializeNetworking is not implemented/overridden !')
     }
 
     protected initializeEksCluster(): void {
-        throw new Error( 'EksCluster build is not implemented yet')
+        throw new Error('initializeEksCluster is not implemented/overridden !')
     }
 
     protected initializeDefaultVpcRds(): void {
@@ -276,5 +278,13 @@ export abstract class OndemandContracts<
 
             throw new Error('duplicated envers?!')
         }
+
+        this._builds.forEach(b => {
+            if (b.envers == undefined || b.envers.length == 0) {
+                throw new Error(b.buildId + ' has 0 envers defined!')
+            }
+        })
+
+
     }
 }
