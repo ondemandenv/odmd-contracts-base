@@ -23,6 +23,7 @@ test('make_sense1', () => {
         }
     });
 
+    app.synth()
     theContracts.odmdBuilds.forEach(cc => {
         cc.envers.forEach(enver => {
             if (enver instanceof OdmdEnverCtnImg) {

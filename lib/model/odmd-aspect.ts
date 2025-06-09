@@ -1,4 +1,5 @@
 import {
+    App,
     CfnElement,
     CfnOutput,
     CfnParameter,
@@ -12,6 +13,7 @@ import {
 import {IConstruct} from "constructs";
 import {OndemandContracts} from "../OndemandContracts";
 import {GET_SHARE_THRU_SSM_PROVIDER_NAME, OdmdShareIn, OdmdShareOut, SHARE_VERSIONS} from "./odmd-share-refs";
+import {OdmdEnverUserAuth} from "../repos/__user-auth/odmd-build-user-auth";
 
 export class OdmdAspect implements IAspect {
     visit(node: IConstruct): void {
@@ -77,15 +79,15 @@ Debugging Challenges: Errors in nested stacks can be harder to diagnose because 
                 value: buildSrcRevParam.valueAsString + '-' + odmdNowParam.valueAsString
             })
 
-/*
+            /*
 
-            s.node.findAll().filter(n => TagManager.isTaggable(n)
-                && n.tags
-                //todo: this is not working because TagManager is thru Aspects and tags.tagValues() is empty all the time.
-                && n.tags.tagValues()[OdmdShareIn.ODMD_NOW] != undefined)
-                .map(n => TagManager.of(n)!)
-                .forEach(n => n.setTag(OdmdShareIn.ODMD_NOW, odmdNowParam.valueAsString))
-*/
+                        s.node.findAll().filter(n => TagManager.isTaggable(n)
+                            && n.tags
+                            //todo: this is not working because TagManager is thru Aspects and tags.tagValues() is empty all the time.
+                            && n.tags.tagValues()[OdmdShareIn.ODMD_NOW] != undefined)
+                            .map(n => TagManager.of(n)!)
+                            .forEach(n => n.setTag(OdmdShareIn.ODMD_NOW, odmdNowParam.valueAsString))
+            */
 
 
             if (
@@ -100,6 +102,41 @@ Debugging Challenges: Errors in nested stacks can be harder to diagnose because 
             const logicalId = node.stack.getLogicalId(node);
             Tags.of(node).add("stackName", node.stack.stackName)
             Tags.of(node).add("logicalId", logicalId)
+        } else if (node instanceof App) {
+            const all = node.node.findAll();
+            const map = all
+                .filter(n => n instanceof OdmdShareOut)
+                .reduce((p, v) => {
+                        const k = v.node.scope as Stack
+                        if (!p.has(k)) {
+                            p.set(k, [])
+                        }
+                        p.get(k)!.push(v)
+
+                        return p;
+                    }, new Map<Stack, OdmdShareOut[]>()
+                )
+            if (map.size > 1) {
+                throw new Error(
+                    `For now, Only one stack can define OdmdShareOut per enver! you have:
+${JSON.stringify(Object.fromEntries(map), null, 2)}
+                `)
+            }
+
+            all.filter(node => node instanceof OdmdEnverUserAuth).forEach(node => {
+
+                const errMsgArr = [...node.callbackUrls, ...node.logoutUrls]
+                    .filter(u => u.options.defaultIfAbsent == undefined ||
+                        (
+                            !u.options.defaultIfAbsent.startsWith('http')
+                            && !u.options.defaultIfAbsent.startsWith('https')
+                        )
+                    ).map(u => `OdmdEnverUserAuth: ${u.toOdmdRef()} have to have default value start with http:// or https:// to go around circular dependencies`);
+
+                if (errMsgArr.length > 0) {
+                    throw new Error(errMsgArr.join('\n'))
+                }
+            })
         }
     }
 

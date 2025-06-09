@@ -1,6 +1,6 @@
 {
   "name": "@ondemandenv/contracts-lib-base",
-  "version": "0.0.70",
+  "version": "0.0.71",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
@@ -33,6 +33,7 @@
     "buildversion": "tsc --build && npm version patch",
     "cdk-ls": "tsc --build --clean && tsc --build && cross-env target_rev_ref=b..main cdk ls -v --profile sandbox-workspace3",
     "pubpub": "npm run test && npm publish --access=public",
+    "package": "npm run test && npm pack",
     "login": "npm login",
     "generate-exports": "ts-node scripts/generate-exports.ts"
   }

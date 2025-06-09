@@ -28,6 +28,7 @@ test('make_sense2', () => {
         throw new Error("No!")
     }
 
+    app.synth()
 
     theContracts.odmdBuilds.forEach(b => {
         b.envers

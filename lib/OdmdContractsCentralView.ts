@@ -18,11 +18,14 @@ export type GithubReposCentralView = {
     _defaultKubeEks?: GithubRepo
     _defaultVpcRds?: GithubRepo
 }
+
 export type AccountsCentralView = {
     central: string,
     networking?: string,
     workspace0: string,
 }
+
+export type AccountsToDefaultHostedZone = AccountsCentralView
 
 export interface OdmdContractsCentralView<
     A extends AccountsCentralView,
