@@ -2,7 +2,7 @@ import {Construct, IConstruct} from "constructs";
 import {OdmdBuildNetworking} from "./repos/__networking/odmd-build-networking";
 import {OdmdBuildDefaultVpcRds} from "./repos/_default-vpc-rds/odmd-build-default-vpc-rds";
 import {AnyOdmdEnVer} from "./model/odmd-enver";
-import {OdmdBuild, SRC_Rev_REF} from "./model/odmd-build";
+import {OdmdBuild} from "./model/odmd-build";
 import {OdmdBuildDefaultKubeEks} from "./repos/_default-kube-eks/odmd-build-default-kube-eks";
 import {Aspects} from "aws-cdk-lib";
 import {OdmdAspect} from "./model/odmd-aspect";
@@ -199,24 +199,7 @@ export abstract class OndemandContracts<
             }
             return found
         }
-
-        if (!enverRef.includes('-_')) {
-            console.log(`${enverRef} not found `)
-            return undefined
-        }
-        const idx = enverRef.indexOf('-_')
-        const orgEnver = b.envers.find(e => e.targetRevision.toPathPartStr() == enverRef.substring(0, idx))!
-
-        const nwEnverRevref = enverRef.substring(idx + 2)
-
-        const nwEnver = orgEnver.generateDynamicEnver(new SRC_Rev_REF(
-            nwEnverRevref.startsWith('b..') ? 'b' : 't',
-            nwEnverRevref.substring(3), orgEnver.targetRevision
-        ))
-
-        b.envers.push(nwEnver)
-
-        return nwEnver
+        throw new Error(`can't find envers by ref:${enverRef} in buildId:${buildId}`)
     }
 
     /**

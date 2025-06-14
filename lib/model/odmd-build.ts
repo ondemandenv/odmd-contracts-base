@@ -30,9 +30,30 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
         
         // Initialize envers through dedicated method
         this.initializeEnvers()
+        if( this.buildId == process.env['ODMD_build_id'] && OndemandContracts.REV_REF_value){
+            const enverRef = OndemandContracts.REV_REF_value
+            if (!enverRef.includes('-_')) {
+                return
+            }
+            this.genDynamicEnvers(enverRef);
+        }
     }
 
-    // New method for initializing envers
+    private genDynamicEnvers(enverRef: string) {
+        const idx = enverRef.indexOf('-_')
+        const orgEnver = this.envers.find(e => e.targetRevision.toPathPartStr() == enverRef.substring(0, idx))!
+
+        const nwEnverRevref = enverRef.substring(idx + 2)
+
+        const nwEnver = orgEnver.generateDynamicEnver(new SRC_Rev_REF(
+            nwEnverRevref.startsWith('b..') ? 'b' : 't',
+            nwEnverRevref.substring(3), orgEnver.targetRevision
+        ))
+
+        this.envers.push(nwEnver as T)
+    }
+
+// New method for initializing envers
     protected abstract initializeEnvers(): void;
 
     public get contracts() {
@@ -49,14 +70,6 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
     readonly description?: string
     readonly gitHubRepo: GithubRepo
 
-    /**
-     * Configurations will be used by ODMD pipelines will NOT be overridden:
-     *
-     * 1) 1st element's region is primary region and should NOT be changed.
-     * 2) 1st element's branch is primary branch and should NOT be changed.
-     *
-     * this means implementation
-     */
     abstract get envers(): Array<T>;
 
     readonly workDirs?: Array<string>
