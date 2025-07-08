@@ -36,9 +36,8 @@ export class OdmdCrossRefProducer<T extends AnyOdmdEnVer> extends Construct {
 
         this.children = props?.children?.map((c, i) => {
             return new OdmdCrossRefProducer(owner, id + '-' + (c.pathPart ?? i), {
-                pathPart: c.pathPart,
-                parentPathPart: this.name,
-                children: c.children
+                ...c,
+                parentPathPart: this.name
             })
         })
     }
