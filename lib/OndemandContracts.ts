@@ -102,25 +102,6 @@ export abstract class OndemandContracts<
 
         // Initialize all builds
         this.initializeBuilds();
-
-        if (!process.env.CDK_CLI_VERSION) {
-            throw new Error("have to have process.env.CDK_CLI_VERSION!")
-        }
-
-        const buildRegion = process.env.CDK_DEFAULT_REGION;
-        let buildAccount: string;
-        if (process.env.CDK_DEFAULT_ACCOUNT) {
-            buildAccount = process.env.CDK_DEFAULT_ACCOUNT;
-        } else {
-            console.log(`process.env.CDK_DEFAULT_ACCOUNT undefined, trying to find account in CodeBuild with CODEBUILD_BUILD_ARN: ${process.env.CODEBUILD_BUILD_ARN}`)
-            if (!process.env.CODEBUILD_BUILD_ARN) {
-                throw new Error(`process.env.CODEBUILD_BUILD_ARN undefined, unable to initialize without account information.`)
-            }
-            buildAccount = process.env.CODEBUILD_BUILD_ARN!.split(":")[4];
-        }
-        if (!buildRegion || !buildAccount) {
-            throw new Error("buildRegion>" + buildRegion + "; buildAccount>" + buildAccount)
-        }
     }
 
     // Main initialization method

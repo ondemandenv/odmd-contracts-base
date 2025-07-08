@@ -152,6 +152,12 @@ export class OdmdShareOut extends Construct {
                 throw new Error(`share name: ${ref.name} is already used,val: ${properties[ref.name]}`)
             }
             properties[ref.name] = val
+
+            if (typeof val == 'string' && val.startsWith('s://') && !ref.s3artifact) {
+                console.warn('***************************************************************************************')
+                console.warn('WARNING: ' + ref.name + ' is a string starting with s://, but it is not marked as s3artifact, this may cause issues if you are trying to share S3 artifacts thru artifactPrefixSsm without proper permissions.')
+                console.warn('***************************************************************************************')
+            }
         })
 
         properties[OndemandContracts.REV_REF_name] = this.producingEnver.targetRevision.toPathPartStr()

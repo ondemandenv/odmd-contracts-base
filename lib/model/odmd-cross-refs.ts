@@ -3,9 +3,14 @@ import * as crypto from 'crypto';
 import {AnyOdmdEnVer} from "./odmd-enver";
 import {OdmdShareIn} from "./odmd-share-refs";
 import {Stack} from "aws-cdk-lib";
-import {OdmdEnverCtnImg} from "./odmd-enver-ctn-img";
 
 export interface RefProducerProps {
+    /**
+     * @see lib/model/odmd-enver.ts 's artifactPrefixSsm for context
+     * if true, this producer is for s3 artifact, platform will handle access permission
+     * @default false
+     */
+    s3artifact?: boolean
     pathPart?: string
     parentPathPart?: string
     children?: RefProducerProps[]
@@ -21,6 +26,7 @@ export class OdmdCrossRefProducer<T extends AnyOdmdEnVer> extends Construct {
         if (name.includes('..')) {
             throw new Error(`ref producer's value should not have .. , got ${name}`)
         }
+        this.s3artifact = props?.s3artifact === true || false; //default is false, so that it is not s3 artifact
 
         if (props && props.parentPathPart) {
             this.name = props.parentPathPart + '/' + name
@@ -37,6 +43,7 @@ export class OdmdCrossRefProducer<T extends AnyOdmdEnVer> extends Construct {
         })
     }
 
+    readonly s3artifact: boolean
     readonly name: string
     readonly children?: OdmdCrossRefProducer<T>[]
 

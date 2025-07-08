@@ -23,7 +23,12 @@ export interface IOdmdEnver extends IConstruct {
 
     get owner(): OdmdBuild<AnyOdmdEnVer>
 
+    /**
+     * odmd platform will delete all resources created by this enver including stateful resources
+     */
     readonly ephemeral: boolean
+
+    //todo: developer will takeoverwrite Workflow file from odmd platform in their repo,
     readonly overwriteGhWf: boolean
 
     readonly centralRoleName: string
@@ -33,6 +38,21 @@ export interface IOdmdEnver extends IConstruct {
     readonly buildRoleName: string
     readonly buildRolePath: string
     readonly buildRoleArn: string
+
+    /*
+    static local ssm param path to get the s3 object prefix for cdk app to upload artifacts with buildRole
+    typical usage: app/service has a schema to share thru producer/consumer model:
+     producer app/service:
+     1) in cdk code, use this path to get the bucket name and prefix;
+        2) upload the schema to s3 bucket with this prefix,
+        3) schema object key is used as producer value
+            new OdmdShareOut(
+                this, new Map([ ... [myEnver.documentMetadataSchemaS3Url_producer, <s3 bucket prefix/produceID@s3ObjVersion>] ...  ])
+            );
+        4) consumer app/service will be notified by ssm parameter change thru platform event bus
+        5) as long as app/service using the provided s3 bucket prefix, and marking producer's 's3artifact, permission is granted by platform
+     */
+    readonly artifactPrefixSsm: string
 
     readonly productsReplicaToRegions: Set<string>
 
@@ -142,6 +162,10 @@ export abstract class OdmdEnver<T extends OdmdBuild<OdmdEnver<T>>> extends Const
 
     public get buildRoleArn(): string {
         return `arn:aws:iam::${this.targetAWSAccountID}:role${this.buildRolePath}${this.buildRoleName}`;
+    }
+
+    public get artifactPrefixSsm(): string {
+        return `/odmd-config/${this.owner.buildId}/buildArtifactBucketName/${this.targetAWSAccountID}`;
     }
 
     generateDynamicEnver(rev: SRC_Rev_REF, newInst: IOdmdEnver | undefined = undefined): IOdmdEnver {
