@@ -1,4 +1,4 @@
-import {Construct} from "constructs";
+import {Construct, IConstruct} from "constructs";
 import {CfnParameter, CustomResource, Fn, Stack} from "aws-cdk-lib";
 import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "./odmd-cross-refs";
 import {OndemandContracts} from "../OndemandContracts";
@@ -93,6 +93,7 @@ export class OdmdShareIn extends Construct {
 }
 
 export class OdmdShareOut extends Construct {
+    readonly owner: AnyOdmdEnVer;
 
     constructor(scope: Stack, refToVal: Map<OdmdCrossRefProducer<AnyOdmdEnVer>, any>, enverRef = OndemandContracts.REV_REF_value) {
         super(scope, 'odmd-share-out_' + enverRef);
@@ -125,6 +126,7 @@ export class OdmdShareOut extends Construct {
             }
             tmp = p.owner
         })
+        this.owner = tmp!
         if (refProducers.find(p => p.name == 'ServiceToken')) {
             throw new Error("ServiceToken is reserved for OdmdShareOut")
         }
@@ -175,4 +177,26 @@ export class OdmdShareOut extends Construct {
     public readonly producingEnver: AnyOdmdEnVer
 
     public readonly outVersions: string
+
+    public static validate(all: IConstruct[]) {
+
+        const allOuts = all.filter(n => n instanceof OdmdShareOut);
+
+        const enverToOuts = allOuts
+            .reduce((p, v) => {
+                    const k = v.owner
+                    if (!p.has(k)) {
+                        p.set(k, [])
+                    }
+                    p.get(k)!.push(v)
+
+                    return p;
+                }, new Map<AnyOdmdEnVer, OdmdShareOut[]>()
+            )
+        const enver2multiOuts = Array.from(enverToOuts.entries()).find(([k, v]) => v.length > 1);
+        if (enver2multiOuts) {
+            throw new Error(`Enver can only define one ShareOut, but ${enver2multiOuts[0].targetRevision.toPathPartStr()} has multiple!`)
+        }
+
+    }
 }

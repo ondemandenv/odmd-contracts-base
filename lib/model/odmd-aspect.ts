@@ -104,24 +104,8 @@ Debugging Challenges: Errors in nested stacks can be harder to diagnose because 
             Tags.of(node).add("logicalId", logicalId)
         } else if (node instanceof App) {
             const all = node.node.findAll();
-            const map = all
-                .filter(n => n instanceof OdmdShareOut)
-                .reduce((p, v) => {
-                        const k = v.node.scope as Stack
-                        if (!p.has(k)) {
-                            p.set(k, [])
-                        }
-                        p.get(k)!.push(v)
 
-                        return p;
-                    }, new Map<Stack, OdmdShareOut[]>()
-                )
-            if (map.size > 1) {
-                throw new Error(
-                    `For now, Only one stack can define OdmdShareOut per enver! you have:
-${JSON.stringify(Object.fromEntries(map), null, 2)}
-                `)
-            }
+            OdmdShareOut.validate( all )
 
             all.filter(node => node instanceof OdmdEnverUserAuth).forEach(node => {
 
