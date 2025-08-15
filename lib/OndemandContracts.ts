@@ -7,7 +7,12 @@ import {OdmdBuildDefaultKubeEks} from "./repos/_default-kube-eks/odmd-build-defa
 import {Aspects} from "aws-cdk-lib";
 import {OdmdAspect} from "./model/odmd-aspect";
 import {execSync} from "child_process";
-import {AccountsCentralView, GithubReposCentralView, OdmdContractsCentralView} from "./OdmdContractsCentralView";
+import {
+    AccountsCentralView,
+    AccountToOdmdHostedZoneID,
+    GithubReposCentralView,
+    OdmdContractsCentralView
+} from "./OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "./repos/__contracts/odmd-build-contracts-lib";
 import {OdmdCrossRefConsumer} from "./model/odmd-cross-refs";
 import {OdmdShareIn} from "./model/odmd-share-refs";
@@ -63,6 +68,14 @@ export abstract class OndemandContracts<
     }
 
     abstract get allAccounts(): string[]
+
+    get subDomain(): string|undefined{
+        return undefined
+    }
+
+    get accountToOdmdHostedZoneID(): AccountToOdmdHostedZoneID|undefined{
+        return undefined
+    }
 
     protected _contractsLibBuild: C;
     get contractsLibBuild(): C {

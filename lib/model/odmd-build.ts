@@ -22,15 +22,21 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
         GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
     >, id: string, repo: GithubRepo) {
         super(scope, id);
+        if (!/^[a-zA-Z0-9_-]+$/.test(id)) {//.. is reserved!
+            throw new Error(`build id should be /^[a-zA-Z0-9_-]+$/, got ${id}`)
+        }
+        if (id.toLowerCase() == 'config') {
+            throw new Error(`config is reserved from build id, got ${id}`)
+        }
         this.buildId = id
         this.gitHubRepo = repo
 
         // @ts-ignore
         scope._builds.push(this)
-        
+
         // Initialize envers through dedicated method
         this.initializeEnvers()
-        if( this.buildId == process.env['ODMD_build_id'] && OndemandContracts.REV_REF_value){
+        if (this.buildId == process.env['ODMD_build_id'] && OndemandContracts.REV_REF_value) {
             const enverRef = OndemandContracts.REV_REF_value
             if (!enverRef.includes('-_')) {
                 return
@@ -71,6 +77,10 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
     readonly gitHubRepo: GithubRepo
 
     abstract get envers(): Array<T>;
+
+    get subDomain(): string | undefined {
+        return this.contracts.subDomain ? this.buildId + '.' + this.contracts.subDomain : undefined
+    }
 
     readonly workDirs?: Array<string>
 

@@ -25,7 +25,9 @@ export type AccountsCentralView = {
     workspace0: string,
 }
 
-export type AccountsToDefaultHostedZone = AccountsCentralView
+export type AccountToOdmdHostedZoneID = {
+    [k in keyof AccountsCentralView]: string
+}
 
 export interface OdmdContractsCentralView<
     A extends AccountsCentralView,
