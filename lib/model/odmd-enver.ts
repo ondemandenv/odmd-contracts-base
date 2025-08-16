@@ -11,7 +11,6 @@
 
 import {Construct, IConstruct} from "constructs";
 import {OdmdBuild, SRC_Rev_REF} from "./odmd-build";
-import {OndemandContracts} from "../OndemandContracts";
 
 export interface IOdmdEnver extends IConstruct {
 
@@ -185,6 +184,14 @@ export abstract class OdmdEnver<T extends OdmdBuild<OdmdEnver<T>>> extends Const
 
     get subdomain(): string | undefined {
         return this.owner.subDomain ? this.targetRevision.toPathPartStr().replace(/[^a-zA-Z0-9-]/g, "").replace(/^-+|-+$/g, "") + '.' + this.owner.subDomain : undefined
+    }
+
+    getHostedZoneId(): string | undefined {
+        const accountName = this.owner.contracts.getAccountName(this.targetAWSAccountID)
+        if (this.owner.contracts.accountToOdmdHostedZoneID && accountName) {
+            return this.owner.contracts.accountToOdmdHostedZoneID[accountName];
+        }
+        return undefined
     }
 
 }
