@@ -25,8 +25,8 @@ export type AccountsCentralView = {
     workspace0: string,
 }
 
-export type AccountToOdmdHostedZoneID = {
-    [k in keyof AccountsCentralView]: string
+export type AccountToOdmdHostedZoneIdName = {
+    [k in keyof AccountsCentralView]: [ string, string ]
 }
 
 export interface OdmdContractsCentralView<

@@ -9,7 +9,7 @@ import {OdmdAspect} from "./model/odmd-aspect";
 import {execSync} from "child_process";
 import {
     AccountsCentralView,
-    AccountToOdmdHostedZoneID,
+    AccountToOdmdHostedZoneIdName,
     GithubReposCentralView,
     OdmdContractsCentralView
 } from "./OdmdContractsCentralView";
@@ -73,7 +73,7 @@ export abstract class OndemandContracts<
         return undefined
     }
 
-    get accountToOdmdHostedZoneID(): AccountToOdmdHostedZoneID|undefined{
+    get accountToOdmdHostedZone(): AccountToOdmdHostedZoneIdName|undefined{
         return undefined
     }
 
