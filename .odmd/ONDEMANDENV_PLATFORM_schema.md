@@ -474,7 +474,15 @@ process.stdout.write(tmp);
 - **Dependencies**: Requires `zod-to-json-schema` and `@types/node` packages
 
 ### **Schema Type Loader (`SchemaTypeLoader`)**
-Platform provides automated schema download and TypeScript type generation:
+The platform provides a utility to download upstream JSON schemas for consumers defined in the ContractsLib. The `SchemaTypeLoader` class is responsible for:
+- Assuming the correct IAM roles for cross-account access.
+- Reading the environment configuration from SSM Parameter Store to find schema S3 URLs.
+- Fetching the versioned JSON schema artifacts from S3.
+- Saving the downloaded schemas as `.json` files in a local directory.
+
+It does **not** generate TypeScript or Zod types directly. That task is performed by a separate step in the service's build scripts, which uses the downloaded JSON schemas as input for a tool like `json-schema-to-zod`. This separation of concerns provides greater flexibility.
+
+The example below shows the intended two-step process: first, use `SchemaTypeLoader` to download, then process the results to generate code.
 
 ```typescript
 // In service bin/gen-schemas.ts

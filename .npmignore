@@ -12,8 +12,10 @@ cdk.out
 
 bin
 .idea
+*.iml
 .git
 .github
+.claude
 
 build.gradle.kts
 cdk.context.json
