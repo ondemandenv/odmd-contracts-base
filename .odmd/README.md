@@ -26,11 +26,6 @@ These documents do NOT contain:
 - ❌ **SYSTEM-SPECIFIC** mock data or configuration
 - ❌ **DOMAIN-SPECIFIC** business logic or requirements
 
-## 🚀 **IMPLEMENTATION-SPECIFIC CONTENT**
-
-For concrete implementation details, see:
-- **`../_impl/`**: Contains system-specific implementation details, mock data, and concrete examples
-
 ## 📖 **USAGE GUIDELINES**
 
 ### **For Platform Teams:**
