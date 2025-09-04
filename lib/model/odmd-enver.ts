@@ -169,7 +169,7 @@ export abstract class OdmdEnver<T extends OdmdBuild<OdmdEnver<T>>> extends Const
     }
 
     public get artifactPrefixSsm(): string {
-        return `/odmd-config/${this.owner.buildId}/buildArtifactBucketName/${this.targetAWSAccountID}`;
+        return `${this.owner.artifactSsmPath}/${this.targetAWSAccountID}`;
     }
 
     generateDynamicEnver(rev: SRC_Rev_REF, newInst: IOdmdEnver | undefined = undefined): IOdmdEnver {

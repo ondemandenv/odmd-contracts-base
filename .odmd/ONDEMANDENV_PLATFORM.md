@@ -227,7 +227,7 @@ After implementing the schema workflow, validate inter-service contracts via BDD
 
 ### Implementation Schema Layer (service-level Zod)
 
-**See `ONDEMANDENV_PLATFORM_schema.md` for complete schema architecture details.**
+**See `lib/utils/ONDEMANDENV_PLATFORM_schema.md` for complete schema architecture details.**
 
 Key principles:
 - **Zod Runtime Scope**: Zod schemas operate in Lambda handlers, not CDK scope
@@ -253,7 +253,7 @@ Key principles:
 
 ### Code generation in `.scripts/build.sh`
 
-**See `ONDEMANDENV_PLATFORM_schema.md` for complete build process details.**
+**See `lib/utils/ONDEMANDENV_PLATFORM_schema.md` for complete build process details.**
 
 Platform build sequence:
 1. **Root service**: `npm ci` installs CDK dependencies

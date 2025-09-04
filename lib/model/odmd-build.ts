@@ -82,6 +82,11 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
         return this.contracts.subDomain ? this.buildId + '.' + this.contracts.subDomain : undefined
     }
 
+    //the artifact bucket ssm path
+    public get artifactSsmPath(): string {
+        return `/odmd-config/${this.buildId}/buildArtifactBucketName`;
+    }
+
     readonly workDirs?: Array<string>
 
     /**

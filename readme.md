@@ -82,7 +82,7 @@ This library provides a set of core components for building and managing service
 
 The library includes contracts for essential platform services:
 
-*   `__user-auth`: User authentication service.
+*   `__user-auth`: User authentication service for accessing platform.
 *   `__networking`: Shared VPC, TGW, and networking infrastructure.
 *   `__contracts`: The contractsLib repository deployment itself.
 *   `_default-vpc-rds`: Standard database infrastructure templates.
