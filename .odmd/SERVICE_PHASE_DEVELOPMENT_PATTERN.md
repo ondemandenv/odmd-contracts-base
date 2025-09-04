@@ -59,15 +59,15 @@ When generating or updating service contexts:
 ```bash
 cd services/<service-name>
 npm run Odmd<ServiceName>:cdk:ls --silent
-# Expected output: Odmd<ServiceName>--mock, Odmd<ServiceName>--dev, Odmd<ServiceName>--main
+# Expected output: Odmd<ServiceName>
 
 # Verify contract integration
-aws cloudformation describe-stacks --stack-name Odmd<ServiceName>--mock \
+aws cloudformation describe-stacks --stack-name Odmd<ServiceName> \
   --query 'Stacks[0].Outputs[?OutputKey==`<serviceApiBaseUrl>`].OutputValue' --output text
 # Should return valid API endpoint URL
 
 # Verify mocked endpoint responses
-curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
+curl -X POST https://<service>-api.<domain>/<endpoint> \
   -H "Content-Type: application/json" \
   -d '{<test-payload>}'
 # Should return MOCKED response with proper schema structure
@@ -98,7 +98,7 @@ npm run Odmd<ServiceName>:generate:schemas
 # Should generate valid JSON schema without errors
 
 # Verify schema deployment
-aws s3 ls s3://odmd-<service>-schemas-mock/
+aws s3 ls s3://odmd-<service>-schemas/<rev>/
 # Should show: <serviceApiBaseUrl>-schema-url.json
 
 # Verify BDD integration - Step Functions level
@@ -110,7 +110,7 @@ cd services/web-client/vite && npm run test:bdd
 # Should test service contracts via web GUI
 
 # Verify schema validation with invalid request
-curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
+curl -X POST https://<service>-api.<domain>/<endpoint> \
   -H "Content-Type: application/json" \
   -d '{invalid-schema-payload}'
 # Should return 400 with Zod validation error
@@ -123,7 +123,7 @@ curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
 ```
 
 ## 📋 Phase 1: MVP (Essential)
-**Constellation**: `mock` → `dev` → `main`
+**Constellation**: managed by revision (branch/tag); do not encode names in IDs
 **Focus**: Real business logic implementation (replacing Phase 0 mocked responses)
 
 ### Phase 1A: Core Domain Logic
@@ -152,7 +152,7 @@ curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
 #### Checkpoint Validation Template:
 ```bash
 # Verify real business logic implementation (not mocked)
-curl -X POST https://<service>-api-dev.amazonaws.com/<endpoint> \
+curl -X POST https://<service>-api.<domain>/<endpoint> \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer <real-token>" \
   -d '{<real-payload>}'

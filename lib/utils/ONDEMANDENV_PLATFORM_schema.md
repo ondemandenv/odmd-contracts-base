@@ -1,6 +1,6 @@
-# Platform Schema Architecture: A Developer's Guide
+# Platform Schema Architecture
 
-> **Cross-Reference**: This document details the schema implementation workflow. See `_contractsLib-kk/node_modules/@ondemandenv/contracts-lib-base/.odmd/ONDEMANDENV_PLATFORM.md` for general platform concepts and service patterns.
+> Cross-Reference: This document details the schema implementation workflow. See `.odmd/ONDEMANDENV_PLATFORM.md` for platform concepts and service patterns.
 
 ## 📋 Overview
 
@@ -18,7 +18,7 @@ As a service author, you begin by defining the data structures for your API with
 
 #### **1a. Create the Handler Structure**
 
-Each service must have a complete handler package. This is typically located at `lib/handlers/` within your service directory.
+Each service must have a complete handler package. This is located at `services/<service>/lib/handlers/` within your service repository.
 
 ```
 services/my-service/lib/handlers/
@@ -95,11 +95,12 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
 ---
 
-### **Step 2: Publish Schemas from the CDK Stack**
+### **Step 2: Publish Schemas from the CDK Stack (no await in constructor)**
 
 Next, you need to publish the JSON Schema so other services can find and use it. This is done in your service's CDK stack definition (e.g., `lib/my-service-stack.ts`).
 
 The stack will execute the `schema-print.ts` script, take its output, and use the platform's `deploySchema` utility to upload it to a shared location.
+Do not perform async work inside a CDK construct constructor. Publish schemas from an async `render()` method or a custom resource.
 
 ```typescript
 // In lib/my-service-stack.ts
@@ -107,53 +108,35 @@ import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { deploySchema } from '@your-org/contracts-lib/dist/lib/utils/schema-deployment';
 import { execSync } from 'node:child_process';
-import { fromIni } from "@aws-sdk/credential-providers";
 import { OdmdShareOut } from '@ondemandenv/contracts-lib-base/lib/model/odmd-share-refs';
-import type { MyEnverType } from '@your-org/contracts-lib';
 
 export class MyServiceStack extends Stack {
-    /* ... constructor ... */
+  async render() {
+    const httpApi = new apigwv2.HttpApi(this, 'MyHttpApi');
+    const baseUrl = httpApi.apiEndpoint;
 
-    async render() {
-        const httpApi = new apigwv2.HttpApi(this, 'MyHttpApi');
-        const baseUrl = httpApi.apiEndpoint;
+    const schemaStr = execSync('ts-node scripts/schema-print.ts', {
+      cwd: __dirname + '/handlers',
+      stdio: ['ignore', 'pipe', 'inherit']
+    }).toString();
 
-        const schemaStr = execSync('ts-node scripts/schema-print.ts', {
-            cwd: __dirname + '/handlers',
-            stdio: ['ignore', 'pipe', 'inherit']
-        }).toString();
+    const schemaUrl = await deploySchema(this, schemaStr, this.enver.apiBaseUrl.children![0]);
 
-        const shareOut = new Map([
-            [this.enver.apiBaseUrl, baseUrl],
-        ]);
-
-        // Platform-aware schema deployment for CI/CD vs. Local
-        if (process.env.ODMD_centralRoleArn && process.env.ODMD_centralRoleArn.length > 3) {
-            const schemaUrl = await deploySchema(this, schemaStr, this.enver.apiBaseUrl.children![0]);
-            shareOut.set(this.enver.apiBaseUrl.children![0], schemaUrl);
-        } else {
-            try {
-                const creds = await fromIni({ profile: 'your-org-workspace-profile' })();
-                /* ... set env vars for local credentials ... */
-                const schemaUrl = await deploySchema(this, schemaStr, this.enver.apiBaseUrl.children![0]);
-                shareOut.set(this.enver.apiBaseUrl.children![0], schemaUrl);
-            } catch (e) {
-                console.warn(`Could not deploy schema for local debugging. Error: ${e}`);
-            }
-        }
-
-        new OdmdShareOut(this, shareOut);
-    }
+    new OdmdShareOut(this, new Map([
+      [this.enver.apiBaseUrl, baseUrl],
+      [this.enver.apiBaseUrl.children![0], schemaUrl]
+    ]));
+  }
 }
 ```
 
 ---
 
-### **Step 3: Consume Schemas in Downstream Services**
+### **Step 3: Consume Schemas in Downstream Services (SchemaTypeLoader preferred)**
 
 Now, another service that needs to call your service (a "consumer") can download your published schema and generate type-safe client code.
 
-This is done via a `gen-schemas.ts` script in the *consuming* service's `bin/` directory. This script uses the `SchemaTypeLoader` utility from the contracts library.
+This is done via a `gen-schemas.ts` script in the consuming service's `bin/` directory. Use the `SchemaTypeLoader` utility to download JSON Schemas, then convert to Zod with `json-schema-to-zod`.
 
 ```typescript
 // In the consuming service's bin/gen-schemas.ts file
@@ -224,3 +207,46 @@ async function callMyService(data: unknown) {
 ```
 
 This completes the end-to-end, type-safe workflow, ensuring that services can evolve independently while respecting their public contracts.
+
+---
+
+# Platform Schema Architecture Best Practices (Merged)
+
+> Cross-Reference: See `.odmd/ONDEMANDENV_PLATFORM.md` for platform concepts and service patterns.
+
+## 🏗️ Dual-Layer Model
+
+### Contract Surface Layer
+- Stable boundaries and addresses; define producers/consumers in ContractsLib
+
+### Implementation Schema Layer
+- Zod (or other) schemas live in handlers; evolve independently; publish JSON Schemas as artifacts
+
+## Consumer Schema Access and Generation
+- Prefer `SchemaTypeLoader` to download upstream JSON Schemas into `lib/handlers/src/__generated__/`
+- Convert to Zod via `json-schema-to-zod`; generate TypeScript types from Zod
+- Note: `SchemaTypeGenerator` is deprecated in favor of the two-step Loader + conversion flow
+
+## CDK Integration Pattern
+- Publish contract surfaces (e.g., base URLs) in the stack constructor
+- Publish schemas asynchronously from an explicit `render()` method or custom resource; never `await` in constructors
+- Use stable stack IDs that do not encode constellation names; enver selection is driven by revision (branch/tag)
+
+## Handler Package Pattern
+```
+services/<service>/lib/handlers/
+├── package.json
+├── tsconfig.json
+├── scripts/schema-print.ts
+└── src/
+    ├── schemas/zod.ts
+    ├── __generated__/
+    └── index.ts
+```
+
+## Build and Deployment Flow (Recap)
+1) Root deps install
+2) Consumers download upstream schemas (SchemaTypeLoader) and convert to Zod
+3) Build handlers
+4) Build CDK
+5) During deploy, call `render()` to generate and deploy this service's JSON Schemas, publish via `OdmdShareOut`

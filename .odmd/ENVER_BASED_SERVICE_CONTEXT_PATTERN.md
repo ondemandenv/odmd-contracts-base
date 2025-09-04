@@ -1,4 +1,4 @@
-"""# ENVER-Based Service Context Pattern
+# ENVER-Based Service Context Pattern
 
 ## 🚀 **ULTIMATE ONDEMANDENV PLATFORM BEST PRACTICE**
 
@@ -302,7 +302,7 @@ These contexts are:
 ### **🚨 MANDATORY: PRE-GENERATION CONFIRMATION 🚨**
 Before generating any context files, the generator (developer or LLM) **MUST** first perform the following actions and confirm their completion:
 
-- [ ] **1. Read All Platform Patterns:** I have read and understood all documents in the `_platforms` directory.
+- [ ] **1. Read All Platform Patterns:** I have read and understood all documents in the `.odmd` directory.
 - [ ] **2. Read All Implementation Details:** I have read and understood all documents in the `_impl` directory, including the master mock data set and system-specific requirements.
 - [ ] **3. Read All Design Documents:** I have read and understood all detailed design documents and use cases in the `_impl/_design` directory.
 - [ ] **4. Confirm Understanding:** I hereby confirm that I have a comprehensive understanding of the entire system architecture, including all service boundaries, data schemas, contracts, and use case flows, and I am prepared to generate a complete and accurate service context without information loss.
@@ -314,7 +314,7 @@ Before generating any context files, the generator (developer or LLM) **MUST** f
 ### **STEP 1: READ THROUGH PLATFORM AND DESIGN DOCS**
 
 **MANDATORY READING ORDER:**
-1. **Platform Patterns**: Read ALL `_platforms/` documents to understand generic patterns
+1. **Platform Patterns**: Read ALL `.odmd/` documents to understand generic patterns
 2. **Implementation Details**: Read ALL `_impl/` documents for system-specific requirements
    - **CRITICAL**: `_impl/[SYSTEM]_ENVER_CONTEXT_GENERATION.md` contains system-specific use cases, service boundaries, mock data, and DNS patterns
 3. **Design Documents**: Read ALL `_impl/_design/` documents for detailed specifications
@@ -808,5 +808,4 @@ Request: `mock_request_payload`|Service([Service Name])
 - **Security Audit**: [Results of automated security scans and manual review].
 - **Load Testing**: [Results of load tests against production-like environment].
 ```
-"""
 ""

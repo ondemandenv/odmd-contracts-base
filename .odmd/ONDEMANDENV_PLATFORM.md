@@ -36,12 +36,12 @@ Follow this sequence to bring a new bounded context onto the platform with contr
 
 6) Deployment order and discovery
 - The platform deploys the enver’s stacks in the order returned by `getRevStackNames()`.
-- Prefer two stacks: app first, BDD second (e.g., `MyApp--mock`, `MyApp--mock-bdd`).
+- Prefer two stacks: app first, BDD second (e.g., `MyApp`, `MyApp-bdd`).
 - Discover produced values via `/odmd-share/...` or the `OdmdCrossRefConsumer.getSharedValue(...)` helper during synth.
 
 Checklist
 - Single `OdmdShareOut` per stack; pass multiple producers in one Map.
-- No constellation (dev/main/mock) names in IDs or resource names.
+- No constellation (dev/main/mock) names in IDs or resource names. Use stable IDs; enver selection is driven by revision (branch/tag) and platform mapping.
 - ContractsLib `aws-cdk-lib` version pinned and matched by all service repos.
 
 ## Service Architecture Structure
@@ -103,8 +103,8 @@ ONDEMANDENV transforms distributed systems complexity through **Application-Cent
 
 ### **Source Revision References**
 - **Class**: `SRC_Rev_REF(type: "b" | "t", value: string, origin?: SRC_Rev_REF)`
-- **Branch Reference**: `new SRC_Rev_REF('b', 'dev')` - Points to branch
-- **Tag Reference**: `new SRC_Rev_REF('t', 'v1.0.0')` - Points to tag
+- **Branch Reference**: `new SRC_Rev_REF('b', '<branch-name>')` - Points to a branch (e.g., `dev`, feature branches)
+- **Tag Reference**: `new SRC_Rev_REF('t', 'v1.0.0')` - Points to a tag
 - **Path Conversion**: `toPathPartStr()` - Converts to SSM Parameter Store path
 
 ### **Cross-Reference System (Product/Consumer Pattern)**
@@ -123,15 +123,14 @@ ONDEMANDENV transforms distributed systems complexity through **Application-Cent
     - `_default-vpc-rds` - Standard database infrastructure templates
     - `_default-kube-eks` - Default Kubernetes cluster templates
 #### Hosted Zone and DNS Integration
-To facilitate service discovery, TLS termination, and human-readable endpoints, the platform automatically provisions a Route53 Hosted Zone for each workspace account. This is managed centrally and configured in the organization's `ContractsLib`.
+To facilitate service discovery, TLS termination, and human-readable endpoints, the platform provisions a Route53 Hosted Zone per target environment according to your organization configuration.
 
-- **Configuration**: Hosted Zone access is managed through the Enver configuration pattern. Services access the hosted zone using `this.enver.hostedZone!` which returns an array where `[0]` is the Zone ID and `[1]` is the Zone Name. This replaces the deprecated `accountToOdmdHostedZoneID` pattern.
+- **Configuration**: Hosted Zone access is exposed via the Enver configuration as a typed object: `this.enver.hostedZone?: { zoneId: string; zoneName: string }`.
 
-- **Subdomain Structure**: Services deployed within an `Enver` can leverage this feature to create unique, predictable DNS records. The standard subdomain format is:
-  `<enver-name>.<build-id>.<central-subdomain>`
-  For example: `mock.my-service.{zoneName}`
+- **Subdomain Structure**: Services can create predictable DNS records. A standard subdomain format is:
+  `<rev>.<build-id>.<central-subdomain>` where `<rev>` originates from the revision (branch/tag), not hardcoded constellation names.
 
-- **Usage Example**: A service can programmatically construct its domain name and create the necessary Route53 records (e.g., an 'A' record pointing to a load balancer or a CNAME for a CloudFront distribution). This allows services to easily obtain valid TLS certificates from AWS Certificate Manager (ACM) for their custom domain.
+- **Usage Example**: Construct a domain name and create Route53 records (e.g., an 'A' record for ALB or CNAME for CloudFront). Obtain TLS certificates via ACM for the chosen domain.
 
 #### Platform Console Webapp (User Auth Web UI)
 - Purpose: Lightweight web console that connects to the OndemandEnv platform for authentication and visualization, consuming platform-published config.
@@ -145,15 +144,13 @@ To facilitate service discovery, TLS termination, and human-readable endpoints, 
 
 ## Service Constellation Architecture
 
-### **Multi-Constellation Pattern**
-- **dev constellation**: `SRC_Rev_REF('b', 'dev')` - Development implementation
-- **main constellation**: `SRC_Rev_REF('b', 'main')` - Production implementation
-- **mock constellation**: `SRC_Rev_REF('b', 'mock')` - Contract validation implementation
+### **Multi-Constellation Pattern (by revision, not names in IDs)**
+- Example revisions include `SRC_Rev_REF('b', 'dev')`, `SRC_Rev_REF('b', 'main')`, and `SRC_Rev_REF('b', 'mock')` mapping to different context variants. Stack IDs remain revision-agnostic.
 
 ### **Constellation Characteristics**
 ### Tip: Constellations are emergent, not code-defined
 - Do NOT encode constellation membership or service contract maps as static TypeScript types or constants.
-- Constellations emerge from Enver wiring and cross-refs (producers/consumers) in ContractsLib.
+- Constellations emerge from Enver wiring and cross-refs (producers/consumers) in ContractsLib. They are not tied to specific AWS accounts; mapping to accounts/workspaces is a deployment-time concern, not a property of enver semantics.
 - Keep stable addresses at Layer 1 (ContractsLib), and let Layer 2 (services) publish schemas/artifacts at deploy time.
 
 - ✅ **Complete implementation** of ALL services working together
@@ -214,7 +211,7 @@ After implementing the schema workflow, validate inter-service contracts via BDD
   - Resolve upstream contract values at runtime via `getSharedValue(...)`
   - Validate requests/responses against fetched schemas
 
-- Test strategy (mock constellation)
+- Test strategy (mock-like revision)
   - Use Cucumber.js + Gherkin for feature specs; Jest for step execution
   - Build requests with generated types; assert responses validate against runtime schemas
   - Verify SSM `/odmd-share/...` entries exist and resolve to deployed endpoints and schema artifacts
@@ -232,7 +229,7 @@ After implementing the schema workflow, validate inter-service contracts via BDD
 Key principles:
 - **Zod Runtime Scope**: Zod schemas operate in Lambda handlers, not CDK scope
 - **JSON Schema Artifacts**: S3 artifacts contain JSON Schema (converted from Zod via `zodToJsonSchema`)
-- **Build-time Generation**: `SchemaTypeGenerator` + `json-schema-to-zod` create consumer types
+- **Build-time Generation**: Prefer `SchemaTypeLoader` + `json-schema-to-zod` to create consumer types
 - **Git Versioning**: All schema artifacts tagged with git SHA for traceability
 
 #### Producer structure (child of base URL)
@@ -242,7 +239,7 @@ Key principles:
 - Publishing
   - In the app stack: `deploySchema(this, jsonSchemaString, myEnver.myApiBaseUrl.children[0])`
 - Consumption
-  - Downstream build step: `new SchemaTypeGenerator(myEnver, [ myEnver.upstreamBaseUrl.children[0] ])`
+  - Downstream build step: Use `SchemaTypeLoader` to download upstream JSON schemas and convert to Zod types
 
 #### Consumer structure (separate consumers for base URL and schema)
 
@@ -356,7 +353,7 @@ main().catch((e) => { console.error(e); throw e })
 ```
 
 Notes:
-- Constellation selection is driven by Enver revision (e.g., `b..dev`, `b..main`, `b..mock`) and workspace mapping; do not hardcode it in names.
+- Constellation selection is driven by Enver revision (branch/tag) and platform mapping; do not hardcode it in names.
 - Use `OdmdShareIn` to read upstream producer values and `OdmdShareOut` to publish this service’s outputs within stacks.
 - When the ContractsLib `aws-cdk-lib` version changes, update all service repos in the same commit to avoid type mismatches across `App` instances.
 - If your workspace still pulls multiple `aws-cdk-lib` copies (private property mismatch on `App`), ensure a single version is hoisted, or cast the ContractsLib constructor and `inst` access through `any` as shown above until the version alignment is fixed.
@@ -482,17 +479,8 @@ getRevStackNames(): Array<string> {
 
 ## Multi-Account Architecture
 
-### **Account Structure**
-- **Central Account**: Platform engine and shared services
-- **Workspace Accounts**: Application deployment targets
-- **Cross-Account Roles**: Least privilege access with automatic role assumption
-
-### **Workspace Account Conventions**
-- **workspace0 (default platform workspace)**
-  - Hosts platform-connecting builds and services that every constellation relies on
-  - Typical residents: `__contracts` (ContractsLib) and `__userAuth` (platform console / authentication)
-  - Chosen for stability and discoverability across constellations (dev, main, mock)
-  - Other workspaces host application/service constellations based on Enver configuration
+### Guidance
+- Enver and constellation semantics are account-agnostic. Organizations decide how revisions map to accounts/workspaces. The platform supports cross-account resolution via roles without prescribing fixed mappings.
 
 ### Rule: Do not encode constellation in stack names
 - Do NOT include `mock`/`dev`/`main` in CDK stack IDs, class names, or resource names.
@@ -645,7 +633,7 @@ curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
 **Checkpoint Validation**:
 ```bash
 # BDD integration validation
-curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
+curl -X POST https://<service>-api.<domain>/<endpoint> \
   -H "Content-Type: application/json" \
   -d '{<bdd-aligned-test-data>}'
 # Should return BDD-expected response format
