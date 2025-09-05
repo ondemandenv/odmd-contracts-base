@@ -1,7 +1,5 @@
 import {Construct} from "constructs";
 import {OdmdEnver} from "./odmd-enver";
-import {OdmdEnverCdk} from "./odmd-enver-cdk";
-import {OdmdEnverCtnImg} from "./odmd-enver-ctn-img";
 import {OndemandContracts} from "../OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "../repos/__contracts/odmd-build-contracts-lib";
@@ -94,52 +92,6 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
      */
     abstract readonly ownerEmail?: string
 
-    private getPathToRoot(obj: T): object[] {
-        const path = [];
-        while (obj) {
-            path.push(obj);
-            obj = Object.getPrototypeOf(obj);
-        }
-        return path.reverse()
-    }
-
-    public getEnverCommonAncestor() {
-        if (this.envers.length == 0) {
-            throw new Error('n/a')
-        }
-        const paths = this.envers.filter(e =>
-            e.targetRevision.origin == undefined).map(this.getPathToRoot)
-        const shortestPathLength = Math.min(...paths.map(path => path.length));
-        if (shortestPathLength > 1000) {
-            throw new Error('n/a')
-        }
-
-        let i = 0;
-        for (; i < shortestPathLength; i++) {
-            const currentClasses = paths.map(path => path[i].constructor);
-            if (!currentClasses.every(cls => cls === currentClasses[0])) {
-                break;
-            }
-        }
-
-        let rt = paths[0][i - 1]!.constructor!;
-        while (rt) {
-            const n = OdmdBuild.SUPPORTED_ENVER_CLASSES.find(c => {
-                return c == rt
-            })
-            if (n) {
-                return n
-            }
-            rt = Object.getPrototypeOf(rt)
-            console.log(rt)
-        }
-
-        return rt
-    }
-
-    static SUPPORTED_ENVER_CLASSES = [
-        OdmdEnverCdk, OdmdEnverCtnImg, OdmdEnver
-    ]
 }
 
 
