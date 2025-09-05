@@ -34,8 +34,9 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
 
         // Initialize envers through dedicated method
         this.initializeEnvers()
-        if (this.buildId == process.env['ODMD_build_id'] && OndemandContracts.REV_REF_value) {
-            const enverRef = OndemandContracts.REV_REF_value
+        const revRef = process.env['ODMD_rev_ref']
+        if (this.buildId == process.env['ODMD_build_id'] && revRef) {
+            const enverRef = revRef
             if (!enverRef.includes('-_')) {
                 return
             }

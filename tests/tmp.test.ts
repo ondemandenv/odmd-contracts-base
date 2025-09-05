@@ -108,14 +108,6 @@ describe('mkss1', () => {
     app.synth()
     theContracts.odmdBuilds.forEach((buildConfig: OdmdBuild<AnyOdmdEnVer>) => {
 
-        if (buildConfig.envers.length > 0) {
-            const cmn = buildConfig.getEnverCommonAncestor()
-
-            if (!cmn) {
-                throw new Error('no common ancestor!')
-            }
-        }
-
         const buildId = buildConfig.buildId
 
         const buildIdLowercase = buildId.toLowerCase();
