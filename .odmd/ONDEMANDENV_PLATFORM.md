@@ -563,6 +563,68 @@ getRevStackNames(): Array<string> {
 - The `aws-cdk-lib` version in every service repo must be exactly the same as the version used in the contracts library to avoid type/runtime drift.
 - When bumping `aws-cdk-lib` in the contracts library, bump the same version in all service repos in the same commit.
 
+### ContractsLib package.json (Generalized)
+
+Define your organization ContractsLib as a TypeScript CDK library that depends on `@ondemandenv/contracts-lib-base` and pins `aws-cdk-lib` to the EXACT same version used by the base. Expose only built artifacts.
+
+Key requirements:
+- Depend on `@ondemandenv/contracts-lib-base` (organization-agnostic platform base).
+- Pin `aws-cdk-lib` and `constructs` to the same versions as the base package.
+- Declare `aws-cdk-lib` and `constructs` in both `dependencies` and `peerDependencies` to force consumer alignment.
+- Export `dist/index.js` and `dist/index.d.ts` only; keep sources out of the published package (except if you intentionally share `.odmd` docs).
+- All consumer service repos must pin `aws-cdk-lib` to EXACTLY the same version as this ContractsLib.
+
+Generalized example (replace placeholders):
+
+```json
+{
+  "name": "@<org>/contracts-lib",
+  "version": "0.1.0",
+  "private": false,
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist/**", "README.md", "LICENSE", ".odmd"],
+  "engines": { "node": ">=18" },
+  "sideEffects": false,
+  "scripts": {
+    "clean": "tsc --build --clean",
+    "build": "tsc --build",
+    "watch": "tsc --build -w",
+    "test": "jest --verbose",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@ondemandenv/contracts-lib-base": "<base-version>",
+    "aws-cdk-lib": "<cdk-version-from-base>",
+    "constructs": "<constructs-version-from-base>"
+  },
+  "peerDependencies": {
+    "aws-cdk-lib": "<cdk-version-from-base>",
+    "constructs": "<constructs-version-from-base>"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.2",
+    "ts-node": "^10.9.2",
+    "@types/node": "^22.0.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5"
+  }
+}
+```
+
+Notes:
+- Source your `<cdk-version-from-base>` and `<constructs-version-from-base>` from the published `@ondemandenv/contracts-lib-base` (prefer its `peerDependencies`).
+- When upgrading `@ondemandenv/contracts-lib-base`, update `aws-cdk-lib`/`constructs` here to match; then update ALL service repos in the same change.
+- Consumers import via `import { MyOrgContracts } from '@<org>/contracts-lib'` and must pin `aws-cdk-lib` to the same version.
+
 ### **Resource Naming**
 - **CDK Auto-Generated**: No static names to avoid conflicts
 - **BuildId Prefix**: All resources use `buildId-resourceType-account-region` pattern
