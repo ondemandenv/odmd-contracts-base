@@ -90,6 +90,8 @@ curl -X POST https://<service>-api.<domain>/<endpoint> \
   - **AsyncAPI 2.x** for messaging channels/messages, or
   - **ODMD Bundle** referencing both.
   Keep OAS `servers[0].url` empty; consumers use the platform-resolved base URL.
+ - [x] **Unified Master Mock Data**: Centralized master mock data set in ContractsLib design (e.g., `.odmd-kk/_design/`) covering entities, IDs/tokens/keys, and UC flows.
+ - [x] **Service Decomposition**: Each service’s `src/lib/repos/[service]/docs/MOCK_ENVER_CONTEXT.md` embeds derived mock test cases (HTTP req/resp, event payloads, storage expectations) to guarantee cross-service consistency.
 ```
 
 **CRITICAL**: Two-level BDD verification:
@@ -113,6 +115,9 @@ aws stepfunctions start-execution --state-machine-arn <BDD_ARN> --input '{...}'
 # Verify BDD integration - Playwright level  
 cd services/web-client/vite && npm run test:bdd
 # Should test service contracts via web GUI
+ 
+# Cross-service mock data consistency (IDs/tokens)
+# Ensure contexts show identical values across services (e.g., ROOT_IDENTITY_ID, MPC_SESSION_ID, JWKS kid)
 
 # Verify schema validation with invalid request
 curl -X POST https://<service>-api.<domain>/<endpoint> \

@@ -222,6 +222,14 @@ After implementing the schema workflow, validate inter-service contracts via BDD
   - Run BDD smoke suite against mock; block merges on contract regressions
   - Record schema versions used in test logs for traceability
 
+### Unified Master Mock Data (Phase 0B)
+
+- Source of truth: Define a single, centralized master mock data set in the ContractsLib design folder (e.g., `@<org>/contracts-lib/.odmd-impl/` or `.odmd-kk/_design/`). It must enumerate all entities, IDs, tokens, keys, and per-use-case flows (UC1..UCN) required for end-to-end tests.
+- Decomposition: When generating per-service contexts, extract the relevant subset into each service’s `src/lib/repos/[service]/docs/MOCK_ENVER_CONTEXT.md` as concrete mock test cases (request/response pairs, event payloads, and storage expectations).
+- Consistency rules: IDs/tokens must match across all services; HTTP and event schemas must validate; any derived values (e.g., JWKS `kid`, opaque refs) must be deterministically computed from the master definitions or explicitly listed.
+- BDD consumption: The web-client BDD stack and Step Functions API BDD must read scenarios derived from this master set to drive cross-service flows, ensuring a single source for both HTTP calls and event expectations.
+- Governance: Phase 0B cannot be confirmed complete until the master mock data covers all intended use cases and each service’s `MOCK_ENVER_CONTEXT.md` includes aligned scenarios that pass dual BDD.
+
 ### Implementation Schema Layer (service-level Zod)
 
 **See `lib/utils/ONDEMANDENV_PLATFORM_schema.md` for complete schema architecture details.**

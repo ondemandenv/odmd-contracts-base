@@ -138,6 +138,11 @@ Prefer a single `schema-url` that can point to:
 - **OpenAPI 3.1** for HTTP endpoints (paths + component schemas), or
 - **AsyncAPI 2.x** for messaging channels/messages, or
 - **ODMD Bundle** that references both. Keep OpenAPI `servers[0].url` empty; consumers use platform base URL. Use `operationId` (OpenAPI) or `channels` (AsyncAPI) to generate typed helpers.
+
+## 🧪 Unified Master Mock Data (Phase 0B)
+- Source and governance: Master mock data lives centrally in ContractsLib design (e.g., `.odmd-impl` or `.odmd-kk/_design/`).
+- Decomposition requirement: This `MOCK_ENVER_CONTEXT.md` MUST embed concrete mock test cases derived from the master set (requests/responses, event payloads, and storage expectations) for every relevant use case step touching this service.
+- Consistency constraint: All IDs/tokens/keys must match the master set so cross-service tests and the web-client BDD stack exercise identical scenarios.
 ```
 
 ### **DEV_ENVER_CONTEXT.md (Phase 1):**

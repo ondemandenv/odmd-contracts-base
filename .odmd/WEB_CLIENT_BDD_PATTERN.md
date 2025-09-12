@@ -339,6 +339,7 @@ For each service implementing this pattern:
 - [ ] **Test Data**: Centralized constants shared across all layers
 - [ ] **Validation**: Pre-deployment error checking
 - [ ] **Documentation**: Service-specific BDD coverage in README
+ - [ ] **Master Mock Data**: Scenarios executed by browser/API BDD are derived from the centralized master mock data (ContractsLib design), ensuring the same IDs/tokens across services and the UI.
 
 ---
 
