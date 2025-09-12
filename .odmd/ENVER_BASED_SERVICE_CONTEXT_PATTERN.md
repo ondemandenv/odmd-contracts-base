@@ -132,6 +132,12 @@ protected initializeEnvers(): void {
 
 ## 🧪 **Mock Data Specification**
 [Service-specific mock data from master set]
+
+## 📦 Contract Artifact (HTTP and async)
+Prefer a single `schema-url` that can point to:
+- **OpenAPI 3.1** for HTTP endpoints (paths + component schemas), or
+- **AsyncAPI 2.x** for messaging channels/messages, or
+- **ODMD Bundle** that references both. Keep OpenAPI `servers[0].url` empty; consumers use platform base URL. Use `operationId` (OpenAPI) or `channels` (AsyncAPI) to generate typed helpers.
 ```
 
 ### **DEV_ENVER_CONTEXT.md (Phase 1):**
@@ -154,6 +160,9 @@ protected initializeEnvers(): void {
 
 ## 🔐 **Real Business Logic Implementation**
 [Service-specific real implementation]
+
+## 📦 Contract Artifact (HTTP and async)
+Continue using OpenAPI for HTTP and AsyncAPI for events as applicable (or an ODMD Bundle). Keep artifacts in sync with real behavior so downstream consumers/tests derive accurate routes and channel names.
 ```
 
 ### **MAIN_ENVER_CONTEXT.md (Phase 2+):**
@@ -176,6 +185,9 @@ protected initializeEnvers(): void {
 
 ## 🔐 **Production Security Implementation**
 [Production-specific security features]
+
+## 📦 Contract Artifact (HTTP and async)
+Maintain production-stable OpenAPI (HTTP) and/or AsyncAPI (events) artifacts (or a bundle). Downstream verifiers and clients build from platform base URL + path templates and from channel names/bindings, ensuring zero drift across environments.
 ```
 
 ## 🔄 **CROSS-SERVICE INTEGRATION PATTERN**

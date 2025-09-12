@@ -106,6 +106,43 @@ export const PLATFORM_TEST_DATA = {
 } as const;
 ```
 
+### 4. Consuming contract artifacts
+Derive HTTP routes from **OpenAPI 3.1** or event channels from **AsyncAPI 2.x** (or both via an ODMD bundle).
+
+#### 4.a Deriving routes from OpenAPI (recommended for multi-path)
+If the upstream `schema-url` artifact is an OpenAPI 3.1 document, generate typed route helpers from `paths` and build request URLs by combining the platform-resolved base URL with the documented path templates.
+
+```ts
+// routes.ts (generated from OpenAPI operationIds)
+export function buildUrl(baseUrl: string, template: string, params: Record<string, string>): string {
+  return baseUrl.replace(/\/$/, "") + template.replace(/\{(.*?)\}/g, (_, k) => encodeURIComponent(params[k] ?? ""));
+}
+export const routes = {
+  createEntity: (baseUrl: string) => ({ method: 'POST' as const, url: buildUrl(baseUrl, '/entity/create', {}) }),
+  readEntity: (baseUrl: string, p: { id: string }) => ({ method: 'GET' as const, url: buildUrl(baseUrl, '/entity/{id}', p) })
+};
+
+// In Step Functions BDD or Playwright
+const { method, url } = routes.readEntity(config.serviceBaseUrl, { id: '123' });
+```
+
+#### 4.b Consuming AsyncAPI for event BDD (optional)
+If the `schema-url` artifact is AsyncAPI (or referenced by a bundle), use `channels` to generate typed producers/consumers for event-driven tests.
+
+```ts
+// events.ts (generated from AsyncAPI channels/messages)
+export const channels = {
+  thingEvents: {
+    name: 'thing/events',
+    publish: (client: EventBusClient, payload: ThingEvent) => client.publish('thing/events', payload),
+    subscribe: (client: QueueClient, handler: (m: ThingEvent) => void) => client.subscribe('thing/events', handler)
+  }
+};
+
+// In Step Functions BDD: validate publish/consume over derived channel names
+``` 
+```
+
 ## 🔄 Implementation Pattern
 
 ### Step 1: Service API Stack

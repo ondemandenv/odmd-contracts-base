@@ -232,6 +232,76 @@ Key principles:
 - **Build-time Generation**: Prefer `SchemaTypeLoader` + `json-schema-to-zod` to create consumer types
 - **Git Versioning**: All schema artifacts tagged with git SHA for traceability
 
+#### Schema artifact kinds (HTTP and async)
+
+- The `schema-url` child supports multiple artifact kinds. Pick what fits the interface:
+  - **OpenAPI 3.1 (HTTP RPC)**: For REST-style APIs; includes `paths` and `components.schemas`.
+  - **AsyncAPI 2.x (Async events/bus/pub-sub)**: For topics/queues/streams; includes `channels`, `messages`, and payload schemas.
+  - **ODMD Bundle (mixed)**: A small JSON envelope that references multiple artifacts (e.g., `{ http: <openapi-url>, events: <asyncapi-url> }`) while keeping a single `schema-url` address.
+
+Consumers must detect the artifact kind via a top-level discriminator (`openapi`, `asyncapi`, or `odmdKind: 'bundle'`).
+
+#### OpenAPI 3.1 single-artifact pattern (recommended for multi-path endpoints)
+
+- Purpose: Share full route information (HTTP methods and path templates) together with request/response schemas using a single artifact. No extra producers beyond the existing `schema-url` child are required.
+
+- Producer (build-time): In `bin/gen-schemas.ts`, assemble and upload an OpenAPI 3.1 document as the schema artifact. Keep using `deploySchema(this, openApiJsonString, enver.<baseUrl>.children[0])` so the contract address remains unchanged.
+
+  Minimal structure of the uploaded artifact:
+  ```json
+  {
+    "openapi": "3.1.0",
+    "info": { "title": "<ServiceName>", "version": "<git-sha>" },
+    "servers": [ { "url": "" } ],
+    "paths": {
+      "/resource/{id}": {
+        "get": { "operationId": "getResource", "responses": {"200": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/GetResourceResponse"}}}}} },
+        "put": { "operationId": "updateResource", "requestBody": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/UpdateResourceRequest"}}}}, "responses": {"200": {"content": {"application/json": {"schema": {"$ref": "#/components/schemas/UpdateResourceResponse"}}}}} }
+      }
+    },
+    "components": {
+      "schemas": {
+        "GetResourceResponse": {"type": "object", "properties": {"id": {"type": "string"}}},
+        "UpdateResourceRequest": {"type": "object", "properties": {"id": {"type": "string"}}},
+        "UpdateResourceResponse": {"type": "object", "properties": {"ok": {"type": "boolean"}}}
+      }
+    }
+  }
+  ```
+
+  Notes:
+  - Generate `components.schemas` from Zod models via `zod-to-json-schema` (or `zod-openapi`), then reference them from operations under `paths`.
+  - Keep `servers[0].url` empty; consumers derive the runtime base URL from the contracts system and concatenate path templates.
+
+- Consumer (build/codegen-time): Enhance your type generation step to recognize OpenAPI artifacts.
+  - If the artifact has an `openapi` property, then:
+    1) Generate runtime validation/types from `components.schemas` (unchanged).
+    2) Generate a typed `routes.ts` with helpers for each `operationId`:
+       ```ts
+       export function buildUrl(baseUrl: string, template: string, params: Record<string, string>): string {
+         return baseUrl.replace(/\/$/, "") + template.replace(/\{(.*?)\}/g, (_, k) => encodeURIComponent(params[k] ?? ""));
+       }
+       export const routes = {
+         getResource: (baseUrl: string, p: { id: string }) => ({ method: 'GET' as const, url: buildUrl(baseUrl, '/resource/{id}', p) }),
+         updateResource: (baseUrl: string, p: { id: string }) => ({ method: 'PUT' as const, url: buildUrl(baseUrl, '/resource/{id}', p) })
+       };
+       ```
+    3) Optionally generate an API client from OAS (`openapi-typescript`, `openapi-zod-client`).
+
+- BDD and web client usage:
+  - Step Functions BDD: Build request URLs with `routes.<op>(baseUrl, params).url` and the generated HTTP method.
+  - Playwright/Web client: Use the same `routes.ts` helpers so UI tests hit the exact documented paths.
+
+This keeps path semantics inside the single schema artifact already published via S3 while preserving base URL discovery through the platform.
+
+#### AsyncAPI 2.x artifact pattern (recommended for messaging)
+
+- Purpose: Share pub/sub channel names, bindings, and message schemas for queues, topics, or streams.
+
+- Producer: Upload an AsyncAPI 2.x document as the `schema-url` artifact (or reference via ODMD Bundle). Example fields: `asyncapi`, `info`, `channels` (e.g., `"thing/events": { subscribe: { message: { $ref: '#/components/messages/ThingEvent' }}}`), `components.messages`, `components.schemas`.
+
+- Consumer: At build/codegen time, detect `asyncapi`, generate payload types from `components.schemas`, and emit typed channel helpers (e.g., `publishThingEvent(channel, payload)`). For infrastructure-native BDD/state machines, derive queue/topic names from `channels` to validate event flows.
+
 #### Producer structure (child of base URL)
 
 - Bind schema to its service endpoint by publishing it as a child of the base URL producer:
@@ -240,6 +310,7 @@ Key principles:
   - In the app stack: `deploySchema(this, jsonSchemaString, myEnver.myApiBaseUrl.children[0])`
 - Consumption
   - Downstream build step: Use `SchemaTypeLoader` to download upstream JSON schemas and convert to Zod types
+  - Note: If the artifact is OpenAPI 3.1 (has `openapi`), use `components.schemas` for types and generate typed route helpers from `paths` (see OpenAPI single-artifact pattern above).
 
 #### Consumer structure (separate consumers for base URL and schema)
 

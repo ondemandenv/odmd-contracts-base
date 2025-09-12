@@ -85,6 +85,11 @@ curl -X POST https://<service>-api.<domain>/<endpoint> \
 - [x] **Schema Validation**: All requests validated against Zod schemas
 - [x] **BDD Test Integration**: Perfect alignment with web-client dual BDD (Step Functions + Playwright)
 - [x] **Build Integration**: `bin/gen-schemas.ts` with AWS_REGION checks
+- [x] **Contract Artifact (pick one or bundle)**:
+  - **OpenAPI 3.1** for HTTP endpoints (multi-path), or
+  - **AsyncAPI 2.x** for messaging channels/messages, or
+  - **ODMD Bundle** referencing both.
+  Keep OAS `servers[0].url` empty; consumers use the platform-resolved base URL.
 ```
 
 **CRITICAL**: Two-level BDD verification:
@@ -99,7 +104,7 @@ npm run Odmd<ServiceName>:generate:schemas
 
 # Verify schema deployment
 aws s3 ls s3://odmd-<service>-schemas/<rev>/
-# Should show: <serviceApiBaseUrl>-schema-url.json
+# Should show: <serviceApiBaseUrl>-schema-url.json (OpenAPI/AsyncAPI/Bundle)
 
 # Verify BDD integration - Step Functions level
 aws stepfunctions start-execution --state-machine-arn <BDD_ARN> --input '{...}'
@@ -136,6 +141,7 @@ curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
 - [ ] **Data Storage**: Actual data persistence and retrieval
 - [ ] **Event Publishing**: Real event publishing for state changes
 - [ ] **Error Handling**: Comprehensive error responses and recovery mechanisms
+- [ ] **Contract Update**: Keep OpenAPI (HTTP) and/or AsyncAPI (events) artifacts in sync with real behavior (or update bundle references).
 ```
 
 ### Phase 1B: Advanced MVP Features
