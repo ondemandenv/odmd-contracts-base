@@ -235,7 +235,7 @@ curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
 Every service repository **must** include **FIVE CONTEXT FILES** that decompose service development by enver:
 
 ```
-src/lib/repos/[service]/
+src/lib/repos/[service]/docs/
 ├── SERVICE_CONTEXT.md          # Navigation hub with enver mapping
 ├── SERVICE_OVERVIEW.md         # High-level architecture (enver-agnostic)
 ├── MOCK_ENVER_CONTEXT.md      # Phase 0: Contract verification

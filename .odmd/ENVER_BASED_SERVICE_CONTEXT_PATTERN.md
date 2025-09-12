@@ -20,7 +20,7 @@ This alignment creates **perfect phase-environment mapping** with appropriate in
 ### **1. Service Context Decomposition Structure:**
 
 ```
-src/lib/repos/[service]/
+src/lib/repos/[service]/docs/
 ├── SERVICE_CONTEXT.md          # Navigation hub with enver mapping
 ├── SERVICE_OVERVIEW.md         # High-level architecture (enver-agnostic)
 ├── MOCK_ENVER_CONTEXT.md      # Phase 0: Contract verification
@@ -263,7 +263,7 @@ serviceMain.wireUpstream(upstreamMain.apiBaseUrl);
 - Cross-service consistency is maintained through the master mock data set, which must be used for all testing and validation.
 
 ### **5. DOCUMENTATION DISTRIBUTION RULE:**
-- All contexts distributed via contracts library (`src/lib/repos/[service]/`)
+- All contexts distributed via contracts library (`src/lib/repos/[service]/docs/`)
 - Versioned with contracts code for automatic synchronization
 - Safe cross-referencing within distributed package
 
@@ -295,7 +295,7 @@ serviceMain.wireUpstream(upstreamMain.apiBaseUrl);
 
 The **AUTHORITATIVE** service contexts are located in the contracts library:
 ```
-@org/contracts-lib/src/lib/repos/[service]/
+@org/contracts-lib/src/lib/repos/[service]/docs/
 ├── SERVICE_CONTEXT.md          # Navigation hub - AUTHORITATIVE
 ├── SERVICE_OVERVIEW.md         # Architecture overview - AUTHORITATIVE  
 ├── MOCK_ENVER_CONTEXT.md      # Phase 0 context - AUTHORITATIVE
