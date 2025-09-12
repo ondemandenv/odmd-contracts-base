@@ -222,14 +222,6 @@ After implementing the schema workflow, validate inter-service contracts via BDD
   - Run BDD smoke suite against mock; block merges on contract regressions
   - Record schema versions used in test logs for traceability
 
-### Unified Master Mock Data (Phase 0B)
-
-- Source of truth: Define a single, centralized master mock data set in the ContractsLib design folder (e.g., `@<org>/contracts-lib/.odmd-impl/` or `.odmd-kk/_design/`). It must enumerate all entities, IDs, tokens, keys, and per-use-case flows (UC1..UCN) required for end-to-end tests.
-- Decomposition: When generating per-service contexts, extract the relevant subset into each service’s `src/lib/repos/[service]/docs/MOCK_ENVER_CONTEXT.md` as concrete mock test cases (request/response pairs, event payloads, and storage expectations).
-- Consistency rules: IDs/tokens must match across all services; HTTP and event schemas must validate; any derived values (e.g., JWKS `kid`, opaque refs) must be deterministically computed from the master definitions or explicitly listed.
-- BDD consumption: The web-client BDD stack and Step Functions API BDD must read scenarios derived from this master set to drive cross-service flows, ensuring a single source for both HTTP calls and event expectations.
-- Governance: Phase 0B cannot be confirmed complete until the master mock data covers all intended use cases and each service’s `MOCK_ENVER_CONTEXT.md` includes aligned scenarios that pass dual BDD.
-
 ### Implementation Schema Layer (service-level Zod)
 
 **See `lib/utils/ONDEMANDENV_PLATFORM_schema.md` for complete schema architecture details.**
@@ -309,6 +301,34 @@ This keeps path semantics inside the single schema artifact already published vi
 - Producer: Upload an AsyncAPI 2.x document as the `schema-url` artifact (or reference via ODMD Bundle). Example fields: `asyncapi`, `info`, `channels` (e.g., `"thing/events": { subscribe: { message: { $ref: '#/components/messages/ThingEvent' }}}`), `components.messages`, `components.schemas`.
 
 - Consumer: At build/codegen time, detect `asyncapi`, generate payload types from `components.schemas`, and emit typed channel helpers (e.g., `publishThingEvent(channel, payload)`). For infrastructure-native BDD/state machines, derive queue/topic names from `channels` to validate event flows.
+
+### Master Mock Data Lifecycle (generalized)
+
+To guarantee cross-service consistency in Phase 0, manage a single authoritative mock dataset at the ContractsLib level and project it to services at generation time.
+
+1) Authoritative source (Phase 0A conception)
+- Location: ContractsLib implementation docs (e.g., `src/lib/repos/<system>/docs/_design/` or implementation package `.odmd-<impl>`)
+- Content: Master set of IDs, tokens, keys, nonces, and per-use-case flows; covers both HTTP requests/responses and event payloads.
+- Requirements:
+  - Global identity constants (UUIDs, subdomains) are unique and reused across services.
+  - Use-case completeness: for each UC step, include request, response, and/or message payloads that validate against schemas.
+  - Transport-agnostic: data defined independent of HTTP/event mechanics; later mapped by service contexts.
+
+2) Projection (Phase 0B decomposition)
+- During service context generation (MOCK enver), extract service-specific slices into `src/lib/repos/[service]/docs/MOCK_ENVER_CONTEXT.md`:
+  - List the UC steps involving this service; embed exact request/response/message examples.
+  - Reference the same global IDs/tokens to preserve cross-service correlation.
+  - Provide minimal route/channel mapping so BDD can locate endpoints/channels via artifacts.
+
+3) Consumption in BDD
+- Step Functions API BDD uses the projected examples to call HTTP endpoints (from OpenAPI) and/or assert events (from AsyncAPI).
+- Web client BDD uses the same dataset for UI flows; both layers must use identical constants.
+
+4) Validation
+- Add a generator/check that verifies:
+  - All embedded examples validate against the published artifacts (OpenAPI/AsyncAPI).
+  - Cross-file consistency of shared IDs across all service contexts.
+  - UC coverage: every master UC step has a corresponding service projection where relevant.
 
 #### Producer structure (child of base URL)
 
@@ -510,6 +530,21 @@ For infrastructure-native, context-rich validation, define a BDD State Machine p
   - Lambdas can read `/odmd-share/...` via SSM and write logs
 - Results
   - Summarize step aggregates pass/fail and writes `bddStatus` (and optional `bddResultsUrl`) to SSM for visibility
+
+### Web Client BDD Step Functions Stack (explicit)
+
+- Purpose: Orchestrate end-to-end mock BDD flows by calling multiple application services using the master dataset; complements Playwright.
+- File layout (web client repo):
+  ```
+  web-client/
+  ├── infra/
+  │   └── web-client-bdd-stack.ts     # Step Functions BDD stack for web client
+  ├── vite/tests/test-data/constants.ts
+  └── vite/tests/bdd/*.spec.ts         # Browser specs (optional at 0B)
+  ```
+- Inputs: Resolves `webClientUrl` and upstream service base URLs from contracts; loads master mock constants; reads OpenAPI/AsyncAPI-generated helpers for routes/channels.
+- State machine: Sequential HTTP tasks (and optional assertions) that traverse UC flows (e.g., Identity → Key → Anonymous → Chain), asserting schema-valid responses.
+- Outputs: Publishes `bddStateMachineArn` (and optional result URL) via `OdmdShareOut`.
 
 ### Stack independence and triggering
 

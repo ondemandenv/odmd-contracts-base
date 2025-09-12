@@ -131,18 +131,18 @@ protected initializeEnvers(): void {
 [Phase 0A and 0B specific tasks]
 
 ## 🧪 **Mock Data Specification**
-[Service-specific mock data from master set]
+Source of truth: Master mock dataset defined in ContractsLib design docs (implementation package). This section embeds the service-specific slice.
+
+Include for each relevant UC step:
+- Shared IDs/tokens from the master set (unchanged values)
+- Request/response/message examples that validate against published schemas
+- Minimal mapping to OpenAPI paths or AsyncAPI channels for this mock enver
 
 ## 📦 Contract Artifact (HTTP and async)
 Prefer a single `schema-url` that can point to:
 - **OpenAPI 3.1** for HTTP endpoints (paths + component schemas), or
 - **AsyncAPI 2.x** for messaging channels/messages, or
 - **ODMD Bundle** that references both. Keep OpenAPI `servers[0].url` empty; consumers use platform base URL. Use `operationId` (OpenAPI) or `channels` (AsyncAPI) to generate typed helpers.
-
-## 🧪 Unified Master Mock Data (Phase 0B)
-- Source and governance: Master mock data lives centrally in ContractsLib design (e.g., `.odmd-impl` or `.odmd-kk/_design/`).
-- Decomposition requirement: This `MOCK_ENVER_CONTEXT.md` MUST embed concrete mock test cases derived from the master set (requests/responses, event payloads, and storage expectations) for every relevant use case step touching this service.
-- Consistency constraint: All IDs/tokens/keys must match the master set so cross-service tests and the web-client BDD stack exercise identical scenarios.
 ```
 
 ### **DEV_ENVER_CONTEXT.md (Phase 1):**

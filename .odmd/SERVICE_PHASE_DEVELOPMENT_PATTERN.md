@@ -51,6 +51,7 @@ When generating or updating service contexts:
 - [x] **Basic Endpoints**: Core API endpoints returning MOCKED, schema-compliant responses only.
 - [x] **Storage Layer**: S3/DynamoDB with proper encryption (SSE-KMS) - for schemas and mock data only.
 - [x] **Event Integration**: SQS queues for mocked event publishing.
+- [x] **Master Mock Dataset (Conception)**: Authoritative dataset authored at ContractsLib implementation level (IDs/tokens/keys and per-UC flows) to be projected to services in 0B.
 ```
 
 **CRITICAL**: All endpoints must return **MOCKED DATA ONLY** - no business logic implementation.
@@ -90,8 +91,7 @@ curl -X POST https://<service>-api.<domain>/<endpoint> \
   - **AsyncAPI 2.x** for messaging channels/messages, or
   - **ODMD Bundle** referencing both.
   Keep OAS `servers[0].url` empty; consumers use the platform-resolved base URL.
- - [x] **Unified Master Mock Data**: Centralized master mock data set in ContractsLib design (e.g., `.odmd-kk/_design/`) covering entities, IDs/tokens/keys, and UC flows.
- - [x] **Service Decomposition**: Each service’s `src/lib/repos/[service]/docs/MOCK_ENVER_CONTEXT.md` embeds derived mock test cases (HTTP req/resp, event payloads, storage expectations) to guarantee cross-service consistency.
+- [x] **Service Mock Projection**: Decompose the master mock dataset into service-specific mock cases in `src/lib/repos/[service]/docs/MOCK_ENVER_CONTEXT.md`, covering every relevant UC step with concrete request/response/message examples that validate against artifacts.
 ```
 
 **CRITICAL**: Two-level BDD verification:
@@ -115,9 +115,6 @@ aws stepfunctions start-execution --state-machine-arn <BDD_ARN> --input '{...}'
 # Verify BDD integration - Playwright level  
 cd services/web-client/vite && npm run test:bdd
 # Should test service contracts via web GUI
- 
-# Cross-service mock data consistency (IDs/tokens)
-# Ensure contexts show identical values across services (e.g., ROOT_IDENTITY_ID, MPC_SESSION_ID, JWKS kid)
 
 # Verify schema validation with invalid request
 curl -X POST https://<service>-api.<domain>/<endpoint> \

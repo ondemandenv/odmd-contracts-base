@@ -257,6 +257,7 @@ export class ServiceStackBdd extends Stack {
 - [ ] **Test Data Alignment**: Centralized constants used across all systems
 - [ ] **CORS Configuration**: Applied to all service APIs for browser access
 - [ ] **API Paths**: Standardized endpoints using `API_ENDPOINTS` constants
+- [ ] **Mock Data Consistency**: Web client BDD uses the same master mock dataset (projected per service) so UI flows and API/event assertions share identical IDs/tokens and payload examples.
 
 ## 📊 Coverage Matrix
 
@@ -286,6 +287,54 @@ services/{service}/
     └── src/
         ├── schemas/zod.ts          # Request/response schemas
         └── index.ts                # Handler implementations
+```
+
+### Web Client BDD State Machine (explicit example)
+```typescript
+// web-client/infra/web-client-bdd-stack.ts
+export class WebClientBddStack extends Stack {
+  constructor(scope: Construct, id: string, props: StackProps & { enver: any }) {
+    super(scope, id, props);
+
+    // Resolve endpoints via contracts
+    const endpoints = {
+      identityBaseUrl: props.enver.identityApiBaseUrl.getSharedValue(this),
+      keyBaseUrl: props.enver.keyApiBaseUrl.getSharedValue(this),
+      anonymousBaseUrl: props.enver.anonymousApiBaseUrl.getSharedValue(this),
+      chainBaseUrl: props.enver.chainApiBaseUrl.getSharedValue(this)
+    };
+
+    // Test data (shared master dataset)
+    const testDataParam = JSON.stringify({
+      ROOT_IDENTITY_ID: '550e8400-e29b-41d4-a716-446655440001',
+      TEMP_TOKEN: 'mock_temp_token_12345'
+    });
+
+    // Example HTTP invoke task
+    const login = new sfn.CustomState(this, 'Login', {
+      stateJson: {
+        Type: 'Task',
+        Resource: 'arn:aws:states:::http:invoke',
+        Parameters: {
+          ApiEndpoint: endpoints.identityBaseUrl,
+          Method: 'POST',
+          Path: '/auth/login',
+          Headers: { 'Content-Type': 'application/json' },
+          RequestBody: sfn.JsonPath.objectAt('$.payload.login')
+        }
+      }
+    });
+
+    // Chain tasks per UC; assert shapes as needed
+    const sm = new sfn.StateMachine(this, 'WebClientBdd', {
+      definitionBody: sfn.DefinitionBody.fromChainable(login)
+    });
+
+    new OdmdShareOut(this, 'WebClientBddOutputs', {
+      value: JSON.stringify({ bddStateMachineArn: sm.stateMachineArn })
+    });
+  }
+}
 ```
 
 ### Contract Integration
@@ -339,7 +388,6 @@ For each service implementing this pattern:
 - [ ] **Test Data**: Centralized constants shared across all layers
 - [ ] **Validation**: Pre-deployment error checking
 - [ ] **Documentation**: Service-specific BDD coverage in README
- - [ ] **Master Mock Data**: Scenarios executed by browser/API BDD are derived from the centralized master mock data (ContractsLib design), ensuring the same IDs/tokens across services and the UI.
 
 ---
 
