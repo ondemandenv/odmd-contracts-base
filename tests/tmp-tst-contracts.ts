@@ -19,7 +19,7 @@ export class TmpTstOdmdBuildContractsLib extends OdmdBuildContractsLib<AccountsC
     }
 
     public get packageName(): string {
-        return '@ondemandenv/contracts-lib-base'
+        return '@ondemandenv.dev/contracts-lib-base'
     }
 
     public get theOne(): OdmdEnverContractsLib {
