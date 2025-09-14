@@ -364,6 +364,94 @@ Platform build sequence:
 - Any additional entries are placeholders representing other regions or deployment targets; they should not diverge in contract definitions.
 - Service constellations (dev, main, mock) consume the same canonical ContractsLib products, with mock deployed per Enver workspace mapping configuration.
 
+### ContractsLib Strong Typing and Canonical Enver Pattern (Recommended)
+
+Define ContractsLib with explicit, strongly-typed GitHub repos, AWS accounts, and hosted zone mappings, and model a single canonical enver as the source of truth:
+
+```ts
+// contracts-lib/src/lib/OndemandContractsX.ts
+import { App } from 'aws-cdk-lib';
+import {
+  OndemandContracts,
+  GithubRepo,
+  GithubReposCentralView,
+  AccountsCentralView,
+  AccountToOdmdHostedZoneIdName,
+  OdmdBuildContractsLib,
+  OdmdEnverContractsLib,
+  SRC_Rev_REF
+} from '@ondemandenv.dev/contracts-lib-base';
+
+export type GithubReposX = GithubReposCentralView & {
+  identityService: GithubRepo;
+  keyService: GithubRepo;
+  anonymousService: GithubRepo;
+  chainService: GithubRepo;
+  jwksService: GithubRepo;
+  certificateService: GithubRepo;
+  webClient: GithubRepo;
+};
+
+export type AccountsX = AccountsCentralView & { workspace1: string };
+export type AccountToHZIDX = AccountToOdmdHostedZoneIdName & {
+  workspace1: [string, string];
+};
+
+export class OndemandContractsX extends OndemandContracts<AccountsX, GithubReposX, OdmdBuildContractsX> {
+  constructor(app: App) { super(app, 'OndemandContractsX'); }
+
+  private _accounts!: AccountsX;
+  get accounts(): AccountsX {
+    return this._accounts ??= { central: '111111111111', workspace0: '222222222222', workspace1: '333333333333' };
+  }
+
+  get accountToOdmdHostedZone(): AccountToHZIDX {
+    return {
+      central: ['ZHOSTEDZONEID', 'example.com'],
+      workspace0: ['ZWS0ZONEID', 'ws0.example.com'],
+      workspace1: ['ZWS1ZONEID', 'ws1.example.com']
+    };
+  }
+
+  private _github!: GithubReposX;
+  get githubRepos(): GithubReposX {
+    const ghAppInstallID = 12345678;
+    return this._github ??= {
+      githubAppId: '123456',
+      __contracts: { owner: 'my-org', name: 'contracts-lib', ghAppInstallID },
+      __userAuth: { owner: 'my-org', name: 'user-auth', ghAppInstallID },
+      identityService: { owner: 'my-org', name: 'identity-service', ghAppInstallID },
+      keyService: { owner: 'my-org', name: 'key-service', ghAppInstallID },
+      anonymousService: { owner: 'my-org', name: 'anonymous-service', ghAppInstallID },
+      chainService: { owner: 'my-org', name: 'chain-service', ghAppInstallID },
+      jwksService: { owner: 'my-org', name: 'jwks-service', ghAppInstallID },
+      certificateService: { owner: 'my-org', name: 'certificate-service', ghAppInstallID },
+      webClient: { owner: 'my-org', name: 'web-client', ghAppInstallID }
+    };
+  }
+}
+
+export class OdmdBuildContractsX extends OdmdBuildContractsLib<AccountsX, GithubReposX> {
+  private _envers!: OdmdEnverContractsLib[];
+  get envers(): OdmdEnverContractsLib[] { return this._envers; }
+  get theOne(): OdmdEnverContractsLib { return this._envers[0]; }
+
+  protected initializeEnvers(): void {
+    this._envers = [
+      // Canonical definition for all regions (single source of truth)
+      new OdmdEnverContractsLib(this, this.contracts.accounts.workspace0, 'us-east-1', new SRC_Rev_REF('b', 'main')),
+      // Placeholders: platform can replicate this definition cross-region as needed
+      new OdmdEnverContractsLib(this, this.contracts.accounts.workspace0, 'us-west-1', new SRC_Rev_REF('b', 'us-west-1'))
+    ];
+  }
+}
+```
+
+Guidance:
+- The canonical enver is `envers[0]` (or expose `theOne`), which defines the authoritative couplings/dependencies across all services. Additional entries are placeholders for other regions; the platform copies the canonical semantics cross-region.
+- This strong typing forms a “contracts of contracts”: between GitHub repositories, AWS accounts/hosted zones, and the ContractsLib itself (its build class). It ensures 1:1 mappings and prevents drift.
+- Consumers should pin `aws-cdk-lib`/`constructs` versions to those used by `@ondemandenv.dev/contracts-lib-base` and depend on the org ContractsLib package accordingly.
+
 ### Build initialization order and Enver wiring rules
 - Instantiate all build classes first, then perform cross-build wiring. The typical flow in ContractsLib is:
   1) Construct all builds
