@@ -18,9 +18,9 @@ export class OdmdBuildDefaultKubeEks extends OdmdBuild<OdmdEnverCdk> {
     }
 
     ownerEmail?: string | undefined;
-    protected _envers: Array<OdmdEnverCdkDefaultEcrEks>;
+
     public get envers(): Array<OdmdEnverCdkDefaultEcrEks> {
-        return this._envers;
+        return this._envers as Array<OdmdEnverCdkDefaultEcrEks>;
     }
 
     protected initializeEnvers(): void {
@@ -28,7 +28,7 @@ export class OdmdBuildDefaultKubeEks extends OdmdBuild<OdmdEnverCdk> {
     }
 
     public getOrCreateOne(usr: AnyOdmdEnVer, targetEksCluster: OdmdEnverEksCluster, targetNamespace: string) {
-        let rt = this._envers.find(e => e.userEnver == usr);
+        let rt = this.envers.find(e => e.userEnver == usr);
         if (rt) {
             return rt;
         }

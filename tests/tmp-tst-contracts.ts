@@ -8,7 +8,7 @@ import {OdmdBuildNetworking} from "../lib/repos/__networking/odmd-build-networki
 
 export class TmpTstOdmdBuildContractsLib extends OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
     protected initializeEnvers(): void {
-        this.envers = [
+        this._envers = [
             new OdmdEnverContractsLib(
                 this,
                 this.contracts.accounts.workspace0,
@@ -26,7 +26,6 @@ export class TmpTstOdmdBuildContractsLib extends OdmdBuildContractsLib<AccountsC
         return this.envers[0]
     }
 
-    envers: OdmdEnverContractsLib[];
     ownerEmail?: string | undefined;
 
 

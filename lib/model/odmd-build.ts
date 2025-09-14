@@ -14,7 +14,10 @@ export type GithubRepo = {
 
 // export abstract class OdmdBuild<T extends OdmdEnVerConfig> extends Construct {
 export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Construct {
-
+    protected _envers: T[];
+    public get envers(): Array<T> {
+        return this._envers;
+    }
     constructor(scope: OndemandContracts<
         AccountsCentralView,
         GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>
@@ -75,7 +78,6 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
     readonly description?: string
     readonly gitHubRepo: GithubRepo
 
-    abstract get envers(): Array<T>;
 
     get subDomain(): string | undefined {
         return this.contracts.subDomain ? this.buildId + '.' + this.contracts.subDomain : undefined

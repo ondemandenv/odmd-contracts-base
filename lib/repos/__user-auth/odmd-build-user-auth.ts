@@ -7,10 +7,6 @@ import {OdmdEnverCdk} from "../../model/odmd-enver-cdk";
 import {IOdmdEnver} from "../../model/odmd-enver";
 
 export class OdmdBuildUserAuth extends OdmdBuild<OdmdEnverUserAuth> {
-    protected _envers: OdmdEnverUserAuth[];
-    public get envers(): OdmdEnverUserAuth[] {
-        return this._envers;
-    }
 
     ownerEmail?: string | undefined;
 

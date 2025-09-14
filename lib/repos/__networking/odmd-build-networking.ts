@@ -10,11 +10,6 @@ export class OdmdBuildNetworking extends OdmdBuild<OdmdEnverCdk> {
     ownerEmail = undefined;
     public ipam_west1_le!: IPAM_AB;
 
-    protected _envers: IPAM_AB[];
-    public get envers(): IPAM_AB[] {
-        return this._envers;
-    }
-
     constructor(scope: OndemandContracts<
         AccountsCentralView,
         GithubReposCentralView, OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView>

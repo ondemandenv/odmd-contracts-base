@@ -16,10 +16,10 @@ class TestContracts extends OndemandContracts<AccountsCentralView, GithubReposCe
 }
 
 class TestBuild extends OdmdBuild<TestEnver> {
-    public envers!: Array<TestEnver>;
+
     ownerEmail?: string | undefined;
     protected initializeEnvers(): void {
-        this.envers = [ new TestEnver(this, this.contracts.accounts.workspace0, 'us-east-1', new SRC_Rev_REF('b', 'dev')) ];
+        this._envers = [ new TestEnver(this, this.contracts.accounts.workspace0, 'us-east-1', new SRC_Rev_REF('b', 'dev')) ];
     }
 }
 

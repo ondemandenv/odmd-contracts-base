@@ -17,9 +17,8 @@ export type SimpleVpc = {
 
 export class OdmdBuildDefaultVpcRds extends OdmdBuild<OdmdEnverCdk> {
     ownerEmail?: string | undefined;
-    protected _envers: Array<OdmdEnverCdkDefaultVpc>;
     public get envers(): Array<OdmdEnverCdkDefaultVpc> {
-        return this._envers;
+        return this._envers as Array<OdmdEnverCdkDefaultVpc>;
     }
 
     constructor(scope: OndemandContracts<
@@ -34,7 +33,7 @@ export class OdmdBuildDefaultVpcRds extends OdmdBuild<OdmdEnverCdk> {
     }
 
     public getOrCreateOne(client: AnyOdmdEnVer, vpc: SimpleVpc) {
-        let rt = this._envers.find(e => e.targetAWSAccountID == client.targetAWSAccountID
+        let rt = this.envers.find(e => e.targetAWSAccountID == client.targetAWSAccountID
             && e.targetAWSRegion == client.targetAWSRegion && e.vpcConfig.vpcName == vpc.vpcName)
         if (rt) {
             rt.addClient(client)
