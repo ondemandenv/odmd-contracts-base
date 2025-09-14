@@ -608,10 +608,10 @@ getRevStackNames(): Array<string> {
 
 ### ContractsLib package.json (Generalized)
 
-Define your organization ContractsLib as a TypeScript CDK library that depends on `@ondemandenv/contracts-lib-base` and pins `aws-cdk-lib` to the EXACT same version used by the base. Expose only built artifacts.
+Define your organization ContractsLib as a TypeScript CDK library that depends on `@ondemandenv.dev/contracts-lib-base` and pins `aws-cdk-lib` to the EXACT same version used by the base. Expose only built artifacts.
 
 Key requirements:
-- Depend on `@ondemandenv/contracts-lib-base` (organization-agnostic platform base).
+- Depend on `@ondemandenv.dev/contracts-lib-base` (organization-agnostic platform base).
 - Pin `aws-cdk-lib` and `constructs` to the same versions as the base package.
 - Declare `aws-cdk-lib` and `constructs` in both `dependencies` and `peerDependencies` to force consumer alignment.
 - Export `dist/index.js` and `dist/index.d.ts` only; keep sources out of the published package (except if you intentionally share `.odmd` docs).
@@ -645,7 +645,7 @@ Generalized example (replace placeholders):
     "prepare": "npm run build"
   },
   "dependencies": {
-    "@ondemandenv/contracts-lib-base": "<base-version>",
+    "@ondemandenv.dev/contracts-lib-base": "<latest>",
     "aws-cdk-lib": "<cdk-version-from-base>",
     "constructs": "<constructs-version-from-base>"
   },
@@ -664,8 +664,8 @@ Generalized example (replace placeholders):
 ```
 
 Notes:
-- Source your `<cdk-version-from-base>` and `<constructs-version-from-base>` from the published `@ondemandenv/contracts-lib-base` (prefer its `peerDependencies`).
-- When upgrading `@ondemandenv/contracts-lib-base`, update `aws-cdk-lib`/`constructs` here to match; then update ALL service repos in the same change.
+- Source your `<cdk-version-from-base>` and `<constructs-version-from-base>` from the published `@ondemandenv.dev/contracts-lib-base` (prefer its `peerDependencies`).
+- When upgrading `@ondemandenv.dev/contracts-lib-base`, update `aws-cdk-lib`/`constructs` here to match; then update ALL service repos in the same change.
 - Consumers import via `import { MyOrgContracts } from '@<org>/contracts-lib'` and must pin `aws-cdk-lib` to the same version.
 
 ### **Resource Naming**
