@@ -101,6 +101,20 @@ ONDEMANDENV transforms distributed systems complexity through **Application-Cent
     - `envers: Array<T>` - Environment instances
 - **Initialization**: `protected abstract initializeEnvers(): void`
 
+Build class template (concise buildId & repo assignment):
+```ts
+export class <ServiceName>Build extends OdmdBuild<<ServiceName>Enver> {
+  private _envers: OdmdEnver<ServiceName>[]
+  constructor(scope: OndemandContracts<any>) {
+    // Prefer a short, stable buildId (often the service name) and pick the mapped repo
+    super(scope, '<service-name>', scope.githubRepos.<serviceRepo>);
+  }
+  protected initializeEnvers(): void {
+    // ... populate this._envers with mock/dev/main in canonical order
+  }
+}
+```
+
 ### **Source Revision References**
 - **Class**: `SRC_Rev_REF(type: "b" | "t", value: string, origin?: SRC_Rev_REF)`
 - **Branch Reference**: `new SRC_Rev_REF('b', '<branch-name>')` - Points to a branch (e.g., `dev`, feature branches)
