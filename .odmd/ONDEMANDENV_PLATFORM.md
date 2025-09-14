@@ -727,6 +727,57 @@ This creates **perfect phase-environment alignment** with appropriate infrastruc
 - [ ] **Storage Layer**: S3/DynamoDB with proper encryption (SSE-KMS) - for schemas only
 - [ ] **Event Integration**: SQS queues for mocked event publishing
 
+Example (Phase 0A minimal contracts declarations, generic):
+
+```ts
+// services/<service>/src/lib/repos/<service>/contracts.ts
+// Declare an endpoint producer with a schema child that stores an S3 artifact URL
+export class <ServiceName>Enver extends OdmdEnverCdk {
+  readonly <service>ApiBaseUrl = new OdmdCrossRefProducer(this, '<service>ApiBaseUrl', {
+    children: [{ pathPart: 'schema-url', s3artifact: true }]
+  });
+
+  getRevStackNames(): Array<string> { return ['Odmd<ServiceName>']; }
+}
+
+// Build wires the envers (mock/dev/main shown conceptually)
+export class <ServiceName>Build extends OdmdBuild<<ServiceName>Enver> {
+  protected initializeEnvers(): void {
+    this._envers = [
+      new <ServiceName>Enver(this, this.contracts.accounts.workspace1, 'us-east-1', new SRC_Rev_REF('b', 'mock')),
+      new <ServiceName>Enver(this, this.contracts.accounts.workspace0, 'us-east-1', new SRC_Rev_REF('b', 'dev')),
+      new <ServiceName>Enver(this, this.contracts.accounts.workspace0, 'us-east-1', new SRC_Rev_REF('b', 'main'))
+    ];
+  }
+}
+
+// In the service app stack (producer): publish base URL and deploy the schema artifact under the child
+// props.enver is <ServiceName>Enver; this.api is your HttpApi
+new OdmdShareOut(this, '<ServiceName>Outputs', {
+  value: JSON.stringify({ <service>ApiBaseUrl: this.api.apiEndpoint })
+});
+
+await deploySchema(this, openApiOrAsyncApiJsonString, props.enver.<service>ApiBaseUrl.children[0]);
+
+// In a consumer (another service): declare consumers for base URL and its schema child
+// identity example shown; generalize by replacing names accordingly
+this.identityApiBaseUrl = new OdmdCrossRefConsumer(this, 'identityApiBaseUrl', identityApi /* OdmdCrossRefProducer<OdmdEnverCdk> */);
+if (identityApi.children && identityApi.children[0]) {
+  this.identityApiBaseSchema = new OdmdCrossRefConsumer(this, 'identityApiBaseSchema', identityApi.children[0]);
+}
+
+// In consumer build/codegen: resolve the child and download the artifact (S3 path)
+const schemaChild = upstreamEnver.<service>ApiBaseUrl.children[0];
+const schemaUrl = schemaChild.getSharedValue(this); // s3://.../(openapi|asyncapi|bundle).json
+// → feed schemaUrl to your SchemaTypeLoader/codegen
+
+// Notes:
+// - s3artifact: true makes the child value an S3 URL published by the producer and consumed by downstreams.
+// - If HTTP, publish OpenAPI 3.1 (keep servers[0].url empty). Generate types from components.schemas and route helpers from paths/operationId.
+// - If messaging, publish AsyncAPI 2.x. Generate payload types from components.schemas and channel helpers from channels.
+// - You may publish an ODMD Bundle that references both HTTP and async artifacts while keeping a single schema-url child.
+```
+
 **Phase 0B: BDD Contract Verification**
 - [ ] **Zod Schemas**: Complete request/response schemas in `lib/handlers/src/schemas/zod.ts`
 - [ ] **Schema Deployment**: `deploySchema(this, schemaString, enver.<baseUrl>.children[0])`

@@ -1,9 +1,9 @@
 {
-  "name": "@ondemandenv/contracts-lib-base",
-  "version": "0.0.81",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
+  "name": "@ondemandenv.dev/contracts-lib-base",
+  "repository": {
+    "url": "https://github.com/ondemandenv/odmd-contracts-base"
   },
+  "version": "0.1.0",
   "dependencies": {
     "aws-cdk-lib": "2.203.1",
     "constructs": "^10.0.0",
@@ -22,7 +22,7 @@
   },
   "peerDependencies": {
     "constructs": "^10.0.0",
-    "aws-cdk-lib": "2.200.1"
+    "aws-cdk-lib": "2.203.1"
   },
   "scripts": {
     "build": "npm run generate-exports && tsc --build",
@@ -32,7 +32,7 @@
     "test": "tsc --build --clean && tsc --build && cross-env target_rev_ref=b..odmdSbxUsw1 CDK_DEFAULT_ACCOUNT=123 CDK_DEFAULT_REGION=us-west-1 CDK_CLI_VERSION=2.163.0 jest --verbose --detectOpenHandles --forceExit",
     "buildversion": "tsc --build && npm version patch",
     "cdk-ls": "tsc --build --clean && tsc --build && cross-env target_rev_ref=b..main cdk ls -v --profile sandbox-workspace3",
-    "pubpub": "npm run test && npm publish --access=public",
+    "pubpub-njm": "npm publish  --access=public",
     "package": "npm run test && npm pack",
     "login": "npm login",
     "generate-exports": "ts-node scripts/generate-exports.ts"
