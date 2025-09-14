@@ -364,7 +364,7 @@ Platform build sequence:
 - Any additional entries are placeholders representing other regions or deployment targets; they should not diverge in contract definitions.
 - Service constellations (dev, main, mock) consume the same canonical ContractsLib products, with mock deployed per Enver workspace mapping configuration.
 
-### ContractsLib Strong Typing and Canonical Enver Pattern (Recommended)
+### ContractsLib Strong Typing and Canonical Enver Pattern
 
 Define ContractsLib with explicit, strongly-typed GitHub repos, AWS accounts, and hosted zone mappings, and model a single canonical enver as the source of truth:
 
@@ -401,34 +401,12 @@ export class OndemandContractsX extends OndemandContracts<AccountsX, GithubRepos
   constructor(app: App) { super(app, 'OndemandContractsX'); }
 
   private _accounts!: AccountsX;
-  get accounts(): AccountsX {
-    return this._accounts ??= { central: '111111111111', workspace0: '222222222222', workspace1: '333333333333' };
-  }
+  get accounts(): AccountsX { return this._accounts ??= { central: '111111111111', workspace0: '222222222222', workspace1: '333333333333' }; }
 
-  get accountToOdmdHostedZone(): AccountToHZIDX {
-    return {
-      central: ['ZHOSTEDZONEID', 'example.com'],
-      workspace0: ['ZWS0ZONEID', 'ws0.example.com'],
-      workspace1: ['ZWS1ZONEID', 'ws1.example.com']
-    };
-  }
+  get accountToOdmdHostedZone(): AccountToHZIDX { return { central: ['ZHOSTEDZONEID', 'example.com'], workspace0: ['ZWS0ZONEID', 'ws0.example.com'], workspace1: ['ZWS1ZONEID', 'ws1.example.com'] }; }
 
   private _github!: GithubReposX;
-  get githubRepos(): GithubReposX {
-    const ghAppInstallID = 12345678;
-    return this._github ??= {
-      githubAppId: '123456',
-      __contracts: { owner: 'my-org', name: 'contracts-lib', ghAppInstallID },
-      __userAuth: { owner: 'my-org', name: 'user-auth', ghAppInstallID },
-      identityService: { owner: 'my-org', name: 'identity-service', ghAppInstallID },
-      keyService: { owner: 'my-org', name: 'key-service', ghAppInstallID },
-      anonymousService: { owner: 'my-org', name: 'anonymous-service', ghAppInstallID },
-      chainService: { owner: 'my-org', name: 'chain-service', ghAppInstallID },
-      jwksService: { owner: 'my-org', name: 'jwks-service', ghAppInstallID },
-      certificateService: { owner: 'my-org', name: 'certificate-service', ghAppInstallID },
-      webClient: { owner: 'my-org', name: 'web-client', ghAppInstallID }
-    };
-  }
+  get githubRepos(): GithubReposX { const ghAppInstallID = 12345678; return this._github ??= { githubAppId: '123456', __contracts: { owner: 'my-org', name: 'contracts-lib', ghAppInstallID }, __userAuth: { owner: 'my-org', name: 'user-auth', ghAppInstallID }, identityService: { owner: 'my-org', name: 'identity-service', ghAppInstallID }, keyService: { owner: 'my-org', name: 'key-service', ghAppInstallID }, anonymousService: { owner: 'my-org', name: 'anonymous-service', ghAppInstallID }, chainService: { owner: 'my-org', name: 'chain-service', ghAppInstallID }, jwksService: { owner: 'my-org', name: 'jwks-service', ghAppInstallID }, certificateService: { owner: 'my-org', name: 'certificate-service', ghAppInstallID }, webClient: { owner: 'my-org', name: 'web-client', ghAppInstallID } }; }
 }
 
 export class OdmdBuildContractsX extends OdmdBuildContractsLib<AccountsX, GithubReposX> {
@@ -438,9 +416,7 @@ export class OdmdBuildContractsX extends OdmdBuildContractsLib<AccountsX, Github
 
   protected initializeEnvers(): void {
     this._envers = [
-      // Canonical definition for all regions (single source of truth)
       new OdmdEnverContractsLib(this, this.contracts.accounts.workspace0, 'us-east-1', new SRC_Rev_REF('b', 'main')),
-      // Placeholders: platform can replicate this definition cross-region as needed
       new OdmdEnverContractsLib(this, this.contracts.accounts.workspace0, 'us-west-1', new SRC_Rev_REF('b', 'us-west-1'))
     ];
   }
