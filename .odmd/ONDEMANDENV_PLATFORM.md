@@ -811,6 +811,7 @@ This creates **perfect phase-environment alignment** with appropriate infrastruc
 **Phase 0A: Contract Surface Layer**
 - [ ] **CDK Stack Setup**: Basic service stack with HTTP API + Lambda
 - [ ] **Contract Integration**: `OdmdShareOut` publishing service base URL, consuming upstream services
+- [ ] **ContractsLib Declarations Location**: Define each service's `OdmdBuild` and `<ServiceName>Enver` inside the organization ContractsLib repo at `contracts-lib/src/lib/repos/<repo>/<Org>-<Service>.ts`. A single ContractsLib can host multiple builds; per-service repos do not define builds/envers.
 - [ ] **Basic Endpoints**: Core API endpoints returning MOCKED responses only
 - [ ] **Storage Layer**: S3/DynamoDB with proper encryption (SSE-KMS) - for schemas only
 - [ ] **Event Integration**: SQS queues for mocked event publishing
@@ -818,7 +819,7 @@ This creates **perfect phase-environment alignment** with appropriate infrastruc
 Example (Phase 0A minimal contracts declarations, generic):
 
 ```ts
-// services/<service>/src/lib/repos/<service>/contracts.ts
+// contracts-lib/src/lib/repos/<repo>/<Org>-<Service>.ts
 // Declare an endpoint producer with a schema child that stores an S3 artifact URL
 export class <ServiceName>Enver extends OdmdEnverCdk {
   readonly <service>ApiBaseUrl = new OdmdCrossRefProducer(this, '<service>ApiBaseUrl', {
