@@ -6,7 +6,7 @@ Follow this sequence to bring a new bounded context onto the platform with contr
 
 1) ContractsLib (organization repo)
 - Define accounts/workspaces and GitHub repo mappings.
-- Create one build per service and initialize its Envers (dev/main/mock at minimum).
+- Create one build per service and initialize its Envers (mock/dev/main at minimum).
 - For each service Enver:
   - Define base URL producer (e.g., `identityApiBaseUrl`).
   - Attach a child schema artifact producer: `children: [{ pathPart: 'schema-url', s3artifact: true }]`.
@@ -145,7 +145,7 @@ To facilitate service discovery, TLS termination, and human-readable endpoints, 
 ## Service Constellation Architecture
 
 ### **Multi-Constellation Pattern (by revision, not names in IDs)**
-- Example revisions include `SRC_Rev_REF('b', 'dev')`, `SRC_Rev_REF('b', 'main')`, and `SRC_Rev_REF('b', 'mock')` mapping to different context variants. Stack IDs remain revision-agnostic.
+- Example revisions include `SRC_Rev_REF('b', 'mock')`, `SRC_Rev_REF('b', 'dev')`, and `SRC_Rev_REF('b', 'main')` mapping to different context variants. Stack IDs remain revision-agnostic. Canonical progression is mock → dev → main (no forward references).
 
 ### **Constellation Characteristics**
 ### Tip: Constellations are emergent, not code-defined
@@ -239,7 +239,7 @@ Key principles:
   - **AsyncAPI 2.x (Async events/bus/pub-sub)**: For topics/queues/streams; includes `channels`, `messages`, and payload schemas.
   - **ODMD Bundle (mixed)**: A small JSON envelope that references multiple artifacts (e.g., `{ http: <openapi-url>, events: <asyncapi-url> }`) while keeping a single `schema-url` address.
 
-Consumers must detect the artifact kind via a top-level discriminator (`openapi`, `asyncapi`, or `odmdKind: 'bundle'`).
+Consumers must detect the artifact kind via a single top-level discriminator `odmdKind: 'openapi'|'asyncapi'|'bundle'`. If `odmdKind` is `openapi` or `asyncapi`, the corresponding native field must be present and consistent.
 
 #### OpenAPI 3.1 single-artifact pattern (recommended for multi-path endpoints)
 
@@ -344,7 +344,7 @@ To guarantee cross-service consistency in Phase 0, manage a single authoritative
 
 - For each upstream service, declare two consumers:
   - Base URL: `this.<service>ApiBaseUrl = new OdmdCrossRefConsumer(this, '<service>ApiBaseUrl', <service>Api)`
-  - Schema: `this.<service>ApiBaseSchema = new OdmdCrossRefConsumer(this, '<service>ApiBaseSchema', <service>Api.children![0])`
+  - Schema URL: `this.<service>ApiSchemaUrl = new OdmdCrossRefConsumer(this, '<service>ApiSchemaUrl', <service>Api.children![0])` (child `pathPart: 'schema-url'`)
 - This keeps transport (endpoint) and schema (artifact) independently consumable while remaining coupled under the same producer tree.
 
 ### Code generation in `.scripts/build.sh`
@@ -362,7 +362,7 @@ Platform build sequence:
 ### ContractsLib Enver Semantics
 - The ContractsLib build is global across regions. In its Enver list, the first entry in `initializeEnvers()` is the canonical source of truth used by all regions.
 - Any additional entries are placeholders representing other regions or deployment targets; they should not diverge in contract definitions.
-- Service constellations (dev, main, mock) consume the same canonical ContractsLib products, with mock deployed per Enver workspace mapping configuration.
+- Service constellations (mock, dev, main) consume the same canonical ContractsLib products, with mock deployed per Enver workspace mapping configuration.
 
 ### ContractsLib Strong Typing and Canonical Enver Pattern
 
@@ -432,10 +432,26 @@ Guidance:
 - Instantiate all build classes first, then perform cross-build wiring. The typical flow in ContractsLib is:
   1) Construct all builds
   2) Each build populates its `_envers` strictly inside `initializeEnvers()`
-  3) After all builds exist and their `_envers` are ready, run `initializeDefaults()` to wire cross-references (e.g., `wireKey(...)`, `wireAnonymous(...)`)
+  3) After all builds exist and their `_envers` are ready, run `wireBuildCouplings()` to wire couplings (e.g., `wireKey(...)`, `wireAnonymous(...)`)
 - Do not perform any cross-build consumption or side effects in build constructors. Keep constructors side-effect-free; all Enver creation belongs in `initializeEnvers()` only.
 - This guarantees that cross-build `wireX(...)` calls operate on fully initialized `_envers` for every build and prevents accidental self-consumption during construction.
 - Build auto-registration: base class constructors already register builds with the ContractsLib; do not manually push builds into internal arrays (e.g., avoid `this._builds.push(...)` in your ContractsLib implementation).
+
+> Wiring Centralization Rule
+> - Enver constructors create producers and declare consumers only (no cross-build resolution or side effects).
+> - Perform all coupling in the `OndemandContracts` root inside `wireBuildCouplings()` after all builds exist.
+> - Wire by calling `enver.wireCoupling({...upstreamEnvers})`, passing upstream enver instances. Each enver initializes its declared consumers internally using the provided upstream envers.
+
+Example (generalized):
+
+```ts
+protected wireBuildCouplings(): void {
+  const get = (arr: any[], v: string) => arr.find(e => e.targetRevision.value === v)!;
+  const svcMock = get(this.myServiceBuild.envers, 'mock');
+  const idMock = get(this.identityBuild.envers, 'mock');
+  svcMock.wireCoupling({ identityEnver: idMock /* , ...other upstream envers */ });
+}
+```
 
 ### **Step 1: ContractsLib Definition**
 ```typescript
@@ -531,7 +547,7 @@ To validate user journeys and run browser-based BDD inside the platform, define 
   - Create `OdmdBuildWebClient` and `OdmdEnverWebClient`
   - Producers: `webClientUrl`
   - Consumers: upstream service URLs (e.g., `myApiBaseUrl`) via `OdmdCrossRefConsumer`
-  - Wire consumers in `initializeDefaults()` alongside other services
+  - Wire consumers in `wireBuildCouplings()` alongside other services
 
 - Service implementation (per project)
   - S3 static hosting + CloudFront (optional Route53) for a Vite/SPA
@@ -828,7 +844,7 @@ await deploySchema(this, openApiOrAsyncApiJsonString, props.enver.<service>ApiBa
 // identity example shown; generalize by replacing names accordingly
 this.identityApiBaseUrl = new OdmdCrossRefConsumer(this, 'identityApiBaseUrl', identityApi /* OdmdCrossRefProducer<OdmdEnverCdk> */);
 if (identityApi.children && identityApi.children[0]) {
-  this.identityApiBaseSchema = new OdmdCrossRefConsumer(this, 'identityApiBaseSchema', identityApi.children[0]);
+  this.identityApiSchemaUrl = new OdmdCrossRefConsumer(this, 'identityApiSchemaUrl', identityApi.children[0]);
 }
 
 // In consumer build/codegen: resolve the child and download the artifact (S3 path)

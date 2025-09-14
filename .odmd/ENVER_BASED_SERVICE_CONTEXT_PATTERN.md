@@ -15,6 +15,11 @@ Different development phases are actually **DIFFERENT ENVERS** in the ONDEMANDEN
 
 This alignment creates **perfect phase-environment mapping** with appropriate infrastructure, security, and objectives for each stage.
 
+> IMPORTANT — Phase Status Gating
+> - Phase 0A is automatically ✅ DONE upon service context generation.
+> - All other phases require explicit user confirmation before marking ✅ COMPLETE.
+> - Canonical progression: mock → dev → main (no forward references).
+
 ## 🏗️ **ENVER-BASED SERVICE CONTEXT ARCHITECTURE**
 
 ### **1. Service Context Decomposition Structure:**
@@ -44,17 +49,18 @@ src/lib/repos/[service]/docs/
 // Universal pattern for all services
 protected initializeEnvers(): void {
   this._envers = [
-    // Development constellation - MVP and testing
-    new OdmdEnver[Service](this, this.contracts.accounts.developmentWorkspace, 'region', 
-      new SRC_Rev_REF('b', 'dev')),
-    
-    // Production constellation - Enterprise deployment
-    new OdmdEnver[Service](this, this.contracts.accounts.productionWorkspace, 'region', 
-      new SRC_Rev_REF('b', 'main')),
-    
+    // Canonical progression/order: mock → dev → main
     // Contract verification constellation - Isolated testing
-    new OdmdEnver[Service](this, this.contracts.accounts.isolatedWorkspace, 'region', 
-      new SRC_Rev_REF('b', 'mock'))
+    new OdmdEnver[Service](this, this.contracts.accounts.isolatedWorkspace, 'region',
+      new SRC_Rev_REF('b', 'mock')),
+
+    // Development constellation - MVP and testing
+    new OdmdEnver[Service](this, this.contracts.accounts.developmentWorkspace, 'region',
+      new SRC_Rev_REF('b', 'dev')),
+
+    // Production constellation - Enterprise deployment
+    new OdmdEnver[Service](this, this.contracts.accounts.productionWorkspace, 'region',
+      new SRC_Rev_REF('b', 'main'))
   ];
 }
 ```
@@ -127,6 +133,10 @@ protected initializeEnvers(): void {
 ## 🏗️ **Mock Enver Infrastructure**
 [Mock-specific CDK configuration]
 
+## 🔐 DNS & TLS
+- Use `enver.hostedZone?: { zoneId: string; zoneName: string }` to construct domain names and obtain ACM certificates.
+- Keep OpenAPI `servers[0].url` empty; clients derive the runtime base URL from contracts.
+
 ## 📋 **Mock Enver Implementation Tasks**
 [Phase 0A and 0B specific tasks]
 
@@ -140,9 +150,16 @@ Include for each relevant UC step:
 
 ## 📦 Contract Artifact (HTTP and async)
 Prefer a single `schema-url` that can point to:
+- Use a single top-level discriminator `odmdKind: 'openapi'|'asyncapi'|'bundle'`.
+- If `odmdKind` is `openapi`, include an `openapi` field (e.g., "3.1.0") and ensure it is consistent.
+- If `odmdKind` is `asyncapi`, include an `asyncapi` field (e.g., "2.6.0") and ensure it is consistent.
 - **OpenAPI 3.1** for HTTP endpoints (paths + component schemas), or
 - **AsyncAPI 2.x** for messaging channels/messages, or
 - **ODMD Bundle** that references both. Keep OpenAPI `servers[0].url` empty; consumers use platform base URL. Use `operationId` (OpenAPI) or `channels` (AsyncAPI) to generate typed helpers.
+
+### Naming Standards
+- Schema child path part remains `schema-url`.
+- Consumer property naming for the schema child: `<service>ApiSchemaUrl` (e.g., `identityApiSchemaUrl`).
 ```
 
 ### **DEV_ENVER_CONTEXT.md (Phase 1):**
@@ -256,6 +273,38 @@ serviceMain.wireUpstream(upstreamMain.apiBaseUrl);
 ### **2. PHASE STATUS CONFIRMATION RULE:**
 - **EXCEPTION**: Phase 0A is automatically ✅ DONE when service context is generated
 - **RULE**: All other phases require ⚠️ USER CONFIRMATION before marking ✅ COMPLETE
+
+### **WIRING CENTRALIZATION RULE**
+- Enver constructors create producers and declare consumers only (no cross-build resolution or side effects).
+- After all builds are constructed, the `OndemandContracts` root performs all cross-build/enver wiring inside `wireBuildCouplings()`.
+- Wiring is performed by calling `enver.wireCoupling(...)` and passing upstream enver instances. The enver uses those upstream envers to initialize its declared consumers internally.
+
+```typescript
+// In <ServiceName>Enver constructor (or an internal initializer it calls)
+this.serviceApiBaseUrl = new OdmdCrossRefProducer(this, 'serviceApiBaseUrl', {
+  children: [{ pathPart: 'schema-url', s3artifact: true }]
+});
+this.identityApiBaseUrl = new OdmdCrossRefConsumer(this, 'identityApiBaseUrl', identityApi);
+this.identityApiSchemaUrl = new OdmdCrossRefConsumer(this, 'identityApiSchemaUrl', identityApi.children![0]);
+
+// In OndemandContracts.wireBuildCouplings()
+const svcMock = getMock(serviceBuild.envers);
+const identityMock = getMock(identityBuild.envers);
+svcMock.wireCoupling({ identityEnver: identityMock /* , ...other upstream envers */ });
+// Note: An enver does not assume upstream readiness; `wireCoupling` is where the enver finalizes consumer initialization using provided upstream producers.
+```
+
+- Do not wire in build constructors or enver constructors; keep wiring centralized for clarity and to avoid cycles.
+
+### **Build/Enver Location Rule**
+- OdmdBuild and OdmdEnver definitions MUST live in the organization ContractsLib.
+- Service repositories MUST NOT declare builds or enver classes; they only define stacks and runtime/handler code.
+
+### **Build Wiring Order and Side-Effects**
+- Instantiate all build classes first; populate `_envers` only inside `initializeEnvers()`.
+- Perform cross-build wiring only in `wireBuildCouplings()` after all builds exist.
+- No cross-build consumption or side effects in build constructors.
+- ContractsLib must not import service handler Zod or generated types; validation/codegen happen in service repos and BDD stacks only.
 
 ### **3. ENVER ISOLATION AND INTERACTION RULE:**
 - **Production Constellation (`main`):** Must be strictly isolated. Envers within this constellation can only be wired to other `main` envers.

@@ -4,6 +4,11 @@ This document defines the standardized BDD (Behavior-Driven Development) testing
 
 ## 🚀 **ENVER-BASED BDD ARCHITECTURE**
 
+> IMPORTANT — Phase Status Gating
+> - Phase 0A is automatically ✅ DONE upon service context generation.
+> - All other phases require explicit user confirmation before marking ✅ COMPLETE.
+> - Canonical progression: mock → dev → main (no forward references).
+
 The BDD testing pattern aligns with the **PHASES = ENVERS** architecture:
 
 - **Mock Enver BDD** (`workspace1`): Contract verification with mocked service responses
@@ -392,3 +397,8 @@ For each service implementing this pattern:
 ---
 
 **This pattern ensures comprehensive BDD coverage for all ONDEMANDENV services, from infrastructure APIs to user interfaces, with consistent test data and built-in error prevention.** 🧪
+
+## 🔒 Cycle Prevention
+- Web client is a consumer of services. Services must not depend on `webClientUrl` in their app stacks to avoid cycles.
+- Resolve all upstream service base URLs via `/odmd-share/...` or `getSharedValue(...)` and keep OAS `servers[0].url` empty; compose route templates at runtime using generated helpers.
+- Wiring is centralized in the ContractsLib root (`OndemandContracts.wireBuildCouplings()`); enver constructors declare producers/consumers and the root wires via `enver.wireCoupling({...upstreamEnvers})`.

@@ -13,6 +13,11 @@ This document provides the complete implementation pattern for service phase dev
 
 ## 🚀 Standard Phase Structure
 
+> IMPORTANT — Phase Status Gating
+> - Phase 0A is automatically ✅ DONE upon service context generation.
+> - All other phases require explicit user confirmation before marking ✅ COMPLETE.
+> - Canonical progression: mock → dev → main (no forward references).
+
 ### Phase Status Indicators
 - ✅ **COMPLETE**: Phase fully implemented and validated **[USER CONFIRMED]**
 - 🟡 **PLANNED**: Phase designed but not yet implemented
@@ -130,7 +135,7 @@ curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
 ```
 
 ## 📋 Phase 1: MVP (Essential)
-**Constellation**: managed by revision (branch/tag); do not encode names in IDs
+**Constellation**: managed by revision (branch/tag); do not encode names in IDs. Canonical progression is mock → dev → main; avoid forward references in docs and wiring.
 **Focus**: Real business logic implementation (replacing Phase 0 mocked responses)
 
 ### Phase 1A: Core Domain Logic
@@ -890,3 +895,9 @@ This pattern provides:
 - ✅ **Scalable Architecture**: Consistent pattern across all services
 
 These generic patterns are designed to be adaptable to any system architecture while maintaining consistency and quality across all implementations, with the **ENVER-BASED PATTERN** representing the ultimate evolution of ONDEMANDENV platform service development.
+
+## 🔒 Cycle Prevention and Location Rules
+- OdmdBuild and OdmdEnver definitions MUST live in the organization ContractsLib. Service repositories must not declare builds/envers; they define stacks and runtime/handlers only.
+- Do not import service handler Zod or generated consumer types into ContractsLib; validation and codegen happen in service repos and BDD stacks.
+- Web client is a consumer of services; services must not depend on `webClientUrl` in app stacks. BDD stacks may reference `webClientUrl` if needed.
+- Wiring is centralized in `OndemandContracts.wireBuildCouplings()` after all builds exist; enver constructors create producers and declare consumers, and wiring passes upstream enver instances into `enver.wireCoupling(...)`, where the enver initializes its consumers.

@@ -47,3 +47,10 @@ These documents do NOT contain:
 - Ensure consistency across multiple systems using these patterns
 
 This separation ensures that platform patterns remain reusable across different systems while implementation details are properly organized and maintained separately.
+
+## IMPORTANT — Phase Status Gating and Canonical Progression
+- Phase 0A is automatically ✅ DONE upon service context generation.
+- All other phases require explicit user confirmation before marking ✅ COMPLETE.
+- Canonical progression: mock → dev → main (no forward references).
+- OdmdBuild and OdmdEnver definitions must live in the organization ContractsLib; service repos define stacks/runtime only.
+- Wiring is centralized in `OndemandContracts.wireBuildCouplings()`; enver constructors create producers and declare consumers, and the root wires via `enver.wireCoupling(...)` after all builds are created.
