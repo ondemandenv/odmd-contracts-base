@@ -51,4 +51,9 @@ export abstract class OdmdEnverUserAuth extends OdmdEnverCdk {
         this.callbackUrls = []
         this.logoutUrls = []
     }
+
+    get subdomain(): string | undefined {
+        return this.owner.contracts.subDomain ? 'auth': undefined
+    }
+
 }

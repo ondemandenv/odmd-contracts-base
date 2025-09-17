@@ -80,7 +80,11 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
 
 
     get subDomain(): string | undefined {
-        return this.contracts.subDomain ? this.buildId + '.' + this.contracts.subDomain : undefined
+        /*
+        lib/OndemandContracts.ts validation will make sure:
+        each account's domain name starts with central subdomain,
+        so no need to add central subdomain here*/
+        return this.contracts.subDomain ? this.buildId: undefined
     }
 
     //the artifact bucket ssm path

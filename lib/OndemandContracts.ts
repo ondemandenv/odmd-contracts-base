@@ -69,11 +69,11 @@ export abstract class OndemandContracts<
 
     abstract get allAccounts(): string[]
 
-    get subDomain(): string|undefined{
+    get subDomain(): string | undefined {
         return undefined
     }
 
-    get accountToOdmdHostedZone(): AccountToOdmdHostedZoneIdName|undefined{
+    get accountToOdmdHostedZone(): AccountToOdmdHostedZoneIdName | undefined {
         return undefined
     }
 
@@ -268,7 +268,18 @@ export abstract class OndemandContracts<
                 throw new Error(b.buildId + ' has 0 envers defined!')
             }
         })
-
+        if (this.accountToOdmdHostedZone && this.subDomain) {
+            for (const [account, [hzId, hzName]] of Object.entries(this.accountToOdmdHostedZone)) {
+                /*
+                account domain name is supposed to be
+                <account name like ws0,1,2...>.<central name, this.subDomain>.odmd.uk
+                ws0.kk.odmd.uk
+                */
+                if (hzName.split('.')[1] != this.subDomain) {
+                    throw new Error(`Hosted zone name "${hzName}" for account "${account}" must has subDomain "${this.subDomain}" as parent domain name.`);
+                }
+            }
+        }
 
     }
 }

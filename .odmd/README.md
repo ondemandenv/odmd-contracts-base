@@ -7,10 +7,11 @@ This directory contains **GENERIC** platform patterns and development guidelines
 ### **Core Platform Patterns (Ordered by Importance):**
 
 1. **`ENVER_BASED_SERVICE_CONTEXT_PATTERN.md`**: **🚀 ULTIMATE BEST PRACTICE** - Revolutionary PHASES = ENVERS architecture
-2. **`ONDEMANDENV_PLATFORM.md`**: Generic platform interface and architecture patterns with PHASES = ENVERS insight
-3. **`SERVICE_PHASE_DEVELOPMENT_PATTERN.md`**: Generic service development lifecycle and phase management
-4. **`WEB_CLIENT_BDD_PATTERN.md`**: Generic web client BDD testing patterns with enver alignment
-5. **`ONDEMANDENV_PLATFORM_schema.md`**: Generic platform schema and configuration patterns
+2. **`SYSTEM_SPECIFIC_INPUTS.md`**: **INPUTS REQUIRED** - List of all inputs needed to customize the platform.
+3. **`ONDEMANDENV_PLATFORM.md`**: Generic platform interface and architecture patterns with PHASES = ENVERS insight
+4. **`SERVICE_PHASE_DEVELOPMENT_PATTERN.md`**: Generic service development lifecycle and phase management
+5. **`WEB_CLIENT_BDD_PATTERN.md`**: Generic web client BDD testing patterns with enver alignment
+6. **`ONDEMANDENV_PLATFORM_schema.md`**: Generic platform schema and configuration patterns
 
 ### **🚨 CRITICAL: GENERIC PATTERNS ONLY**
 
