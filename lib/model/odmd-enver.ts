@@ -185,10 +185,10 @@ export abstract class OdmdEnver<T extends OdmdBuild<OdmdEnver<T>>> extends Const
     }
 
     get subdomain(): string | undefined {
-        return this.owner.subDomain ? this.targetRevision.toPathPartStr().replace(/[^a-zA-Z0-9-]/g, "").replace(/^-+|-+$/g, "") + '.' + this.owner.subDomain : undefined
+        return this.owner.subDomain ? this.targetRevision.toPathPartStr().replace(/[^a-zA-Z0-9-]/g, "").replace(/^-+|-+$/g, "").toLowerCase() + '.' + this.owner.subDomain : undefined
     }
 
-    get hostedZone(): [string, string] | undefined{
+    get hostedZone(): [string, string] | undefined {
         const accountName = this.owner.contracts.getAccountName(this.targetAWSAccountID)
         if (this.owner.contracts.accountToOdmdHostedZone && accountName) {
             return this.owner.contracts.accountToOdmdHostedZone[accountName];

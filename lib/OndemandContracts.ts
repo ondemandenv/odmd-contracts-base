@@ -240,6 +240,9 @@ export abstract class OndemandContracts<
                 if (enver instanceof OdmdEnverCtnImg) {
                     onlyProducerAllowed(enver);
                 }
+                if (enver.subdomain && enver.subdomain.toLowerCase() != enver.subdomain) {
+                    throw new Error(b.buildId + '/' + enver.subdomain + ' has to be lower case!!')
+                }
             })
         })
 
@@ -278,7 +281,13 @@ export abstract class OndemandContracts<
                 if (hzName.split('.')[1] != this.subDomain) {
                     throw new Error(`Hosted zone name "${hzName}" for account "${account}" must has subDomain "${this.subDomain}" as parent domain name.`);
                 }
+                if (hzName != hzName.toLowerCase()) {
+                    throw new Error("hzName has to be lower case")
+                }
             }
+        }
+        if (this.subDomain && this.subDomain != this.subDomain.toLowerCase()) {
+            throw new Error('contracts subDomain need to be lowercase')
         }
 
     }
