@@ -184,7 +184,7 @@ Prefer a single `schema-url` that can point to:
 [Service-specific real implementation]
 
 ## 📦 Contract Artifact (HTTP and async)
-Continue using OpenAPI for HTTP and AsyncAPI for events as applicable (or an ODMD Bundle). Keep artifacts in sync with real behavior so downstream consumers/tests derive accurate routes and channel names.
+Continue using OpenAPI for HTTP and AsyncAPI for events as applicable (or an ODMD Bundle). Keep artifacts in sync with real behavior so downstream consumers/tests derive accurate routes and channel names. When authoring OAS in code, prefer `openapi3-ts` types for OAS 3.1 to ensure correctness at compile time.
 ```
 
 ### **MAIN_ENVER_CONTEXT.md (Phase 2+):**

@@ -300,6 +300,17 @@ Consumers must detect the artifact kind via a single top-level discriminator `od
        };
        ```
     3) Optionally generate an API client from OAS (`openapi-typescript`, `openapi-zod-client`).
+    4) For strong typing while assembling OAS documents in code, prefer `openapi3-ts` (OAS 3.1). Example:
+       ```ts
+       import type { OpenAPIObject, SchemaObject, OperationObject } from 'openapi3-ts';
+       const schemas: Record<string, SchemaObject> = { MyRequest: { type: 'object', properties: { id: { type: 'string' } } } };
+       const op = (id: string, req: string, res: string): OperationObject => ({
+         operationId: id,
+         requestBody: { required: true, content: { 'application/json': { schema: { $ref: req } } } },
+         responses: { '200': { description: 'OK', content: { 'application/json': { schema: { $ref: res } } } } }
+       });
+       const doc: OpenAPIObject = { openapi: '3.1.0', info: { title: 'Svc', version: 'dev' }, servers: [{ url: '' }], paths: { '/auth/login': { post: op('authLogin', '#/components/schemas/MyRequest', '#/components/schemas/MyResponse') } }, components: { schemas } };
+       ```
 
 - BDD and web client usage:
   - Step Functions BDD: Build request URLs with `routes.<op>(baseUrl, params).url` and the generated HTTP method.
