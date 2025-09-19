@@ -31,7 +31,10 @@ Follow this sequence to bring a new bounded context onto the platform with contr
 5) Build orchestration (platform‑driven)
 - The platform runs `.scripts/build.sh` per repo:
   - Producers: compile handlers (no schema generation needed).
-  - Consumers: resolve upstream `schema-url` producers with `SchemaTypeGenerator` and emit generated types to `lib/handlers/src/__generated__`, then compile.
+  - Consumers:
+    - **Download**: A CDK-scope script uses `SchemaTypeLoader` to download upstream schema artifacts.
+    - **Generate**: The download script invokes a handler-scope script to convert the downloaded schema into typed Zod code inside `lib/handlers/src/__generated__/`.
+    - **Compile**: The handler and service are then compiled.
 - CDK stacks must reference only prebuilt artifacts/strings; no Zod imports in CDK scope.
 
 6) Deployment order and discovery
@@ -75,7 +78,7 @@ services/my-service/
 - **Handler package.json**: Must include zod, zod-to-json-schema, @types/aws-lambda
 - **Handler tsconfig.json**: Must compile to ES2020/CommonJS for Lambda compatibility
 - **Schema separation**: Zod schemas live in handler runtime scope, never in CDK scope
-- **Build sequence**: Root deps → schema generation → handler build → service build
+- **Build sequence**: Root deps → Schema Download (CDK) → Code Generation (Handler) → Handler Build → Service Build
 
 ## Platform Core Purpose
 ONDEMANDENV transforms distributed systems complexity through **Application-Centric Infrastructure** and **Contract-First Development**, enabling teams to focus on business innovation rather than integration complexity.
@@ -375,13 +378,16 @@ To guarantee cross-service consistency in Phase 0, manage a single authoritative
 
 **See `lib/utils/ONDEMANDENV_PLATFORM_schema.md` for complete build process details.**
 
-Platform build sequence:
-1. **Root service**: `npm ci` installs CDK dependencies
-2. **Schema generation**: `bin/gen-schemas.ts` handles both local debugging and GitHub Actions environments
-3. **Schema download**: `SchemaTypeLoader` downloads upstream JSON schemas from S3 to `lib/handlers/src/__generated__/`
-4. **Type generation**: `json-schema-to-zod` converts JSON schemas to TypeScript Zod types inline with proper imports
-5. **Handler build**: `cd lib/handlers && npm ci && npm run build` installs handler dependencies and compiles
-6. **Service build**: `npm run build` compiles the CDK service stack
+The platform build sequence for a consumer service follows a clear separation of concerns: downloading artifacts in the CDK scope and generating code in an isolated handler scope.
+
+1.  **Root Service Dependencies**: `npm ci` installs the service's CDK dependencies.
+2.  **Schema Download (CDK Scope)**: The main build script (e.g., `bin/gen-schemas.ts`) is executed. Its sole responsibility is to use `SchemaTypeLoader` to download upstream JSON schema artifacts from S3 into a staging directory (e.g., `lib/handlers/src/__generated__/`).
+3.  **Code Generation (Handler Scope)**: The download script then invokes a dedicated generation script (e.g., `lib/handlers/scripts/gen-zod-from-schema.ts`). This script:
+    -   Takes the path to the downloaded JSON schema as an argument.
+    -   Executes `json-schema-to-zod` to convert the JSON schema into a Zod TypeScript file.
+    -   This isolates the code generation tooling and its dependencies within the handler's context, away from the CDK scope.
+4.  **Handler Build**: `cd lib/handlers && npm ci && npm run build` installs handler-specific dependencies and compiles the handler code, including the newly generated types.
+5.  **Service Build**: `npm run build` compiles the main CDK service stack, which can now reference the pre-built handler artifacts.
 
 ### ContractsLib Enver Semantics
 - The ContractsLib build is global across regions. In its Enver list, the first entry in `initializeEnvers()` is the canonical source of truth used by all regions.
