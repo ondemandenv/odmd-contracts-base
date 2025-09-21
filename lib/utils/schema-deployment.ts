@@ -53,6 +53,7 @@ export async function deploySchema<T extends AnyOdmdEnVer>(
             parameters: {
                 Bucket: artBucket.bucketName,
                 Prefix: s3ObjKey,
+                MaxKeys: 1,
             },
             physicalResourceId: PhysicalResourceId.of(`versioning_${urlPrd.node.id}_` + gitSha),
         },
