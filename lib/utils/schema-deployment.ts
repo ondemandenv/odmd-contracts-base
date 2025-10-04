@@ -2,18 +2,16 @@ import * as cdk from 'aws-cdk-lib';
 import {execSync} from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-// import {GetParameterCommand, SSMClient} from '@aws-sdk/client-ssm';
-import {Bucket, IBucket} from 'aws-cdk-lib/aws-s3';
+import {IBucket} from 'aws-cdk-lib/aws-s3';
 import {BucketDeployment, Source} from 'aws-cdk-lib/aws-s3-deployment';
-import {Role} from 'aws-cdk-lib/aws-iam';
 
-import {AwsCustomResource, PhysicalResourceId} from 'aws-cdk-lib/custom-resources';
+import {AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId} from 'aws-cdk-lib/custom-resources';
 import {AnyOdmdEnVer} from "../model/odmd-enver";
 import {OdmdCrossRefProducer} from "../model/odmd-cross-refs";
 
 export async function deploySchema<T extends AnyOdmdEnVer>(
     scope: cdk.Stack,
-    schemaStr: string,//schema: ZodObject<any>, JSON.stringify(zodToJsonSchema(schema), null, 2) import {ZodObject} from 'zod';import {zodToJsonSchema} from 'zod-to-json-schema';
+    schemaStr: string,
     urlPrd: OdmdCrossRefProducer<T>,
     artBucket: IBucket
 ): Promise<string> {
@@ -25,16 +23,8 @@ export async function deploySchema<T extends AnyOdmdEnVer>(
     const tempSchemaPath = path.join(tempSchemaDir, schemaFileName);
     fs.writeFileSync(tempSchemaPath, schemaStr);
 
-    // const parameterName = urlPrd.owner.owner.artifactSsmPath
 
-    // const ssm = new SSMClient({region: process.env.AWS_REGION ?? process.env.CDK_DEFAULT_REGION})
-    // const bucketResp = await ssm.send(new GetParameterCommand({Name: parameterName}))
 
-    // let bucketName = bucketResp.Parameter!.Value!;
-
-    // const artBucket = Bucket.fromBucketName(scope, `artBucket-${urlPrd.node.id}`, bucketName);
-
-    const buildRole = Role.fromRoleArn(scope, `currentRole-${urlPrd.node.id}`, urlPrd.owner.buildRoleArn);
     const destinationKeyPrefix = `${scope.account}/${urlPrd.owner.targetRevision.toPathPartStr()}`;
     const deployment = new BucketDeployment(scope, `SchemaDeployment-${urlPrd.node.id}`, {
         sources: [Source.asset(tempSchemaDir)],
@@ -42,25 +32,25 @@ export async function deploySchema<T extends AnyOdmdEnVer>(
         destinationKeyPrefix,
         retainOnDelete: true,
         prune: false,
-        role: buildRole,
     });
     const s3ObjKey = destinationKeyPrefix + '/' + schemaFileName;
 
+    const arnForObjects = artBucket.arnForObjects(s3ObjKey);
     const getObjectVersion = new AwsCustomResource(scope, `GetObjectVersion-${urlPrd.node.id}`, {
         onUpdate: {
             service: 'S3',
-            action: 'listObjectVersions',
+            action: 'headObject',
             parameters: {
                 Bucket: artBucket.bucketName,
-                Prefix: s3ObjKey,
-                MaxKeys: 1,
+                Key: s3ObjKey,
             },
             physicalResourceId: PhysicalResourceId.of(`versioning_${urlPrd.node.id}_` + gitSha),
         },
-        role: buildRole
+        policy: AwsCustomResourcePolicy.fromSdkCalls({resources: [arnForObjects]})
     });
     getObjectVersion.node.addDependency(deployment);
 
+    const VersionId = getObjectVersion.getResponseField('VersionId');
     const addObjectTags = new AwsCustomResource(scope, `AddObjectTags-${urlPrd.node.id}`, {
         onUpdate: {
             service: 'S3',
@@ -68,7 +58,7 @@ export async function deploySchema<T extends AnyOdmdEnVer>(
             parameters: {
                 Bucket: artBucket.bucketName,
                 Key: s3ObjKey,
-                VersionId: getObjectVersion.getResponseField('Versions.0.VersionId'),
+                VersionId,
                 Tagging: {
                     TagSet: [
                         {Key: 'gitsha', Value: gitSha},
@@ -77,9 +67,15 @@ export async function deploySchema<T extends AnyOdmdEnVer>(
             },
             physicalResourceId: PhysicalResourceId.of(`gitSha_${urlPrd.node.id}_` + gitSha),
         },
-        role: buildRole
-    });
+
+        policy: AwsCustomResourcePolicy.fromStatements([
+            new cdk.aws_iam.PolicyStatement({
+                actions: ['s3:PutObjectTagging', 's3:PutObjectVersionTagging'],
+                resources: [arnForObjects],
+            }),
+        ]),
+    })
     addObjectTags.node.addDependency(deployment);
 
-    return 's3://' + artBucket.bucketName + '/' + s3ObjKey + '@' + getObjectVersion.getResponseField('Versions.0.VersionId')
+    return 's3://' + artBucket.bucketName + '/' + s3ObjKey + '@' + VersionId
 }

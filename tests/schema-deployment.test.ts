@@ -1,5 +1,8 @@
 jest.mock('aws-cdk-lib/aws-iam', () => ({
-  Role: { fromRoleArn: jest.fn(() => ({})) }
+  Role: { fromRoleArn: jest.fn(() => ({})) },
+  PolicyStatement: class {
+    constructor(..._args: any[]) {}
+  }
 }));
 
 jest.mock('aws-cdk-lib/aws-s3-deployment', () => ({
@@ -18,7 +21,11 @@ jest.mock('aws-cdk-lib/custom-resources', () => ({
     }
     node = { addDependency: () => {} };
   },
-  PhysicalResourceId: { of: (_: any) => 'pid' }
+  PhysicalResourceId: { of: (_: any) => 'pid' },
+  AwsCustomResourcePolicy: {
+    fromSdkCalls: jest.fn(() => ({})),
+    fromStatements: jest.fn(() => ({}))
+  }
 }));
 import { App, Stack } from 'aws-cdk-lib';
 import { deploySchema } from '../lib/utils/schema-deployment';
@@ -46,7 +53,7 @@ describe('deploySchema (shape-level test)', () => {
     };
 
     // Minimal fake bucket implementing the IBucket shape used in code (bucketName)
-    const fakeBucket: any = { bucketName: 'my-bucket', grantReadWrite: () => ({}) };
+    const fakeBucket: any = { bucketName: 'my-bucket', grantReadWrite: () => ({}), arnForObjects:()=>'arn:aws:s3:::my-bucket/index.html' };
 
     const out = await deploySchema(fakeStack as any, '{"$schema":"http://json-schema.org/draft-07/schema#"}', fakeProducer, fakeBucket);
     expect(out.startsWith('s3://my-bucket/123456789012/b..dev/mySchema.json@')).toBe(true);
