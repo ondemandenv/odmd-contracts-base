@@ -100,8 +100,9 @@ describe('mkss1', () => {
     const theContracts = new OdmdContractsNoNetworking(app)
 
     it("package name wrong", () => {
-        expect(JSON.parse(fs.readFileSync('package.json').toString()).name)
-            .toBe(theContracts.contractsLibBuild.packageName)
+        let tmp1 = JSON.parse(fs.readFileSync('package.json').toString()).name;
+        let packageName = theContracts.contractsLibBuild.packageName;
+        expect(tmp1).toBe(packageName)
     })
 
 

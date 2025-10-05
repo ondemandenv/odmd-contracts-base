@@ -6,8 +6,8 @@
       "es2020",
       "dom"
     ],
-//    "outDir": "dist",
-//    "rootDir": "src",
+    "outDir": "dist",
+    "rootDir": ".",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
@@ -33,8 +33,13 @@
       "./node_modules/@types"
     ]
   },
+  "include": [
+    "lib/**/*.ts",
+    "index.ts"
+  ],
   "exclude": [
     "node_modules",
-    "cdk.out"
+    "cdk.out",
+    "dist"
   ]
 }

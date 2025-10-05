@@ -1,9 +1,3 @@
-jest.mock('aws-cdk-lib/aws-iam', () => ({
-  Role: { fromRoleArn: jest.fn(() => ({})) },
-  PolicyStatement: class {
-    constructor(..._args: any[]) {}
-  }
-}));
 
 jest.mock('aws-cdk-lib/aws-s3-deployment', () => ({
   BucketDeployment: class {
@@ -12,21 +6,6 @@ jest.mock('aws-cdk-lib/aws-s3-deployment', () => ({
   Source: { asset: () => ({}) }
 }));
 
-jest.mock('aws-cdk-lib/custom-resources', () => ({
-  AwsCustomResource: class {
-    constructor(..._args: any[]) {}
-    getResponseField(field: string) {
-      if (field === 'Versions.0.VersionId') return 'ver123';
-      return '';
-    }
-    node = { addDependency: () => {} };
-  },
-  PhysicalResourceId: { of: (_: any) => 'pid' },
-  AwsCustomResourcePolicy: {
-    fromSdkCalls: jest.fn(() => ({})),
-    fromStatements: jest.fn(() => ({}))
-  }
-}));
 import { App, Stack } from 'aws-cdk-lib';
 import { deploySchema } from '../lib/utils/schema-deployment';
 
