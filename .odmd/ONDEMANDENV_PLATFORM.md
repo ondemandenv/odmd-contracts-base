@@ -57,13 +57,13 @@ services/my-service/
 │   └── build.sh              # Platform build script
 ├── bin/
 │   ├── cdk.ts                 # CDK app entry point
-│   └── gen-schemas.ts         # Schema generation script
+│   └── download-gen-schemas.ts # Downloads dependency schemas and generates types
 ├── lib/
 │   ├── handlers/              # Lambda handler package
 │   │   ├── package.json       # Handler dependencies
 │   │   ├── tsconfig.json      # Handler TypeScript config
 │   │   ├── scripts/
-│   │   │   └── schema-print.ts # Zod → JSON Schema converter
+│   │   │   └── schema-print.ts # Converts this service's Zod schemas to a JSON artifact
 │   │   └── src/
 │   │       ├── index.ts       # Lambda handlers
 │   │       ├── schemas/
@@ -261,7 +261,7 @@ Consumers must detect the artifact kind via a single top-level discriminator `od
 
 - Purpose: Share full route information (HTTP methods and path templates) together with request/response schemas using a single artifact. No extra producers beyond the existing `schema-url` child are required.
 
-- Producer (build-time): In `bin/gen-schemas.ts`, assemble and upload an OpenAPI 3.1 document as the schema artifact. Keep using `deploySchema(this, openApiJsonString, enver.<baseUrl>.children[0])` so the contract address remains unchanged.
+- Producer (build-time): Before deployment, a handler-scope script (e.g., `lib/handlers/scripts/schema-print.ts`) is run to convert the service's Zod schemas into a final JSON Schema or OpenAPI 3.1 document. The main CDK stack then reads this generated artifact from disk and publishes it using `deploySchema(this, openApiJsonString, enver.<baseUrl>.children[0])` during synthesis.
 
   Minimal structure of the uploaded artifact:
   ```json
@@ -381,7 +381,7 @@ To guarantee cross-service consistency in Phase 0, manage a single authoritative
 The platform build sequence for a consumer service follows a clear separation of concerns: downloading artifacts in the CDK scope and generating code in an isolated handler scope.
 
 1.  **Root Service Dependencies**: `npm ci` installs the service's CDK dependencies.
-2.  **Schema Download (CDK Scope)**: The main build script (e.g., `bin/gen-schemas.ts`) is executed. Its sole responsibility is to use `SchemaTypeLoader` to download upstream JSON schema artifacts from S3 into a staging directory (e.g., `lib/handlers/src/__generated__/`).
+2.  **Schema Download (CDK Scope)**: The consumer-side build script (e.g., `bin/download-gen-schemas.ts`) is executed. Its sole responsibility is to use `SchemaTypeLoader` to download upstream JSON schema artifacts from S3 into a staging directory (e.g., `lib/handlers/src/__generated__/`).
 3.  **Code Generation (Handler Scope)**: The download script then invokes a dedicated generation script (e.g., `lib/handlers/scripts/gen-zod-from-schema.ts`). This script:
     -   Takes the path to the downloaded JSON schema as an argument.
     -   Executes `json-schema-to-zod` to convert the JSON schema into a Zod TypeScript file.
