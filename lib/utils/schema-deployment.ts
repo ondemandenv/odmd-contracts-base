@@ -23,18 +23,19 @@ export async function deploySchema<T extends AnyOdmdEnVer>(
     const tempSchemaPath = path.join(tempSchemaDir, schemaFileName);
     fs.writeFileSync(tempSchemaPath, schemaStr);
 
+    const buildRole = Role.fromRoleArn(scope, `currentRole-${urlPrd.node.id}`, urlPrd.owner.buildRoleArn);
 
     const destinationKeyPrefix = `${scope.account}/${urlPrd.owner.targetRevision.toPathPartStr()}`;
     const deployment = new BucketDeployment(scope, `SchemaDeployment-${urlPrd.node.id}`, {
         sources: [Source.asset(tempSchemaDir)],
         destinationBucket: artBucket,
+        role: buildRole,
         destinationKeyPrefix,
         retainOnDelete: true,
         prune: false,
     });
     const s3ObjKey = destinationKeyPrefix + '/' + schemaFileName;
 
-    const buildRole = Role.fromRoleArn(scope, `currentRole-${urlPrd.node.id}`, urlPrd.owner.buildRoleArn);
 
     const onEventHandler = new cdk.aws_lambda.Function(scope, `SchemaTaggingFunction-${urlPrd.node.id}`, {
         runtime: cdk.aws_lambda.Runtime.NODEJS_22_X,
