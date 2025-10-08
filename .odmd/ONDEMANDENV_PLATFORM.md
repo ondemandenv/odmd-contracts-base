@@ -1038,10 +1038,10 @@ Every service must include a comprehensive `SERVICE_CONTEXT.md` with:
 ```typescript
 export interface <ServiceName>Enver extends OdmdEnverCdk {
   // Upstream consumers (services this service depends on)
-  upstreamServiceApiBaseUrl?: OdmdCrossRefConsumer<ServiceEnver, OdmdEnverCdk>;
+  upstreamServiceApiBaseUrl?: OdmdCrossRefConsumer<<ServiceName>Enver, <ProducerServiceEnver>>;
   
   // Producers (what this service provides)
-  readonly serviceApiBaseUrl: OdmdCrossRefProducer<OdmdEnverCdk>;
+  readonly serviceApiBaseUrl: OdmdCrossRefProducer<<ServiceName>Enver>;
   
   // Environment metadata
   envId?: string;

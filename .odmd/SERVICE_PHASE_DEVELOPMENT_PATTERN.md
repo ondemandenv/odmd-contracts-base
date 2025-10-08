@@ -513,7 +513,7 @@ curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
 // services/<service-name>/lib/<service-name>-stack.ts
 export interface <ServiceName>Enver extends OdmdEnverCdk {
   // Upstream consumers (services this service depends on)
-  upstreamServiceApiBaseUrl?: OdmdCrossRefConsumer<<ServiceName>Enver, OdmdEnverCdk>;
+  upstreamServiceApiBaseUrl?: OdmdCrossRefConsumer<<ServiceName>Enver, <ProducerServiceEnver>>;
   
   // Producers (what this service provides)
   readonly serviceApiBaseUrl: OdmdCrossRefProducer<OdmdEnverCdk>;
