@@ -74,7 +74,7 @@ export class ServiceStackBdd extends Stack {
 **Scope**: End-to-end user journey validation
 
 ```typescript
-// services/{service}/vite/tests/bdd/{service}-system.spec.ts
+// services/{service}/vite-bdd/src/{service}-system.spec.ts
 import { test, expect } from '@playwright/test';
 import { ServicePage } from '../pages/ServicePage';
 
@@ -90,7 +90,7 @@ test.describe('Service BDD End-to-End Tests', () => {
 
 ### 3. Centralized Test Data
 **Purpose**: Ensures consistency across both BDD layers
-**Location**: `services/{service}/tests/test-data/constants.ts`
+**Location**: `services/{service}/vite-bdd/src/test-data/constants.ts`
 
 ```typescript
 export const PLATFORM_TEST_DATA = {
@@ -282,12 +282,13 @@ services/{service}/
 │   ├── {service}-stack.ts          # Main service stack
 │   ├── {service}-stack-bdd.ts      # Step Functions BDD stack
 │   └── bdd-validation-helpers.ts   # Validation utilities
-├── vite/                           # Web client (if applicable)
-│   ├── tests/
-│   │   ├── bdd/                    # Playwright BDD tests
-│   │   ├── pages/                  # Page object models
-│   │   └── test-data/              # Centralized test constants
+├── vite/                           # Web client app
 │   └── src/                        # Web client implementation
+├── vite-bdd/                       # Web client BDD tests
+│   └── src/
+│       ├── bdd/                    # Playwright BDD tests
+│       ├── pages/                  # Page object models
+│       └── test-data/              # Centralized test constants
 └── handlers/                       # Service Lambda handlers
     └── src/
         ├── schemas/zod.ts          # Request/response schemas
