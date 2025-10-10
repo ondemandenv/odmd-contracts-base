@@ -142,3 +142,82 @@ The `package.json` file MUST define the following scripts to manage the build an
 - **Reliability**: Separate configurations prevent conflicts between build and test environments.
 - **Clarity**: The purpose of each configuration file and script is clear and unambiguous.
 - **Consistency**: Provides a standardized, platform-aligned structure for all TypeScript-based `contractsLib` projects.
+
+---
+
+## 🏛️ Critical Implementation Patterns
+
+Due to the complex, circular-generic types inherent in the `@ondemandenv.dev/contracts-lib-base` framework, the following implementation patterns are **mandatory** to ensure the TypeScript compiler can correctly resolve all types.
+
+### 1. `Build` Class Structure
+
+Every service `Build` class (e.g., `IdentityServiceBuild`) **must** include a specific getter for the `contracts` property. This getter retrieves the `scope` from the construct node and casts it to the project's specific `OndemandContracts` implementation.
+
+**Example:**
+```typescript
+// In <ServiceName>Build.ts
+import { OndemandContractsAnonymId } from './OndemandContractsAnonymId';
+
+export class MyServiceBuild extends OdmdBuild<MyServiceEnver> {
+  // ... other properties
+
+  get contracts(): OndemandContractsAnonymId {
+    return this.node.scope as OndemandContractsAnonymId;
+  }
+}
+```
+
+### 2. `Enver` Class Structure
+
+Every service `Enver` class (e.g., `IdentityServiceEnver`) requires two key modifications to resolve the circular generic dependency between the `Build` and `Enver` classes:
+
+1.  **Explicit `owner` Property:** It must declare a `readonly owner` property that is explicitly typed to its corresponding `Build` class (e.g., `readonly owner: MyServiceBuild;`).
+2.  **Specific Constructor:** The constructor must accept the specific `Build` type for its `owner` parameter and pass it directly to the `super()` call.
+3.  **Producer Instantiation:** All `OdmdCrossRefProducer` instances must be declared as properties but instantiated *inside* the constructor, after the `super()` call.
+
+**Example:**
+```typescript
+// In <ServiceName>Enver.ts
+
+export class MyServiceEnver extends OdmdEnverCdk {
+  // 1. Explicitly typed owner property
+  public readonly owner: MyServiceBuild;
+
+  // Declare producer property
+  public readonly myApiBaseUrl: OdmdCrossRefProducer<MyServiceEnver>;
+
+  constructor(
+    owner: MyServiceBuild, // 2. Use the specific Build type
+    account: string,
+    region: string,
+    rev: SRC_Rev_REF,
+  ) {
+    super(owner, account, region, rev);
+    this.owner = owner;
+
+    // 3. Instantiate producer in the constructor
+    this.myApiBaseUrl = new OdmdCrossRefProducer(this, 'myApiBaseUrl');
+  }
+  // ... other methods
+}
+```
+
+### 3. Main Contracts Class (`OndemandContracts<...>`)
+
+The main contracts class orchestrates the builds and their wiring.
+
+- **Build Instantiation:** All service builds are instantiated in the `initializeBuilds()` method, which is called by the base class constructor.
+- **Dependency Wiring:** A helper method like `wireConstellation` should be used to connect the producers and consumers for each environment (`mock`, `dev`, `main`).
+
+### 4. Contracts Library Build (`OdmdBuildContractsLib<...>`)
+
+The build class for the contracts library itself is special. Its constructor's `super()` call takes two arguments: the `scope` and a string literal for the `buildId`.
+
+**Example:**
+```typescript
+// In OdmdBuildContractsAnonymId.ts
+constructor(scope: OndemandContractsAnonymId) {
+  // The second argument is a string literal buildId
+  super(scope, 'contracts-lib');
+}
+```
