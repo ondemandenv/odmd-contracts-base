@@ -2,6 +2,8 @@
 
 This document defines the standardized BDD (Behavior-Driven Development) testing pattern for ONDEMANDENV web clients, providing comprehensive validation from infrastructure APIs to browser-based user interfaces.
 
+IMPORTANT: Manually control a browser start with saved user session to go through each use case with browser control tools before writing BDD for each case!  
+
 ## 🚀 **ENVER-BASED BDD ARCHITECTURE**
 
 > IMPORTANT — Phase Status Gating
