@@ -2,6 +2,13 @@
 
 This directory contains **GENERIC** platform patterns and development guidelines that can be applied to ANY system built on the ONDEMANDENV platform.
 
+## 🚨 **WARNING: GENERIC PATTERNS VS. SPECIFIC IMPLEMENTATION** 🚨
+
+**These documents describe generic platform patterns.** Your project's specific implementation will have its own conventions, directory structures, and phasing that may differ from the examples provided here.
+
+**ALWAYS prioritize your project's own documentation and established patterns.** If you find a conflict or ambiguity between these generic patterns and your project's specific documentation, **the project-specific documentation is the source of truth.**
+
+
 ## 📋 **GENERIC PLATFORM DOCUMENTATION**
 
 ### **Core Platform Patterns (Ordered by Importance):**
@@ -37,7 +44,7 @@ These documents do NOT contain:
 
 ### **For Implementation Teams:**
 - Reference these patterns for development guidance
-- Create implementation-specific documentation in `_impl/`
+- Create implementation-specific documentation in the directory specified in your project's `SYSTEM_SPECIFIC_INPUTS.md`.
 - Extract concrete examples to implementation folders
 - Follow generic patterns while adapting to specific needs
 

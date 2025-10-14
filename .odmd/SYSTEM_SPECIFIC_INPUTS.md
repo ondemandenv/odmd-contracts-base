@@ -62,3 +62,9 @@ For **each service**, please provide:
     *   **Shared Constants**: Consistent UUIDs, user IDs, and tokens to be used across all services.
     *   **Use Case Payloads**: Concrete request and response payloads for each step of every use case defined above. This data must be consistent (e.g., the mock response from `IdentityService` in a BDD test should be the expected mock input for `KeyService`).
 
+---
+
+### 5. Implementation-Specific Documentation
+
+*   **Path to Design Documents**: Provide the relative path from the project root to the directory containing your implementation-specific design documents, use cases, and mock data definitions. The generic patterns refer to this as the `_impl/` directory, but your project may use a different convention (e.g., `.odmd-kk/`).
+

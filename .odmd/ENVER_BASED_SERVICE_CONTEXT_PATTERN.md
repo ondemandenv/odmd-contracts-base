@@ -1,5 +1,16 @@
 # ENVER-Based Service Context Pattern
 
+## 🚨 **WARNING: CHECK FOR INCONSISTENCIES** 🚨
+
+**This document describes a generic platform pattern.** Your project's specific implementation may have its own conventions, directory structures, and phasing that differ from the examples provided here.
+
+**ALWAYS prioritize your project's own documentation and established patterns.** If you find a conflict or ambiguity between this generic pattern and your project's specific documentation, **the project-specific documentation is the source of truth.**
+
+Consult your project's `SYSTEM_SPECIFIC_INPUTS.md` or equivalent documentation to understand its unique configuration.
+
+---
+
+
 ## 🚀 **ULTIMATE ONDEMANDENV PLATFORM BEST PRACTICE**
 
 This document defines the **ULTIMATE BEST PRACTICE** for organizing service contexts in the ONDEMANDENV platform using the **enver-based deployment architecture**.
@@ -369,8 +380,8 @@ These contexts are:
 Before generating any context files, the generator (developer or LLM) **MUST** first perform the following actions and confirm their completion:
 
 - [ ] **1. Read All Platform Patterns:** I have read and understood all documents in the `.odmd` directory.
-- [ ] **2. Read All Implementation Details:** I have read and understood all documents in the `_impl` directory, including the master mock data set and system-specific requirements.
-- [ ] **3. Read All Design Documents:** I have read and understood all detailed design documents and use cases in the `_impl/_design` directory.
+- [ ] **2. Read All Implementation Details:** I have read and understood all documents in the directory you provided for implementation-specific documentation, including the master mock data set and system-specific requirements.
+- [ ] **3. Read All Design Documents:** I have read and understood all detailed design documents and use cases in your project's design documentation directory (e.g., `_design/`).
 - [ ] **4. Confirm Understanding:** I hereby confirm that I have a comprehensive understanding of the entire system architecture, including all service boundaries, data schemas, contracts, and use case flows, and I am prepared to generate a complete and accurate service context without information loss.
 
 **Only after confirming these four points may the generation process begin.**
@@ -381,9 +392,9 @@ Before generating any context files, the generator (developer or LLM) **MUST** f
 
 **MANDATORY READING ORDER:**
 1. **Platform Patterns**: Read ALL `.odmd/` documents to understand generic patterns
-2. **Implementation Details**: Read ALL `_impl/` documents for system-specific requirements
-   - **CRITICAL**: `_impl/[SYSTEM]_ENVER_CONTEXT_GENERATION.md` contains system-specific use cases, service boundaries, mock data, and DNS patterns
-3. **Design Documents**: Read ALL `_impl/_design/` documents for detailed specifications
+2. **Implementation Details**: Read all documents in your implementation-specific documentation directory for system-specific requirements
+   - **CRITICAL**: Your project's main implementation document (e.g., `ODMD_KK_IMPLEMENTATION.md`) contains system-specific use cases, service boundaries, mock data, and DNS patterns
+3. **Design Documents**: Read ALL documents in your project's design documentation directory for detailed specifications
 4. **Contracts Library**: Examine `src/lib/` for service boundaries and interfaces
 
 **CRITICAL UNDERSTANDING REQUIREMENTS:**

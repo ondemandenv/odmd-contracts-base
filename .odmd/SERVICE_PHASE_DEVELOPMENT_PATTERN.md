@@ -1,5 +1,16 @@
 # Service Phase Development Pattern - Implementation Guide
 
+## 🚨 **WARNING: CHECK FOR INCONSISTENCIES** 🚨
+
+**This document describes a generic platform pattern.** Your project's specific implementation may have its own conventions, directory structures, and phasing that differ from the examples provided here.
+
+**ALWAYS prioritize your project's own documentation and established patterns.** If you find a conflict or ambiguity between this generic pattern and your project's specific documentation, **the project-specific documentation is the source of truth.**
+
+Consult your project's `SYSTEM_SPECIFIC_INPUTS.md` or equivalent documentation to understand its unique configuration.
+
+---
+
+
 **CRITICAL PLATFORM PATTERN**: Standardized phased development approach for all services on the ondemandenv.dev platform.
 
 ## 📋 Overview
@@ -866,8 +877,8 @@ This standardized approach ensures every service on the platform follows consist
 ## 🔗 **IMPLEMENTATION EXAMPLES**
 
 For concrete implementation examples of these generic patterns, see:
-- **`../_impl/`**: Contains system-specific implementations of these patterns
-- **`../_impl/ODMD_KK_IMPLEMENTATION.md`**: Complete example of master mock data set generation
+- Your project's implementation-specific documentation directory: Contains system-specific implementations of these patterns
+- Your project's main implementation document (e.g., `ODMD_KK_IMPLEMENTATION.md`): Complete example of master mock data set generation
 - **Service contexts in individual service repositories**: Real-world applications of these patterns
 
 ## 🚀 **ULTIMATE PLATFORM BEST PRACTICE**
