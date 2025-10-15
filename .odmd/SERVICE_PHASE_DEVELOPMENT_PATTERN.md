@@ -146,78 +146,47 @@ curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
 ```
 
 ## 📋 Phase 1: MVP (Essential)
-**Constellation**: managed by revision (branch/tag); do not encode names in IDs. Canonical progression is mock → dev → main; avoid forward references in docs and wiring.
-**Focus**: Real business logic implementation (replacing Phase 0 mocked responses)
+**Focus**: A fully working MVP with all core application features.
 
 ### Phase 1A: Core Domain Logic
-**Objective**: Implement real service domain functionality (replacing mocked responses)
-
+**Objective**: Implement the service's primary operations.
 #### Required Deliverables:
 ```markdown
-- [ ] **Domain Operations**: Complete implementation of service-specific operations
-- [ ] **Cross-Service Integration**: Real integration with upstream/downstream services
-- [ ] **Data Storage**: Actual data persistence and retrieval
-- [ ] **Event Publishing**: Real event publishing for state changes
-- [ ] **Error Handling**: Comprehensive error responses and recovery mechanisms
-- [ ] **Contract Update**: Keep OpenAPI (HTTP) and/or AsyncAPI (events) artifacts in sync with real behavior (or update bundle references).
+- [ ] Implementation of the service's primary operations.
+- [ ] Integration with essential upstream/downstream services.
+- [ ] Core data persistence and retrieval logic.
 ```
 
-### Phase 1B: Advanced MVP Features
-**Objective**: Production-ready MVP with security and monitoring
-
+### Phase 1B: Core Feature Implementation
+**Objective**: Implement all primary features required for the MVP.
 #### Required Deliverables:
 ```markdown
-- [ ] **Authentication/Authorization**: Real security implementation
-- [ ] **Performance Optimization**: Efficient data access and processing
-- [ ] **Monitoring Integration**: CloudWatch metrics and logging
-- [ ] **Security Hardening**: Data protection and secure communication
+- [ ] Implementation of all primary features required for the MVP.
+- [ ] Implementation of the main business logic.
+- [ ] Handling of complex use cases and edge cases.
 ```
 
-#### Checkpoint Validation Template:
-```bash
-# Verify real business logic implementation (not mocked)
-curl -X POST https://<service>-api.<domain>/<endpoint> \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <real-token>" \
-  -d '{<real-payload>}'
-# Should return REAL response with actual business logic processing
+## 📋 Phase 2: Production Ready
+**Focus**: Add production-grade monitoring, alerting, analytics, operational interfaces, and robust testing.
 
-# Verify event publishing with real data
-aws sqs receive-message --queue-url <service-event-queue-url>
-# Should show real events after actual operations
-```
-
-## 📋 Phase 3: Production Ready
-
-### Phase 3A: BDD Integration & Testing
-**Objective**: Complete testing integration and production readiness
-
+### Phase 2A: Production Readiness
+**Objective**: Make the service ready for production.
 #### Required Deliverables:
 ```markdown
-- [x] **Mock Data Enhancement**: BDD-aligned mock responses in handlers
-- [x] **Use Case Flow Support**: Complete UC flows that involve this service
-- [x] **Test Data Alignment**: Consistent UUIDs and tokens with web-client BDD
-- [x] **Error Handling**: Proper HTTP status codes and error responses
-- [x] **Schema Validation**: Request/response validation using Zod schemas
+- [ ] Advanced security implementation for Authentication/Authorization.
+- [ ] Performance optimization and tuning.
+- [ ] Comprehensive monitoring, logging, and alerting.
+- [ ] Security hardening and vulnerability scanning.
 ```
 
-#### Checkpoint Validation Template:
-```bash
-# BDD integration validation with centralized test data
-curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer mock_temp_token_12345" \
-  -d '{
-    "entity_id": "550e8400-e29b-41d4-a716-446655440001",
-    "test_data": "<bdd-aligned-test-payload>"
-  }'
-# Should return BDD-expected response format with consistent UUIDs
-
-# Verify error handling
-curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
-  -H "Content-Type: application/json" \
-  -d '{invalid-payload}'
-# Should return proper 400 error with Zod validation details
+### Phase 2B: Comprehensive Testing
+**Objective**: Complete testing integration and production readiness.
+#### Required Deliverables:
+```markdown
+- [ ] End-to-end BDD testing for all use cases.
+- [ ] Integration testing with all dependent services.
+- [ ] Load and performance testing.
+- [ ] Security testing.
 ```
 
 ## 📋 Phase 4: Advanced Features (FUTURE)
@@ -444,18 +413,17 @@ curl -X POST https://<service>-api-dev.amazonaws.com/<endpoint> \
 ### Phase 2: Core Features 🟡 PLANNED
 **Focus**: Real business logic implementation - [Service-specific domain functionality]
 
-#### Phase 2A: [Service-specific Core Domain Logic] 🟡 PLANNED
-- [ ] **[Core Business Feature 1]**: [Real implementation replacing mocked responses]
-- [ ] **[Core Business Feature 2]**: [Cross-service integration implementation]
-- [ ] **[Core Business Feature 3]**: [Domain-specific operations implementation]
-- [ ] **[Storage Integration]**: [Real data storage and retrieval]
-- [ ] **[Event Publishing]**: [Real event publishing for state changes]
+#### Phase 2A: Core Domain Logic 🟡 PLANNED
+- [ ] **Domain Operations**: [Complete implementation of service-specific operations]
+- [ ] **Cross-Service Integration**: [Real integration with upstream/downstream services]
+- [ ] **Event Publishing**: [Real event publishing for state changes]
+- [ ] **Error Handling**: [Comprehensive error responses and recovery mechanisms]
+- [ ] **Contract Update**: [Keep OpenAPI (HTTP) and/or AsyncAPI (events) artifacts in sync with real behavior (or update bundle references).]
 
-#### Phase 2B: [Service-specific Advanced Features] 🟡 PLANNED
-- [ ] **[Advanced Feature 1]**: [Performance optimization implementation]
-- [ ] **[Advanced Feature 2]**: [Security hardening implementation]
-- [ ] **[Monitoring Integration]**: [CloudWatch metrics and logging]
-- [ ] **[Error Handling]**: [Comprehensive error handling and recovery]
+#### Phase 2B: Advanced Features 🟡 PLANNED
+- [ ] **Authentication/Authorization**: [Real security implementation]
+- [ ] **Performance Optimization**: [Efficient data access and processing]
+- [ ] **Security Hardening**: [Data protection and secure communication]
 
 **Checkpoint Validation**:
 ```bash

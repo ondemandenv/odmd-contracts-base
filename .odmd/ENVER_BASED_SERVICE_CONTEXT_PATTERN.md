@@ -173,11 +173,12 @@ Prefer a single `schema-url` that can point to:
 - Consumer property naming for the schema child: `<service>ApiSchemaUrl` (e.g., `identityApiSchemaUrl`).
 ```
 
-### **DEV_ENVER_CONTEXT.md (Phase 1):**
-```markdown
-# [Service] - Dev Enver Context
+### **Template for: `DEV_ENVER_CONTEXT.md`**
 
-## 🎯 **Dev Enver Deployment** (Development workspace)
+```markdown
+# [Service Name] - Dev Enver Context
+
+## 🎯 Dev Enver Deployment (Development Workspace)
 **Target**: Phase 1 - MVP with Real Business Logic
 
 ## 🚀 **CRITICAL: Dev Enver Focus**
@@ -188,8 +189,17 @@ Prefer a single `schema-url` that can point to:
 ## 🏗️ **Dev Enver Infrastructure**
 [Development-grade CDK configuration]
 
-## 📋 **Dev Enver Implementation Tasks**
-[Phase 1A and 1B specific tasks]
+## 📋 Dev Enver Implementation Tasks
+
+### Phase 1A: Core Domain Logic 🟡 PLANNED ⚠️ REQUIRES USER CONFIRMATION
+- [ ] Implementation of the service's primary operations.
+- [ ] Integration with essential upstream/downstream services.
+- [ ] Core data persistence and retrieval logic.
+
+### Phase 1B: Core Feature Implementation 🟡 PLANNED ⚠️ REQUIRES USER CONFIRMATION
+- [ ] Implementation of all primary features required for the MVP.
+- [ ] Implementation of the main business logic.
+- [ ] Handling of complex use cases and edge cases.
 
 ## 🔐 **Real Business Logic Implementation**
 [Service-specific real implementation]
@@ -486,11 +496,15 @@ interface UnifiedMockDataValidation {
 **Transition**: From Phase 0 mocked responses to real [service] operations
 **Focus**: Real [service operations] (replacing Phase 0 mocked responses)
 
-### **Phase 1A: [Core Service Operations]** 🟡 PLANNED ⚠️ REQUIRES USER CONFIRMATION
-- **Real [Primary Function]**: Actual [service-specific implementation]
-- **[Key Integration]**: Real integration with [upstream services]
-- **[Authentication Model]**: Real verification via [auth mechanism]
-- **[Data Management]**: [Service-specific data handling]
+### **Phase 1A: Core Domain Logic** 🟡 PLANNED ⚠️ REQUIRES USER CONFIRMATION
+- [ ] Implementation of the service's primary operations.
+- [ ] Integration with essential upstream/downstream services.
+- [ ] Core data persistence and retrieval logic.
+
+### **Phase 1B: Core Feature Implementation** 🟡 PLANNED ⚠️ REQUIRES USER CONFIRMATION
+- [ ] Implementation of all primary features required for the MVP.
+- [ ] Implementation of the main business logic.
+- [ ] Handling of complex use cases and edge cases.
 
 [Include: Infrastructure, security, use cases, checkpoints - all referencing REAL operations]
 ```
@@ -513,11 +527,17 @@ interface UnifiedMockDataValidation {
 **Transition**: From development-grade to enterprise production-grade [service] management
 **Focus**: Enterprise-grade [service operations] with advanced [service-specific features]
 
-### **Phase 2A: Production [Service] Security** 🟡 PLANNED ⚠️ REQUIRES USER CONFIRMATION
-- **Enterprise [Primary Function]**: Advanced security integration for [service operations]
-- **Advanced [Service Features]**: [Enterprise-specific capabilities]
-- **Global [Service Distribution]**: Multi-region [service] management
-- **Compliance**: Enterprise [service] compliance requirements
+### Phase 2A: Production Readiness 🟡 PLANNED ⚠️ REQUIRES USER CONFIRMATION
+- [ ] Advanced security implementation for Authentication/Authorization.
+- [ ] Performance optimization and tuning.
+- [ ] Comprehensive monitoring, logging, and alerting.
+- [ ] Security hardening and vulnerability scanning.
+
+### Phase 2B: Comprehensive Testing 🟡 PLANNED ⚠️ REQUIRES USER CONFIRMATION
+- [ ] End-to-end BDD testing for all use cases.
+- [ ] Integration testing with all dependent services.
+- [ ] Load and performance testing.
+- [ ] Security testing.
 
 [Include: Enterprise infrastructure, advanced security, global scalability, compliance]
 ```
@@ -786,17 +806,14 @@ Request: `mock_request_payload`|Service([Service Name])
 ## 📋 Dev Enver Implementation Tasks
 
 ### Phase 1A: Core Domain Logic 🟡 PLANNED ⚠️ REQUIRES USER CONFIRMATION
-- **Domain Operations**: Complete implementation of service-specific operations.
-- **Cross-Service Integration**: Real integration with upstream/downstream services.
-- **Data Storage**: Actual data persistence and retrieval.
-- **Event Publishing**: Real event publishing for state changes.
-- **Error Handling**: Comprehensive error responses and recovery mechanisms.
+- [ ] Implementation of the service's primary operations.
+- [ ] Integration with essential upstream/downstream services.
+- [ ] Core data persistence and retrieval logic.
 
-### Phase 1B: Advanced MVP Features 🟡 PLANNED ⚠️ REQUIRES USER CONFIRMATION
-- **Authentication/Authorization**: Real security implementation.
-- **Performance Optimization**: Efficient data access and processing.
-- **Monitoring Integration**: CloudWatch metrics and logging.
-- **Security Hardening**: Data protection and secure communication.
+### Phase 1B: Core Feature Implementation 🟡 PLANNED ⚠️ REQUIRES USER CONFIRMATION
+- [ ] Implementation of all primary features required for the MVP.
+- [ ] Implementation of the main business logic.
+- [ ] Handling of complex use cases and edge cases.
 
 ## ⚙️ Real Business Logic & Use Case Flows
 
@@ -846,8 +863,6 @@ Request: `mock_request_payload`|Service([Service Name])
 - **Verify Event Publishing**: `aws sqs receive-message --queue-url <service-event-queue-url>`
 ```
 
----
-
 ### **Template for: `MAIN_ENVER_CONTEXT.md`**
 
 ```markdown
@@ -861,15 +876,17 @@ Request: `mock_request_payload`|Service([Service Name])
 
 ## 📋 Main Enver Implementation Tasks
 
-### Phase 2A: Production Security & Hardening 🟡 PLANNED ⚠️ REQUIRES USER CONFIRMATION
-- **Enterprise Security**: Advanced security integration (e.g., WAF, fine-grained IAM).
-- **Global Scalability**: Multi-region deployment, auto-scaling, and performance tuning.
-- **Compliance**: Implementing enterprise compliance and auditing requirements.
-- **Advanced Monitoring**: Detailed dashboards, alarms, and observability.
+### Phase 2A: Production Readiness 🟡 PLANNED ⚠️ REQUIRES USER CONFIRMATION
+- [ ] Advanced security implementation for Authentication/Authorization.
+- [ ] Performance optimization and tuning.
+- [ ] Comprehensive monitoring, logging, and alerting.
+- [ ] Security hardening and vulnerability scanning.
 
-### Phase 2B: Advanced Features 🟡 PLANNED ⚠️ REQUIRES USER CONFIRMATION
-- **[Advanced Feature 1]**: [Description of enterprise-grade feature.]
-- **[Advanced Feature 2]**: [Description of enterprise-grade feature.]
+### Phase 2B: Comprehensive Testing 🟡 PLANNED ⚠️ REQUIRES USER CONFIRMATION
+- [ ] End-to-end BDD testing for all use cases.
+- [ ] Integration testing with all dependent services.
+- [ ] Load and performance testing.
+- [ ] Security testing.
 
 ## ⚙️ Enterprise-Grade Logic & Use Case Flows
 
@@ -885,4 +902,3 @@ Request: `mock_request_payload`|Service([Service Name])
 - **Security Audit**: [Results of automated security scans and manual review].
 - **Load Testing**: [Results of load tests against production-like environment].
 ```
-""

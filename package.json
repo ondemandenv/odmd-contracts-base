@@ -29,14 +29,15 @@
     "aws-cdk-lib": "2.203.1"
   },
   "scripts": {
-    "build": "npm run gen-exports && tsc --build",
+    "prebuild": "npm run gen-exports",
+    "build": "tsc --build",
     "watch": "tsc --build -w",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "audit": "npm audit fix",
     "test": "npm run clean && npm run build && cross-env target_rev_ref=b..odmdSbxUsw1 CDK_DEFAULT_ACCOUNT=123 CDK_DEFAULT_REGION=us-west-1 CDK_CLI_VERSION=2.163.0 jest",
     "buildversion": "tsc --build && npm version patch",
     "cdk-ls": "npm run clean && npm run build && cross-env target_rev_ref=b..main cdk ls -v --profile sandbox-workspace3",
-    "package": "npm run test && npm run gen-exports && npm pack",
+    "package": "npm run test && npm run build && npm pack",
     "pubpub-njm": "npm run package && npm publish --access=public --verbose",
     "login": "npm login",
     "gen-exports": "ts-node scripts/generate-exports.ts"

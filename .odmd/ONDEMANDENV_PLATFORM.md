@@ -919,63 +919,32 @@ curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
 ```
 
 #### Phase 1: MVP (Essential)
-**Constellation**: `mock` → `dev` → `main`
-**Focus**: Real business logic implementation (replacing Phase 0 mocked responses)
+**Focus**: A fully working MVP with all core application features.
 
 **Phase 1A: Core Domain Logic**
-- [ ] **Domain Operations**: Complete implementation of service-specific operations
-- [ ] **Cross-Service Integration**: Real integration with upstream/downstream services
-- [ ] **Data Storage**: Actual data persistence and retrieval
-- [ ] **Event Publishing**: Real event publishing for state changes
-- [ ] **Error Handling**: Comprehensive error responses and recovery mechanisms
+- [ ] **Domain Operations**: Implementation of the service's primary operations.
+- [ ] **Cross-Service Integration**: Integration with essential upstream/downstream services.
+- [ ] **Data Storage**: Core data persistence and retrieval logic.
 
-**Phase 1B: Advanced MVP Features**
-- [ ] **Authentication/Authorization**: Real security implementation
-- [ ] **Performance Optimization**: Efficient data access and processing
-- [ ] **Monitoring Integration**: CloudWatch metrics and logging
-- [ ] **Security Hardening**: Data protection and secure communication
+**Phase 1B: Core Feature Implementation**
+- [ ] **Feature Implementation**: Implementation of all primary features required for the MVP.
+- [ ] **Business Logic**: Implementation of the main business logic.
+- [ ] **Use Cases**: Handling of complex use cases and edge cases.
 
-#### Phase 2: Core Features
-**Focus**: Domain-specific functionality and cross-service integration
+#### Phase 2: Production Ready
+**Focus**: Add production-grade monitoring, alerting, analytics, operational interfaces, and robust testing.
 
-**Phase 2A: Core Domain Logic**
-- [ ] **Domain Operations**: Complete implementation of service-specific operations
-- [ ] **Cross-Service Integration**: Proper integration with upstream/downstream services
-- [ ] **Event Publishing**: Comprehensive event publishing for state changes
-- [ ] **Error Handling**: Proper error responses and recovery mechanisms
+**Phase 2A: Production Readiness**
+- [ ] **Security**: Advanced security implementation for Authentication/Authorization.
+- [ ] **Performance**: Performance optimization and tuning.
+- [ ] **Observability**: Comprehensive monitoring, logging, and alerting.
+- [ ] **Hardening**: Security hardening and vulnerability scanning.
 
-**Phase 2B: Advanced Features**
-- [ ] **Performance Optimization**: Efficient data access and processing
-- [ ] **Security Hardening**: Proper authentication, authorization, and data protection
-- [ ] **Monitoring Integration**: CloudWatch metrics and logging
-
-**Checkpoint Validation**:
-```bash
-# Service-specific validation commands
-curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
-  -H "Content-Type: application/json" \
-  -d '{<test-payload>}'
-# Should return expected response format
-```
-
-#### Phase 3: Production Ready
-**Focus**: BDD integration, testing, and production readiness
-
-**Phase 3A: BDD Integration & Testing**
-- [ ] **Mock Data Enhancement**: BDD-aligned mock responses in handlers
-- [ ] **Use Case Flow Support**: Complete UC flows that involve this service
-- [ ] **Test Data Alignment**: Consistent UUIDs and tokens with web-client BDD
-- [ ] **Error Handling**: Proper HTTP status codes and error responses
-- [ ] **Schema Validation**: Request/response validation using Zod schemas
-
-**Checkpoint Validation**:
-```bash
-# BDD integration validation
-curl -X POST https://<service>-api.<domain>/<endpoint> \
-  -H "Content-Type: application/json" \
-  -d '{<bdd-aligned-test-data>}'
-# Should return BDD-expected response format
-```
+**Phase 2B: Comprehensive Testing**
+- [ ] **BDD Testing**: End-to-end BDD testing for all use cases.
+- [ ] **Integration Testing**: Integration testing with all dependent services.
+- [ ] **Performance Testing**: Load and performance testing.
+- [ ] **Security Testing**: Security testing.
 
 #### Phase 4: Advanced Features (FUTURE)
 **Focus**: Service-specific advanced capabilities
