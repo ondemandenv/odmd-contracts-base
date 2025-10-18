@@ -221,3 +221,49 @@ constructor(scope: OndemandContractsAnonymId) {
   super(scope, 'contracts-lib');
 }
 ```
+
+---
+
+## 📝 Embedded Documentation Paths (Docs-in-Code)
+
+ContractsLib classes expose path strings to Markdown docs; no generators are required.
+
+- Build-level docs:
+  - `serviceOverviewMD`: overview/intents, domain boundaries, public interfaces (names only).
+  - `serviceContextMD`: implementation specs shared across all envers.
+- Enver-level docs:
+  - `enverContextMD` (via `IOdmdEnver`): enver-specific deltas (mock/dev/main), BDD focus, DNS specifics.
+
+Example
+```ts
+export class OdmdBuildKeyKk extends OdmdBuild<OdmdEnverKeyKk> {
+  readonly serviceOverviewMD = 'src/lib/repos/key/docs/SERVICE_OVERVIEW.md';
+  readonly serviceContextMD  = 'src/lib/repos/key/docs/SERVICE_CONTEXT.md';
+}
+
+export class OdmdEnverKeyKk extends OdmdEnverCdk {
+  readonly enverContextMD = `src/lib/repos/key/docs/${this.targetRevision.value.toUpperCase()}_ENVER_CONTEXT.md`;
+}
+```
+
+### Unit Test Guard
+Add a Jest test to assert that all doc paths exist to prevent drift.
+
+```ts
+import { existsSync } from 'fs';
+import { OndemandContracts } from '@ondemandenv.dev/contracts-lib-base';
+
+test('doc paths exist', () => {
+  // get your concrete contracts instance instead of new OndemandContracts(...)
+  // iterate over builds/envers and validate paths
+  // example shape:
+  const builds = (global as any).contracts.odmdBuilds; // project-specific access
+  builds.forEach((b: any) => {
+    expect(b.serviceOverviewMD && existsSync(b.serviceOverviewMD)).toBe(true);
+    expect(b.serviceContextMD && existsSync(b.serviceContextMD)).toBe(true);
+    b.envers.forEach((e: any) => {
+      expect(e.enverContextMD && existsSync(e.enverContextMD)).toBe(true);
+    });
+  });
+});
+```

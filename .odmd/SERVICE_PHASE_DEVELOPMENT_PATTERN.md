@@ -54,6 +54,12 @@ When generating or updating service contexts:
 
 **CRITICAL**: Phase 0 is specifically for verifying contracts, schema validation, and mocked data responses using dual BDD tests. NO business logic implementation.
 
+Docs-in-code reminder
+- Keep Phase 0 documentation discoverable via code:
+  - Build-level: `serviceOverviewMD`, `serviceContextMD` (shared specs).
+  - Enver-level: `enverContextMD` (mock-specific notes, BDD focus).
+  - Add a unit test that asserts these paths exist.
+
 **OBJECTIVE**: Establish and verify service contracts through comprehensive BDD testing with mocked responses.
 
 ### Phase 0A: Contract Surface Layer

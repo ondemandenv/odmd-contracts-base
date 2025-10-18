@@ -79,6 +79,7 @@ services/my-service/
 - **Handler tsconfig.json**: Must compile to ES2020/CommonJS for Lambda compatibility
 - **Schema separation**: Zod schemas live in handler runtime scope, never in CDK scope
 - **Build sequence**: Root deps → Schema Download (CDK) → Code Generation (Handler) → Handler Build → Service Build
+ - **Docs in code**: Provide Markdown paths via code — `serviceOverviewMD`, `serviceContextMD` on the Build; `enverContextMD` on each Enver instance. No MD generation required; add unit tests to validate existence.
 
 ## Platform Core Purpose
 ONDEMANDENV transforms distributed systems complexity through **Application-Centric Infrastructure** and **Contract-First Development**, enabling teams to focus on business innovation rather than integration complexity.

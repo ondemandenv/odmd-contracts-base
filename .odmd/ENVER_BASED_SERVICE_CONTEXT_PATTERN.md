@@ -33,25 +33,34 @@ This alignment creates **perfect phase-environment mapping** with appropriate in
 
 ## 🏗️ **ENVER-BASED SERVICE CONTEXT ARCHITECTURE**
 
-### **1. Service Context Decomposition Structure:**
+### **1. Docs-in-Code: Required Properties**
 
+Provide Markdown file paths via code (no generators):
+- In `OdmdBuild` implementation:
+  - `serviceOverviewMD`: overview/intents, domain boundaries, public interfaces (names only).
+  - `serviceContextMD`: shared implementation specs that apply to all envers.
+- In each `OdmdEnver` implementation/instance:
+  - `enverContextMD`: enver-scoped specs (mock/dev/main deltas, BDD focus, DNS specifics).
+
+Example
+```ts
+export class OdmdBuildIdentityKk extends OdmdBuild<OdmdEnverIdentityKk> {
+  readonly serviceOverviewMD = 'src/lib/repos/identity/docs/SERVICE_OVERVIEW.md';
+  readonly serviceContextMD  = 'src/lib/repos/identity/docs/SERVICE_CONTEXT.md';
+  // ...
+}
+
+export class OdmdEnverIdentityKk extends OdmdEnverCdk {
+  readonly enverContextMD = `src/lib/repos/identity/docs/${this.targetRevision.value.toUpperCase()}_ENVER_CONTEXT.md`;
+  // ...
+}
 ```
-src/lib/repos/[service]/docs/
-├── SERVICE_CONTEXT.md          # Navigation hub with enver mapping
-├── SERVICE_OVERVIEW.md         # High-level architecture (enver-agnostic)
-├── MOCK_ENVER_CONTEXT.md      # Phase 0: Contract verification
-├── DEV_ENVER_CONTEXT.md       # Phase 1: MVP development
-└── MAIN_ENVER_CONTEXT.md      # Phase 2+: Production deployment
-```
 
-### **2. Context Responsibility Matrix:**
+### **2. Documentation Focus**
 
-| Context File | Purpose | Environment | Infrastructure | Business Logic |
-|--------------|---------|-------------|----------------|----------------|
-| **SERVICE_OVERVIEW.md** | Architecture overview | Enver-agnostic | Generic patterns | Domain concepts |
-| **MOCK_ENVER_CONTEXT.md** | Contract verification | Isolated workspace | Minimal/mocked | NO real logic |
-| **DEV_ENVER_CONTEXT.md** | MVP development | Development workspace | Development-grade | REAL logic |
-| **MAIN_ENVER_CONTEXT.md** | Production ready | Production workspace | Enterprise-grade | Full features |
+- Overview (build): intent, boundaries, invariants; do not restate types already in code.
+- Service context (build): implementation specs that span all envers.
+- Enver context: deltas from build-level context per `mock|dev|main`.
 
 ## 🎯 **PHASE-TO-ENVER MAPPING PATTERN**
 
@@ -87,27 +96,8 @@ protected initializeEnvers(): void {
 
 ## 📋 **CONTEXT CONTENT PATTERNS**
 
-### **SERVICE_CONTEXT.md (Navigation Hub):**
-```markdown
-# [Service] - Context Navigation
-
-## 🚀 **ENVER-BASED SERVICE CONTEXT ARCHITECTURE**
-
-### **🎯 [SERVICE_OVERVIEW.md](./SERVICE_OVERVIEW.md)**
-**High-level service architecture and mission**
-
-### **🧪 [MOCK_ENVER_CONTEXT.md](./MOCK_ENVER_CONTEXT.md)**
-**Phase 0: Contract Verification** (Isolated workspace - `mock` enver)
-
-### **🔧 [DEV_ENVER_CONTEXT.md](./DEV_ENVER_CONTEXT.md)**
-**Phase 1: MVP Development** (Development workspace - `dev` enver)
-
-### **🚀 [MAIN_ENVER_CONTEXT.md](./MAIN_ENVER_CONTEXT.md)**
-**Phase 2+: Production Ready** (Production workspace - `main` enver)
-
-## 🎯 **PHASE-TO-ENVER MAPPING**
-[Include mapping table]
-```
+### **SERVICE_CONTEXT content (Build scope)**
+Keep it concise and intent-first; reference producers/consumers by name rather than duplicating code.
 
 ### **SERVICE_OVERVIEW.md (Architecture Overview):**
 ```markdown
@@ -129,7 +119,7 @@ protected initializeEnvers(): void {
 [Generic data models and schemas]
 ```
 
-### **MOCK_ENVER_CONTEXT.md (Phase 0):**
+### **MOCK enver context (Enver scope)**
 ```markdown
 # [Service] - Mock Enver Context
 
@@ -173,7 +163,7 @@ Prefer a single `schema-url` that can point to:
 - Consumer property naming for the schema child: `<service>ApiSchemaUrl` (e.g., `identityApiSchemaUrl`).
 ```
 
-### **Template for: `DEV_ENVER_CONTEXT.md`**
+### **DEV enver context (Enver scope)**
 
 ```markdown
 # [Service Name] - Dev Enver Context
@@ -208,7 +198,7 @@ Prefer a single `schema-url` that can point to:
 Continue using OpenAPI for HTTP and AsyncAPI for events as applicable (or an ODMD Bundle). Keep artifacts in sync with real behavior so downstream consumers/tests derive accurate routes and channel names. When authoring OAS in code, prefer `openapi3-ts` types for OAS 3.1 to ensure correctness at compile time.
 ```
 
-### **MAIN_ENVER_CONTEXT.md (Phase 2+):**
+### **MAIN enver context (Enver scope)**
 ```markdown
 # [Service] - Main Enver Context
 

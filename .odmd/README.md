@@ -20,6 +20,18 @@ This directory contains **GENERIC** platform patterns and development guidelines
 5. **`WEB_CLIENT_BDD_PATTERN.md`**: Generic web client BDD testing patterns with enver alignment
 6. **`ONDEMANDENV_PLATFORM_schema.md`**: Generic platform schema and configuration patterns
 
+## 📎 Docs In Code (ContractsLib)
+
+Contracts and contexts are described in code and point to Markdown files by path. Implementers must set:
+- `OdmdBuild.serviceOverviewMD`: path to service overview MD (intent, boundaries, public interfaces).
+- `OdmdBuild.serviceContextMD`: path to service context MD (implementation specs shared across envers).
+- `IOdmdEnver.enverContextMD`: path to enver-scoped MD (mock/dev/main specifics). This may vary per instance.
+
+Notes
+- Provide repository-relative paths (e.g., `src/lib/repos/identity/docs/SERVICE_OVERVIEW.md`).
+- No MD generation required; reviewers/devs read these files directly.
+- Add a unit test to assert each path exists to prevent drift.
+
 ### **🚨 CRITICAL: GENERIC PATTERNS ONLY**
 
 These documents contain:
