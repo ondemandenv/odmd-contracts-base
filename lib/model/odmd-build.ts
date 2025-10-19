@@ -78,6 +78,11 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
     readonly description?: string
     readonly gitHubRepo: GithubRepo
 
+    /**
+     * path to md doc
+     */
+    readonly serviceOverviewMD: string = '.odmd/ONDEMANDENV_PLATFORM.md'
+    readonly serviceContextMD: string = '.odmd/SERVICE_PHASE_DEVELOPMENT_PATTERN.md'
 
     get subDomain(): string | undefined {
         /*

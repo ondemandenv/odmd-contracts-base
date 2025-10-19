@@ -19,6 +19,8 @@ import {OdmdShareIn} from "./model/odmd-share-refs";
 import {OdmdEnverCtnImg} from "./model/odmd-enver-ctn-img";
 import {OdmdBuildUserAuth} from "./repos/__user-auth/odmd-build-user-auth";
 import {OdmdEnverCdk} from "./model/odmd-enver-cdk";
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 
 export abstract class OndemandContracts<
@@ -236,7 +238,20 @@ export abstract class OndemandContracts<
         })
 
         this._builds.forEach(b => {
+            const ensureDoc = (label: string, docPath: string) => {
+                if (!docPath || docPath.trim().length == 0) {
+                    throw new Error(`${label} doc path missing`);
+                }
+                const resolved = path.isAbsolute(docPath) ? docPath : path.resolve(process.cwd(), docPath);
+                if (!fs.existsSync(resolved)) {
+                    throw new Error(`${label} doc path not found: ${docPath}`);
+                }
+            };
+
+            ensureDoc(`${b.buildId}.serviceOverviewMD`, b.serviceOverviewMD);
+            ensureDoc(`${b.buildId}.serviceContextMD`, b.serviceContextMD);
             b.envers.forEach(enver => {
+                ensureDoc(`${b.buildId}/${enver.targetRevision.toPathPartStr()}.enverContextMD`, enver.enverContextMD);
                 if (enver instanceof OdmdEnverCtnImg) {
                     onlyProducerAllowed(enver);
                 }

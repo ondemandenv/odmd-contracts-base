@@ -512,9 +512,10 @@ export class MyServiceStack extends cdk.Stack {
     // ...
     
     // Publish service outputs
-    new OdmdShareOut(this, 'Outputs', {
-      value: JSON.stringify({ serviceUrl: '...', healthCheck: '/health' })
-    });
+    new OdmdShareOut(this,  new Map([
+      [( my enver's OdmdCrossRefProducer1), value1],
+      [( my enver's OdmdCrossRefProducer2), value2]
+    ]));
   }
 }
 ```
@@ -818,8 +819,8 @@ The ultimate realization for ONDEMANDENV platform service development:
 
 **Different development phases are actually DIFFERENT ENVERS:**
 - **Phase 0** (Contract Verification) = `mock` enver (`workspace1`)
-- **Phase 1** (MVP Development) = `dev` enver (`workspace0`)  
-- **Phase 2+** (Production) = `main` enver (`workspace0`)
+- **Phase 1** (MVP Development) = `dev` enver (`workspace2`)  
+- **Phase 2+** (Production) = `main` enver (`workspace3`)
 
 This creates **perfect phase-environment alignment** with appropriate infrastructure, security, and objectives for each stage, representing the ultimate evolution of ONDEMANDENV platform service development.
 
@@ -845,9 +846,14 @@ Example (Phase 0A minimal contracts declarations, generic):
 // contracts-lib/src/lib/repos/<repo>/<Org>-<Service>.ts
 // Declare an endpoint producer with a schema child that stores an S3 artifact URL
 export class <ServiceName>Enver extends OdmdEnverCdk {
-  readonly <service>ApiBaseUrl = new OdmdCrossRefProducer(this, '<service>ApiBaseUrl', {
-    children: [{ pathPart: 'schema-url', s3artifact: true }]
-  });
+  constructor(owner: OdmdBuild<ServiceName>, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF){
+      super(owner, targetAWSAccountID, targetAWSRegion )
+      this.<service>ApiBaseUrl = new OdmdCrossRefProducer(this, '<service>ApiBaseUrl', {
+        children: [{ pathPart: 'schema-url', s3artifact: true }]
+      });
+  }
+    
+  readonly <service>ApiBaseUrl: OdmdCrossRefProducer<<ServiceName>Enver>
 
   getRevStackNames(): Array<string> { return ['Odmd<ServiceName>']; }
 }
@@ -970,7 +976,7 @@ Every service must include a comprehensive `SERVICE_CONTEXT.md` with:
 
 **CRITICAL**: Each service must follow the platform's phased development approach with explicit checkpoints.
 
-### Phase 1: MVP (Essential) ✅ COMPLETE
+### Phase 1: MVP (Essential) 
 **Focus**: [Service-specific focus]
 - [x] **Phase 1A**: [Service-specific Phase 1A tasks]
 - [x] **Phase 1B**: [Service-specific Phase 1B tasks]
@@ -980,19 +986,19 @@ Every service must include a comprehensive `SERVICE_CONTEXT.md` with:
 # Service-specific validation commands
 ```
 
-### Phase 2: Core Features ✅ COMPLETE
+### Phase 2: Core Features 
 **Focus**: [Service-specific focus]
 - [x] **Phase 2A**: [Service-specific Phase 2A tasks]
 - [x] **Phase 2B**: [Service-specific Phase 2B tasks]
 
-### Phase 3: Production Ready ✅ COMPLETE
+### Phase 3: Production Ready 
 **Focus**: [Service-specific focus]
 - [x] **Phase 3A**: [Service-specific Phase 3A tasks]
 
-### Phase 4: Advanced Features (FUTURE) 🟡 PLANNED
+### Phase 4: Advanced Features (FUTURE)
 - [ ] **[Feature Category]**: [Specific planned features]
 
-### Phase 5: Enterprise & Scale (FUTURE) 🔵 ROADMAP
+### Phase 5: Enterprise & Scale (FUTURE)
 - [ ] **[Feature Category]**: [Specific roadmap features]
 
 **Checkpoint Requirements**:

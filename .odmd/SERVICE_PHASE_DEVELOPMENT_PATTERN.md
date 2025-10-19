@@ -225,7 +225,7 @@ curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
 
 **🚀 REVOLUTIONARY INSIGHT: PHASES = ENVERS**
 
-Every service repository **must** include **FIVE CONTEXT FILES** that decompose service development by enver:
+Every service repository( exclude contractsLib, userAuth ) **must** include **FIVE CONTEXT FILES** that decompose service development by enver:
 
 ```
 src/lib/repos/[service]/docs/
@@ -501,7 +501,7 @@ export interface <ServiceName>Enver extends OdmdEnverCdk {
   upstreamServiceApiBaseUrl?: OdmdCrossRefConsumer<<ServiceName>Enver, <ProducerServiceEnver>>;
   
   // Producers (what this service provides)
-  readonly serviceApiBaseUrl: OdmdCrossRefProducer<OdmdEnverCdk>;
+  readonly serviceApiBaseUrl: OdmdCrossRefProducer<<ServiceName>Enver>;
   
   // Environment metadata
   envId?: string;
@@ -530,11 +530,10 @@ export class <ServiceName>Stack extends Stack {
     );
 
     // Contract publishing
-    new OdmdShareOut(this, '<ServiceName>ApiBaseUrl', {
-      enver: props.enver,
-      producer: props.enver.serviceApiBaseUrl,
-      value: api.apiEndpoint
-    });
+    new OdmdShareOut(this, new Map([
+      [( my enver's OdmdCrossRefProducer1), value1],
+      [( my enver's OdmdCrossRefProducer2), value2]
+    ]));
   }
 }
 ```

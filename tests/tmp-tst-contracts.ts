@@ -6,10 +6,16 @@ import {SRC_Rev_REF} from "../lib/model/odmd-build";
 import {OdmdBuildNetworking} from "../lib/repos/__networking/odmd-build-networking";
 
 
+class TmpTstEnverContractsLib extends OdmdEnverContractsLib {
+    readonly enverContextMD: string = '.odmd/ContractsLib_PROJECT_SETUP_PATTERN.md';
+}
+
 export class TmpTstOdmdBuildContractsLib extends OdmdBuildContractsLib<AccountsCentralView, GithubReposCentralView> {
+    readonly serviceOverviewMD: string = '.odmd/ONDEMANDENV_PLATFORM.md';
+    readonly serviceContextMD: string = '.odmd/SERVICE_PHASE_DEVELOPMENT_PATTERN.md';
     protected initializeEnvers(): void {
         this._envers = [
-            new OdmdEnverContractsLib(
+            new TmpTstEnverContractsLib(
                 this,
                 this.contracts.accounts.workspace0,
                 'us-west-1',

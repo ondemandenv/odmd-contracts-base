@@ -215,10 +215,20 @@ The build class for the contracts library itself is special. Its constructor's `
 
 **Example:**
 ```typescript
-// In OdmdBuildContractsAnonymId.ts
-constructor(scope: OndemandContractsAnonymId) {
-  // The second argument is a string literal buildId
-  super(scope, 'contracts-lib');
+// In OdmdBuildContractsLib.ts
+export class AnonymIdContractsLib extends OdmdBuildContractsLib<Accounts, GithubRepos?? > {
+
+    public get packageName(): string {
+        return <pkg: @org/name>;
+    }
+    constructor(scope: OndemandContractsAnonymId) {
+        // The second argument is a string literal buildId
+        super(scope, 'annymid-contracts-lib');
+    }
+
+    get contracts(): OndemandContractsAnonymId {
+        return super.contracts as OndemandContractsAnonymId;
+    }
 }
 ```
 

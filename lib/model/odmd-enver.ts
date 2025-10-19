@@ -35,6 +35,11 @@ export interface IOdmdEnver extends IConstruct {
     //todo: developer will takeoverwrite Workflow file from odmd platform in their repo,
     readonly overwriteGhWf: boolean
 
+    /**
+     * path to md doc
+     */
+    readonly enverContextMD: string
+
     readonly centralRoleName: string
     readonly centralRolePath: string
     readonly centralRoleArn: string
@@ -92,6 +97,8 @@ export abstract class OdmdEnver<T extends OdmdBuild<OdmdEnver<T>>> extends Const
         this.targetRevision = targetRevision;
 
     }
+
+    readonly enverContextMD: string = '.odmd/ENVER_BASED_SERVICE_CONTEXT_PATTERN.md'
 
     readonly buildScript: string = `.scripts/build.sh`
 

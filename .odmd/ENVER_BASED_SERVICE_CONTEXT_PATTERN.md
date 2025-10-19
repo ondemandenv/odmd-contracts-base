@@ -65,21 +65,22 @@ export class OdmdEnverIdentityKk extends OdmdEnverCdk {
 ## 🎯 **PHASE-TO-ENVER MAPPING PATTERN**
 
 ### **Standard Enver Configuration:**
+Define account fields in your ContractsLib that correspond to each enver (extend `AccountsCentralView` as needed). Common patterns include `workspace1`, `workspace2`, and `workspace3`.
 ```typescript
 // Universal pattern for all services
 protected initializeEnvers(): void {
   this._envers = [
     // Canonical progression/order: mock → dev → main
     // Contract verification constellation - Isolated testing
-    new OdmdEnver[Service](this, this.contracts.accounts.isolatedWorkspace, 'region',
+    new OdmdEnver[Service](this, this.contracts.accounts.workspace1, 'region',
       new SRC_Rev_REF('b', 'mock')),
 
     // Development constellation - MVP and testing
-    new OdmdEnver[Service](this, this.contracts.accounts.developmentWorkspace, 'region',
+    new OdmdEnver[Service](this, this.contracts.accounts.workspace2, 'region',
       new SRC_Rev_REF('b', 'dev')),
 
     // Production constellation - Enterprise deployment
-    new OdmdEnver[Service](this, this.contracts.accounts.productionWorkspace, 'region',
+    new OdmdEnver[Service](this, this.contracts.accounts.workspace3, 'region',
       new SRC_Rev_REF('b', 'main'))
   ];
 }
