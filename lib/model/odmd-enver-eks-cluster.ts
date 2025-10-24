@@ -41,9 +41,14 @@ arn:aws:iam::<account>:oidc-provider/<openIdConnectProviderIssuer/openIdConnectP
         super(owner, targetAWSAccountID, targetAWSRegion, targetRevision);
         this.kubeTrustCentralRoleName = `kube_${this.targetRevision.type}_${this.targetRevision.value}_trustCentral_${this.targetAWSRegion}`
 
-        this.ipamPoolName = new OdmdCrossRefConsumer(this, 'ipamPoolName', owner.contracts.networking!.ipam_west1_le.ipamPoolName)
-        this.transitGatewayShareName = new OdmdCrossRefConsumer(this, 'transitGatewayShareName', owner.contracts.networking!.ipam_west1_le.transitGatewayShareName)
-        this.natPublicIP = new OdmdCrossRefConsumer(this, 'natPublicIP', owner.contracts.networking!.ipam_west1_le.natPublicIP)
+        const ntEnver = owner.contracts.networking?.envers.find(e => e.targetAWSRegion == this.targetAWSRegion) as IPAM_AB
+        if (!ntEnver) {
+            throw new Error(`EKS enver ${this.targetRevision.toPathPartStr()}, Can't find network enver in same region`)
+        }
+
+        this.ipamPoolName = new OdmdCrossRefConsumer(this, 'ipamPoolName', ntEnver.ipamPoolName)
+        this.transitGatewayShareName = new OdmdCrossRefConsumer(this, 'transitGatewayShareName', ntEnver.transitGatewayShareName)
+        this.natPublicIP = new OdmdCrossRefConsumer(this, 'natPublicIP', ntEnver.natPublicIP)
     }
 }
 

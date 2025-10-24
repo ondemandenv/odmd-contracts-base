@@ -4,8 +4,10 @@ import {SRC_Rev_REF} from "../../model/odmd-build";
 import {AnyOdmdEnVer, IOdmdEnver} from "../../model/odmd-enver";
 import {OdmdEnverEksCluster, KubeCtlThruCentral} from "../../model/odmd-enver-eks-cluster";
 import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "../../model/odmd-cross-refs";
+import * as path from "node:path";
 
 export class OdmdEnverCdkDefaultEcrEks extends OdmdEnverCdk implements KubeCtlThruCentral {
+    readonly enverContextMD = path.resolve(__dirname, 'docs', 'placeholder.md')
 
 
     constructor(owner: OdmdBuildDefaultKubeEks, user: AnyOdmdEnVer,

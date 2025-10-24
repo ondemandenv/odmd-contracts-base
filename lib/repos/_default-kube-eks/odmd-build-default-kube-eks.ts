@@ -6,9 +6,12 @@ import {OndemandContracts} from "../../OndemandContracts";
 import {OdmdEnverEksCluster} from "../../model/odmd-enver-eks-cluster";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
+import * as path from "node:path";
 
 
 export class OdmdBuildDefaultKubeEks extends OdmdBuild<OdmdEnverCdk> {
+    readonly serviceContextMD = path.resolve(__dirname, 'docs', 'placeholder.md')
+    readonly serviceOverviewMD = path.resolve(__dirname, 'docs', 'placeholder.md')
 
     constructor(scope: OndemandContracts<
         AccountsCentralView,

@@ -3,7 +3,7 @@
   "repository": {
     "url": "https://github.com/ondemandenv/odmd-contracts-base"
   },
-  "version": "0.1.9",
+  "version": "0.1.10",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,7 +22,8 @@
     "typescript": "~5.6.3",
     "@types/js-yaml": "^4.0.9",
     "cross-env": "^7.0.3",
-    "glob": "^11.0.0"
+    "glob": "^11.0.0",
+    "cpx": "^1.5.0"
   },
   "peerDependencies": {
     "constructs": "^10.0.0",
@@ -30,7 +31,7 @@
   },
   "scripts": {
     "prebuild": "npm run gen-exports",
-    "build": "tsc --build",
+    "build": "tsc --build &&  cpx \"lib/repos/**/docs/**/*\" dist/lib/repos || true",
     "watch": "tsc --build -w",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "audit": "npm audit fix",
@@ -38,7 +39,7 @@
     "buildversion": "tsc --build && npm version patch",
     "cdk-ls": "npm run clean && npm run build && cross-env target_rev_ref=b..main cdk ls -v --profile sandbox-workspace3",
     "package": "npm run test && npm run build && npm pack",
-    "pubpub-njm": "npm run package && npm publish --access=public --verbose",
+    "pubpub-njm": "npm run test && npm run package && npm publish --access=public --verbose",
     "login": "npm login",
     "gen-exports": "ts-node scripts/generate-exports.ts"
   }

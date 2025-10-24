@@ -7,11 +7,12 @@ import {OdmdCrossRefConsumer, OdmdCrossRefProducer} from "../../model/odmd-cross
 import {AnyOdmdEnVer} from "../../model/odmd-enver";
 import {PgSchemaUsersProps} from "../../model/odmd-pg-schema-usrs";
 import {SRC_Rev_REF} from "../../model/odmd-build";
-import {OndemandContracts} from "../../OndemandContracts";
 import {IPAM_AB} from "../__networking/odmd-build-networking";
 import {AccountsCentralView} from "../../OdmdContractsCentralView";
+import * as path from "node:path";
 
 export class OdmdEnverCdkDefaultVpc extends OdmdEnverCdk implements WithVpc {
+    readonly enverContextMD = path.resolve(__dirname, 'docs', 'placeholder.md')
 
     readonly vpcConfig: OdmdVpc
     readonly vpcIpv4Cidr: OdmdCrossRefProducer<OdmdEnverCdkDefaultVpc>

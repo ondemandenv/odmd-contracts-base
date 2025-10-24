@@ -6,6 +6,7 @@ import {OdmdEnverCdkDefaultVpc} from "./odmd-enver-default-vpc-rds";
 import {OndemandContracts} from "../../OndemandContracts";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
+import * as path from "node:path";
 
 
 export type SimpleVpc = {
@@ -16,6 +17,8 @@ export type SimpleVpc = {
 };
 
 export class OdmdBuildDefaultVpcRds extends OdmdBuild<OdmdEnverCdk> {
+    readonly serviceContextMD = path.resolve(__dirname, 'docs', 'placeholder.md')
+    readonly serviceOverviewMD = path.resolve(__dirname, 'docs', 'placeholder.md')
     ownerEmail?: string | undefined;
     public get envers(): Array<OdmdEnverCdkDefaultVpc> {
         return this._envers as Array<OdmdEnverCdkDefaultVpc>;
