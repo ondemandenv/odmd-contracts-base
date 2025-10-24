@@ -285,6 +285,13 @@ export abstract class OndemandContracts<
                 && (b.envers == undefined || b.envers.length == 0)) {
                 throw new Error(b.buildId + ' has 0 envers defined!')
             }
+
+            b.envers.forEach(enver => {
+                if( !this.contractsLibBuild.envers.find(ce=>ce.targetAWSRegion == enver.targetAWSRegion) ){
+                    throw new Error(`${enver.targetAWSRegion} is not found in contractsLibBuild.envers`)
+                }
+            })
+
         })
         if (this.accountToOdmdHostedZone && this.subDomain) {
             for (const [account, [hzId, hzName]] of Object.entries(this.accountToOdmdHostedZone)) {
