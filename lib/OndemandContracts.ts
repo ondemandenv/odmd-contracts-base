@@ -287,8 +287,8 @@ export abstract class OndemandContracts<
             }
 
             b.envers.forEach(enver => {
-                if( !this.contractsLibBuild.envers.find(ce=>ce.targetAWSRegion == enver.targetAWSRegion) ){
-                    throw new Error(`${enver.targetAWSRegion} is not found in contractsLibBuild.envers`)
+                if (!this.contractsLibBuild.envers.find(ce => ce.targetAWSRegion == enver.targetAWSRegion)) {
+                    throw new Error(`${b.buildId}/${enver.targetRevision.toPathPartStr()}  region: ${enver.targetAWSRegion} is not found in contractsLibBuild.envers`)
                 }
             })
 

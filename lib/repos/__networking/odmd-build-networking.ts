@@ -6,7 +6,7 @@ import {AnyOdmdEnVer} from "../../model/odmd-enver";
 import {AccountsCentralView, GithubReposCentralView} from "../../OdmdContractsCentralView";
 import {OdmdBuildContractsLib} from "../__contracts/odmd-build-contracts-lib";
 
-export class OdmdBuildNetworking extends OdmdBuild<OdmdEnverCdk> {
+export abstract class OdmdBuildNetworking extends OdmdBuild<OdmdEnverCdk> {
     ownerEmail = undefined;
     public ipam_west1_le!: IPAM_AB;
 
