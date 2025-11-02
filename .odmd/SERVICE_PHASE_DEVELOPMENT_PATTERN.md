@@ -225,7 +225,7 @@ curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
 
 **🚀 REVOLUTIONARY INSIGHT: PHASES = ENVERS**
 
-Every service repository( exclude contractsLib, userAuth ) **must** include **FIVE CONTEXT FILES** that decompose service development by enver:
+Every **contractsLib implementation repository** (for example `_contracts-lib-kk`) must include **FIVE CONTEXT FILES** per service under its docs-in-code tree. These files live inside the contracts library package—**not** inside individual runtime service repositories—and follow this structure:
 
 ```
 src/lib/repos/[service]/docs/
@@ -235,6 +235,8 @@ src/lib/repos/[service]/docs/
 ├── DEV_ENVER_CONTEXT.md       # Phase 1: MVP development
 └── MAIN_ENVER_CONTEXT.md      # Phase 2+: Production deployment
 ```
+
+Runtime service repositories consume these distributed Markdown files (and should not duplicate them), but they still author and host their own runtime/domain-specific documentation that is unique to the service implementation.
 
 **🚨 ULTRA CRITICAL: ENVER CONTEXT COMPLETENESS REQUIREMENTS**
 
@@ -392,7 +394,17 @@ cd services/web-client/vite && npm run test:bdd
 
 ### Phase 1: MVP (Essential) 🟡 PLANNED
 **Constellation**: `mock` → `dev` → `main`
-**Focus**: Real business logic implementation (replacing Phase 0 mocked responses)
+**Focus**: Real business logic implementation (**COMPLETE REMOVAL OF ALL MOCK CODE**)
+
+#### 🚨 **MANDATORY: Mock Code Elimination**
+- **REMOVE ALL MOCK CODE**: Mock handlers, mock data generators, and mock responses must be completely eliminated from dev constellation
+- **REAL IMPLEMENTATION ONLY**: Dev constellation contains ONLY real business logic and actual service integrations
+- **NO MOCK DEPENDENCIES**: Dev services integrate with real upstream/downstream services, not mock implementations
+
+#### 🚨 **CRITICAL: Constellation Merging Pattern**
+- **ONE-WAY FROM MOCK**: Code never merges backward from `dev` → `mock` (mock exists only for contract verification)
+- **DEV ↔ MAIN CONSISTENCY**: Dev and main constellations maintain merge consistency for forward progression and hotfixes
+- **INFRASTRUCTURE-ONLY DIFFERENCES**: Business logic should be identical and mergeable between dev and main; differences limited to infrastructure (scaling, monitoring, security)
 
 #### Phase 1A: Core Domain Logic 🟡 PLANNED
 - [ ] **Domain Operations**: [Real implementation replacing mocked responses]

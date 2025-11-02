@@ -320,15 +320,25 @@ svcMock.wireCoupling({ identityEnver: identityMock /* , ...other upstream envers
 
 ### **3. ENVER ISOLATION AND INTERACTION RULE:**
 - **Production Constellation (`main`):** Must be strictly isolated. Envers within this constellation can only be wired to other `main` envers.
-- **Development Constellation (`dev`):** Designed for integration testing. By default, `dev` envers are wired to other `dev` envers. For specific, temporary testing scenarios, a `dev` enver may be configured to consume producers from a `mock` enver.
+- **Development Constellation (`dev`):** Designed for integration testing. By default, `dev` envers are wired to other `dev` envers. **CRITICAL: Dev constellation MUST NOT contain any mock code - all implementations must be real business logic only.**
 - **Mock Constellation (`mock`):** Designed for contract verification. By default, `mock` envers are wired to other `mock` envers to provide a stable, isolated baseline.
 
-### **4. CONTEXT COMPLETENESS RULE:**
+### **4. MOCK CODE ELIMINATION RULE:**
+- **MANDATORY REQUIREMENT**: When transitioning from `mock` to `dev` constellation, **ALL MOCK CODE MUST BE COMPLETELY REMOVED**.
+- **NO EXCEPTIONS**: Mock handlers, mock data generators, mock responses, and any code that returns hardcoded mock data must be eliminated.
+- **REAL IMPLEMENTATION ONLY**: Dev constellation implementations must use actual business logic, real data persistence, and integrate with real upstream/downstream services.
+
+### **5. CONSTELLATION MERGING RULE:**
+- **ONE-WAY PROGRESSION ONLY**: Code should never merge backward from `dev` → `mock` or `main` → `dev`. Mock constellation exists only for contract verification and should never receive production-ready code.
+- **DEV ↔ MAIN CONSISTENCY**: Dev and main constellations should maintain merge consistency, allowing forward merges from `dev` → `main` while supporting hotfixes that can merge back from `main` → `dev` when necessary.
+- **INFRASTRUCTURE DIFFERENCES ONLY**: Differences between dev and main should be limited to infrastructure (scaling, monitoring, security hardening) - business logic should be identical and mergeable.
+
+### **6. CONTEXT COMPLETENESS RULE:**
 - Each enver context must be **COMPLETELY SELF-CONTAINED**.
 - It must include all necessary information for a developer or agent to implement the service for that phase independently.
 - Cross-service consistency is maintained through the master mock data set, which must be used for all testing and validation.
 
-### **5. DOCUMENTATION DISTRIBUTION RULE:**
+### **7. DOCUMENTATION DISTRIBUTION RULE:**
 - All contexts distributed via contracts library (`src/lib/repos/[service]/docs/`)
 - Versioned with contracts code for automatic synchronization
 - Safe cross-referencing within distributed package
@@ -792,7 +802,13 @@ Request: `mock_request_payload`|Service([Service Name])
 **Target**: Phase 1 - MVP with Real Business Logic
 **Building On**: Contract verification completed in `mock` enver.
 **Transition**: From Phase 0 mocked responses to real service operations.
-**Focus**: Implementing REAL business logic, replacing all mocked handlers.
+**Focus**: Implementing REAL business logic, **COMPLETELY REMOVING ALL MOCK CODE**.
+
+## 🚨 **CRITICAL: Complete Mock Code Removal**
+- ✅ **REAL business logic implementation ONLY** - No mock responses or handlers
+- ❌ **REMOVE ALL MOCK CODE** - Mock handlers, mock data generation, mock responses must be completely eliminated
+- ✅ **SCHEMA VALIDATION ONLY** - Keep schema validation but implement real business logic
+- ✅ **INTEGRATION TESTING** - Test with real upstream/downstream service calls, not mocks
 
 ## 📋 Dev Enver Implementation Tasks
 
