@@ -134,9 +134,9 @@ export class <ServiceName>Build extends OdmdBuild<<ServiceName>Enver> {
 
 ### **Platform Service Integration**
 - **Built-in Services**:
-    - `__user-auth` - Authentication service (External Auth Provider → AWS IAM)
-    - `__networking` - Shared VPC, TGW, networking infrastructure
-    - `__contracts` - ContractsLib repository deployment itself
+    - `contractsLib` (code: `__contracts`) - **MANDATORY** - ContractsLib repository deployment itself
+    - `__user-auth` - **OPTIONAL** - Authentication service (External Auth Provider → AWS IAM)
+    - `__networking` - **OPTIONAL** - Shared VPC, TGW, networking infrastructure
     - `_default-vpc-rds` - Standard database infrastructure templates
     - `_default-kube-eks` - Default Kubernetes cluster templates
 #### Hosted Zone and DNS Integration
@@ -151,12 +151,12 @@ To facilitate service discovery, TLS termination, and human-readable endpoints, 
 
 #### Platform Console Webapp (User Auth Web UI)
 - Purpose: Lightweight web console that connects to the OndemandEnv platform for authentication and visualization, consuming platform-published config.
-- Location: `user-auth/webui` (Vite app). Entry: `user-auth/webui/src/main.ts`.
-- Hosting: `user-auth/lib/web-hosting-stack.ts` provisions S3 + CloudFront with Route53 alias `web.<zone>`.
-- Deployment: `user-auth/lib/web-ui-stack.ts` uploads `webui/dist` to S3 and writes runtime configuration files:
+- Location: `<user-auth>/webui` (Vite app). Entry: `<user-auth>/webui/src/main.ts`.
+- Hosting: `<user-auth>/lib/web-hosting-stack.ts` provisions S3 + CloudFront with Route53 alias `web.<zone>`.
+- Deployment: `<user-auth>/lib/web-ui-stack.ts` uploads `webui/dist` to S3 and writes runtime configuration files:
   - `config.json` (global) with auth and environment details
   - `config_region/<region>.json` (per-region) with visualization data and AppSync GraphQL URL
-- Orchestration: `user-auth/bin/user-pool.ts` wires `UserPoolStack`, `WebHostingStack`, and `WebUiStack`, then calls `buildWebUiAndDeploy()`.
+- Orchestration: `<user-auth>/bin/user-pool.ts` wires `UserPoolStack`, `WebHostingStack`, and `WebUiStack`, then calls `buildWebUiAndDeploy()`.
 - Dependencies: Reads values from SSM Parameter Store and S3 via an assumed central role; AppSync endpoint and `/odmd-share` parameters must exist for full functionality.
 
 ## Service Constellation Architecture
@@ -177,7 +177,9 @@ To facilitate service discovery, TLS termination, and human-readable endpoints, 
 - ✅ **Independent evolution** - constellations can evolve separately
 
 ### **Platform vs Application Services**
-- **Platform Services** (singleton): user-auth, networking, monitoring
+- **Platform Services**:
+  - **MANDATORY**: `contractsLib` (code: `__contracts`) - ContractsLib repository deployment
+  - **OPTIONAL**: `__user-auth` (authentication service), `__networking` (shared networking)
     - Shared across ALL constellations for consistency
     - Single identity provider, shared JWT tokens
 - **Application Services** (multi-constellation): business logic services
