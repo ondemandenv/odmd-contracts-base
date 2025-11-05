@@ -119,19 +119,83 @@ Derive HTTP routes from **OpenAPI 3.1** or event channels from **AsyncAPI 2.x** 
 #### 4.a Deriving routes from OpenAPI (recommended for multi-path)
 If the upstream `schema-url` artifact is an OpenAPI 3.1 document, generate typed route helpers from `paths` and build request URLs by combining the platform-resolved base URL with the documented path templates.
 
-```ts
-// routes.ts (generated from OpenAPI operationIds)
-export function buildUrl(baseUrl: string, template: string, params: Record<string, string>): string {
-  return baseUrl.replace(/\/$/, "") + template.replace(/\{(.*?)\}/g, (_, k) => encodeURIComponent(params[k] ?? ""));
-}
-export const routes = {
-  createEntity: (baseUrl: string) => ({ method: 'POST' as const, url: buildUrl(baseUrl, '/entity/create', {}) }),
-  readEntity: (baseUrl: string, p: { id: string }) => ({ method: 'GET' as const, url: buildUrl(baseUrl, '/entity/{id}', p) })
-};
+**For Web Applications**: The schema generation script (`bin/gen-schemas.ts`) should:
+1. Download OpenAPI schemas from all consumed services
+2. Generate Zod validation schemas from component schemas
+3. **Generate `routes.ts` from OpenAPI paths and operations**
 
-// In Step Functions BDD or Playwright
-const { method, url } = routes.readEntity(config.serviceBaseUrl, { id: '123' });
+**Example implementation**:
+```typescript
+// bin/gen-schemas.ts
+async function main() {
+  // 1. Download schemas from S3
+  const downloadedArtifacts = await generator.download();
+  
+  // 2. Generate Zod schemas for each service
+  for (const item of downloadedArtifacts) {
+    const command = `npx tsx gen-zod-from-schema.ts "${item.outFilePath}" ...`;
+    execSync(command, {stdio: 'inherit'});
+  }
+  
+  // 3. Generate routes.ts from all OpenAPI schemas
+  const routesCommand = `npx tsx gen-routes-from-schemas.ts "${schemasDir}" "${routesOutputPath}"`;
+  execSync(routesCommand, {stdio: 'inherit'});
+}
 ```
+
+**Generated routes.ts structure**:
+```typescript
+// vite/src/__generated__/routes.ts (AUTO-GENERATED)
+export interface RouteDefinition {
+  method: string;
+  path: string;
+}
+
+export interface ServiceRoutes {
+  [operationId: string]: RouteDefinition;
+}
+
+export interface AllRoutes {
+  [serviceName: string]: ServiceRoutes;
+}
+
+export const routes: AllRoutes = {
+  identity: {
+    authLogin: { method: 'POST', path: '/auth/login' },
+    authRefresh: { method: 'POST', path: '/auth/refresh' }
+  },
+  key: {
+    register: { method: 'POST', path: '/key/register' },
+    initiateSign: { method: 'POST', path: '/key/mpc/initiate' },
+    authenticateMpc: { method: 'POST', path: '/key/mpc/authenticate' },
+    signMpc: { method: 'POST', path: '/key/mpc/sign' }
+  },
+  // ... other services
+};
+```
+
+**Usage in web client**:
+```typescript
+// vite/src/api/identity.ts
+import { routes } from '../__generated__/routes';
+
+export async function login(baseUrl: string, payload: LoginRequest) {
+  const route = routes.identity.authLogin;
+  const response = await fetch(`${baseUrl}${route.path}`, {
+    method: route.method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  return response.json();
+}
+```
+
+**Benefits of generated routes**:
+- ✅ **Always in sync** with backend OpenAPI schemas
+- ✅ **Type-safe** operation IDs and paths
+- ✅ **Single source of truth** from downloaded schemas
+- ✅ **Eliminates manual updates** when API paths change
+- ✅ **Consistent naming** across all services
 
 #### 4.b Consuming AsyncAPI for event BDD (optional)
 If the `schema-url` artifact is AsyncAPI (or referenced by a bundle), use `channels` to generate typed producers/consumers for event-driven tests.
