@@ -133,7 +133,7 @@ async function main() {
   
   // 2. Generate Zod schemas for each service
   for (const item of downloadedArtifacts) {
-    const command = `npx tsx gen-zod-from-schema.ts "${item.outFilePath}" ...`;
+    const command = `npx tsx gen-import-schema.ts "${item.outFilePath}" ...`;
     execSync(command, {stdio: 'inherit'});
   }
   

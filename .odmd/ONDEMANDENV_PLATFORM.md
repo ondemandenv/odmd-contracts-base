@@ -57,13 +57,14 @@ services/my-service/
 │   └── build.sh              # Platform build script
 ├── bin/
 │   ├── cdk.ts                 # CDK app entry point
-│   └── download-download-gen-schemas.ts # Downloads dependency schemas and generates types
+│   └── download-gen-schemas.ts # Downloads dependency schemas and generates types
 ├── lib/
 │   ├── handlers/              # Lambda handler package
 │   │   ├── package.json       # Handler dependencies
 │   │   ├── tsconfig.json      # Handler TypeScript config
 │   │   ├── scripts/
-│   │   │   └── schema-print.ts # Converts this service's Zod schemas to a JSON artifact
+│   │   │   ├── gen-import-schema.ts  # Generates code to import/consume downloaded schemas
+│   │   │   └── gen-export-schemas.ts # Generates schemas to export/publish for dependents
 │   │   └── src/
 │   │       ├── index.ts       # Lambda handlers
 │   │       ├── schemas/
@@ -384,13 +385,50 @@ To guarantee cross-service consistency in Phase 0, manage a single authoritative
 The platform build sequence for a consumer service follows a clear separation of concerns: downloading artifacts in the CDK scope and generating code in an isolated handler scope.
 
 1.  **Root Service Dependencies**: `npm ci` installs the service's CDK dependencies.
-2.  **Schema Download (CDK Scope)**: The consumer-side build script (e.g., `bin/download-download-gen-schemas.ts`) is executed. Its sole responsibility is to use `SchemaTypeLoader` to download upstream JSON schema artifacts from S3 into a staging directory (e.g., `lib/handlers/src/__generated__/`).
-3.  **Code Generation (Handler Scope)**: The download script then invokes a dedicated generation script (e.g., `lib/handlers/scripts/gen-zod-from-schema.ts`). This script:
+2.  **Schema Download (CDK Scope)**: The consumer-side build script (e.g., `bin/download-gen-schemas.ts`) is executed. Its sole responsibility is to use `SchemaTypeLoader` to download upstream JSON schema artifacts from S3 into a staging directory (e.g., `lib/handlers/src/__generated__/`).
+3.  **Code Generation (Handler Scope)**: The download script then invokes a dedicated generation script (e.g., `lib/handlers/scripts/gen-import-schema.ts`). This script:
     -   Takes the path to the downloaded JSON schema as an argument.
     -   Executes `json-schema-to-zod` to convert the JSON schema into a Zod TypeScript file.
     -   This isolates the code generation tooling and its dependencies within the handler's context, away from the CDK scope.
 4.  **Handler Build**: `cd lib/handlers && npm ci && npm run build` installs handler-specific dependencies and compiles the handler code, including the newly generated types.
 5.  **Service Build**: `npm run build` compiles the main CDK service stack, which can now reference the pre-built handler artifacts.
+
+### Schema Script Naming Conventions
+
+The platform uses consistent naming to indicate the **direction of data flow** and **purpose** of schema scripts:
+
+**Script Names by Purpose:**
+
+| Script | Location | Purpose | Data Flow |
+|--------|----------|---------|-----------|
+| `download-gen-schemas.ts` | `bin/` | Downloads schemas from dependencies AND generates local import types | **IMPORT** (consume) |
+| `gen-import-schema.ts` | `lib/handlers/scripts/` | Generates code to import/use downloaded schemas | **IMPORT** (consume) |
+| `gen-export-schemas.ts` | `lib/handlers/scripts/` | Generates schemas to export/publish for dependents | **EXPORT** (produce) |
+
+**Key Principle**: Names reflect **INTENT** (import vs export), not implementation details (zod, json-schema, etc).
+
+**NPM Scripts:**
+```json
+// Root package.json
+{
+  "scripts": {
+    "OdmdService:download-gen-schemas": "tsx bin/download-gen-schemas.ts"
+  }
+}
+
+// lib/handlers/package.json
+{
+  "scripts": {
+    "gen-export-schemas": "ts-node scripts/gen-export-schemas.ts"
+  }
+}
+```
+
+**Benefits:**
+- **Clarity**: Purpose immediately clear from name
+- **Consistency**: All services follow same pattern
+- **Maintainability**: Easy to find correct script
+- **Direction**: "import" vs "export" shows data flow
 
 ### ContractsLib Enver Semantics
 - The ContractsLib build is global across regions. In its Enver list, the first entry in `initializeEnvers()` is the canonical source of truth used by all regions.

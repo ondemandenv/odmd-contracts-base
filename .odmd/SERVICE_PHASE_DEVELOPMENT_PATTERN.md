@@ -123,7 +123,7 @@ curl -X POST https://<service>-api.<domain>/<endpoint> \
 #### Checkpoint Validation Template:
 ```bash
 cd services/<service-name>
-npm run Odmd<ServiceName>:generate:schemas
+npm run Odmd<ServiceName>:gen-export-schemas
 # Should generate valid JSON schema without errors
 
 # Verify schema deployment
