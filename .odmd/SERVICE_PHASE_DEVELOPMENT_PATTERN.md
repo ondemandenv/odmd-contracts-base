@@ -107,7 +107,7 @@ curl -X POST https://<service>-api.<domain>/<endpoint> \
 - [x] **Mocked Handlers**: Lambda handlers returning schema-valid MOCKED responses
 - [x] **Schema Validation**: All requests validated against Zod schemas
 - [x] **BDD Test Integration**: Perfect alignment with web-client dual BDD (Step Functions + Playwright)
-- [x] **Build Integration**: `bin/gen-schemas.ts` with AWS_REGION checks
+- [x] **Build Integration**: `bin/download-gen-schemas.ts` with AWS_REGION checks
 - [x] **Contract Artifact (pick one or bundle)**:
   - **OpenAPI 3.1** for HTTP endpoints (multi-path), or
   - **AsyncAPI 2.x** for messaging channels/messages, or
@@ -371,7 +371,7 @@ This document provides a complete, self-contained guide for developing and maint
 - [ ] **Use Case Mock Scenarios**: [Mock data supports all relevant use case flows]
 - [ ] **Schema Validation**: [All requests validated against Zod schemas using mock data]
 - [ ] **BDD Test Integration**: [Perfect alignment with web-client dual BDD testing using consistent mock data]
-- [ ] **Build Integration**: [bin/gen-schemas.ts with AWS_REGION checks and mock data validation]
+- [ ] **Build Integration**: [bin/download-gen-schemas.ts with AWS_REGION checks and mock data validation]
 
 **🚨 CRITICAL: Phase 0B Mock Data Requirements:**
 - **Master Data Consistency**: All mock data derived from master data set generated from user design

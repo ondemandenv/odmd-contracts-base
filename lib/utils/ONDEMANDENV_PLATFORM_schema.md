@@ -136,10 +136,10 @@ export class MyServiceStack extends Stack {
 
 Now, another service that needs to call your service (a "consumer") can download your published schema and generate type-safe client code.
 
-This is done via a `gen-schemas.ts` script in the consuming service's `bin/` directory. Use the `SchemaTypeLoader` utility to download JSON Schemas, then convert to Zod with `json-schema-to-zod`.
+This is done via a `download-gen-schemas.ts` script in the consuming service's `bin/` directory. Use the `SchemaTypeLoader` utility to download JSON Schemas, then convert to Zod with `json-schema-to-zod`.
 
 ```typescript
-// In the consuming service's bin/gen-schemas.ts file
+// In the consuming service's bin/download-gen-schemas.ts file
 import { type ConsumerEnverType, YourOrgContracts } from '@your-org/contracts-lib';
 import { SchemaTypeLoader } from '@your-org/contracts-lib/dist/lib/utils/schema-downloader';
 import { App } from "aws-cdk-lib";
@@ -185,7 +185,7 @@ main().catch((e) => { console.error(e); process.exit(1); });
 
 ### **Step 4: Use Generated Types in the Consumer Lambda**
 
-After running the `gen-schemas.ts` script, the consuming service will have a new file at `lib/handlers/src/__generated__/myServiceApiBase.ts`.
+After running the `download-gen-schemas.ts` script, the consuming service will have a new file at `lib/handlers/src/__generated__/myServiceApiBase.ts`.
 
 Its Lambda handler can now import the generated types and use them to make type-safe calls to your service.
 

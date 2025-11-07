@@ -57,7 +57,7 @@ services/my-service/
 │   └── build.sh              # Platform build script
 ├── bin/
 │   ├── cdk.ts                 # CDK app entry point
-│   └── download-gen-schemas.ts # Downloads dependency schemas and generates types
+│   └── download-download-gen-schemas.ts # Downloads dependency schemas and generates types
 ├── lib/
 │   ├── handlers/              # Lambda handler package
 │   │   ├── package.json       # Handler dependencies
@@ -384,7 +384,7 @@ To guarantee cross-service consistency in Phase 0, manage a single authoritative
 The platform build sequence for a consumer service follows a clear separation of concerns: downloading artifacts in the CDK scope and generating code in an isolated handler scope.
 
 1.  **Root Service Dependencies**: `npm ci` installs the service's CDK dependencies.
-2.  **Schema Download (CDK Scope)**: The consumer-side build script (e.g., `bin/download-gen-schemas.ts`) is executed. Its sole responsibility is to use `SchemaTypeLoader` to download upstream JSON schema artifacts from S3 into a staging directory (e.g., `lib/handlers/src/__generated__/`).
+2.  **Schema Download (CDK Scope)**: The consumer-side build script (e.g., `bin/download-download-gen-schemas.ts`) is executed. Its sole responsibility is to use `SchemaTypeLoader` to download upstream JSON schema artifacts from S3 into a staging directory (e.g., `lib/handlers/src/__generated__/`).
 3.  **Code Generation (Handler Scope)**: The download script then invokes a dedicated generation script (e.g., `lib/handlers/scripts/gen-zod-from-schema.ts`). This script:
     -   Takes the path to the downloaded JSON schema as an argument.
     -   Executes `json-schema-to-zod` to convert the JSON schema into a Zod TypeScript file.
@@ -905,7 +905,7 @@ const schemaUrl = schemaChild.getSharedValue(this); // s3://.../(openapi|asyncap
 - [ ] **Mocked Handlers**: Lambda handlers returning schema-valid MOCKED responses
 - [ ] **Schema Validation**: All requests validated against Zod schemas
 - [ ] **BDD Test Integration**: Perfect alignment with web-client dual BDD (Step Functions + Playwright)
-- [ ] **Build Integration**: `bin/gen-schemas.ts` with AWS_REGION checks
+- [ ] **Build Integration**: `bin/download-gen-schemas.ts` with AWS_REGION checks
 
 **Checkpoint Validation**:
 ```bash

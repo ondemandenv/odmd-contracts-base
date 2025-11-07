@@ -119,14 +119,14 @@ Derive HTTP routes from **OpenAPI 3.1** or event channels from **AsyncAPI 2.x** 
 #### 4.a Deriving routes from OpenAPI (recommended for multi-path)
 If the upstream `schema-url` artifact is an OpenAPI 3.1 document, generate typed route helpers from `paths` and build request URLs by combining the platform-resolved base URL with the documented path templates.
 
-**For Web Applications**: The schema generation script (`bin/gen-schemas.ts`) should:
+**For Web Applications**: The schema generation script (`bin/download-gen-schemas.ts`) should:
 1. Download OpenAPI schemas from all consumed services
 2. Generate Zod validation schemas from component schemas
 3. **Generate `routes.ts` from OpenAPI paths and operations**
 
 **Example implementation**:
 ```typescript
-// bin/gen-schemas.ts
+// bin/download-gen-schemas.ts
 async function main() {
   // 1. Download schemas from S3
   const downloadedArtifacts = await generator.download();
