@@ -3,13 +3,13 @@
   "repository": {
     "url": "https://github.com/ondemandenv/odmd-contracts-base"
   },
-  "version": "0.1.10",
+  "version": "0.1.11",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [ ".odmd", "dist", "readme.md" ],
   "dependencies": {
-    "aws-cdk-lib": "2.203.1",
+    "aws-cdk-lib": "2.221.1",
     "constructs": "^10.0.0",
     "js-yaml": "^4.1.0"
   },
@@ -27,7 +27,7 @@
   },
   "peerDependencies": {
     "constructs": "^10.0.0",
-    "aws-cdk-lib": "2.203.1"
+    "aws-cdk-lib": "2.221.1"
   },
   "scripts": {
     "prebuild": "npm run gen-exports",

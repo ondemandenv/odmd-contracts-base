@@ -101,6 +101,11 @@ export abstract class OndemandContracts<
         return this._builds
     }
 
+    public static readonly BUILD_ID_name = 'ODMD_build_id'
+    public static get BUILD_ID_value(): string | undefined {
+        return process.env[this.BUILD_ID_name]
+    }
+
     public static readonly REV_REF_name = 'ODMD_rev_ref'
 
     public static get REV_REF_value(): string | undefined {
@@ -168,12 +173,24 @@ export abstract class OndemandContracts<
         this._defaultEcrEks = new OdmdBuildDefaultKubeEks(this);
     }
 
-    getTargetEnver(buildId = process.env['ODMD_build_id'], enverRef = OndemandContracts.REV_REF_value) {
+    getTargetEnver(buildId = OndemandContracts.BUILD_ID_value, enverRef = OndemandContracts.REV_REF_value) {
 
         //ODMD_rev_ref=b..master-_b..ta
 
         if (!buildId || !enverRef) {
-            throw new Error(`if (!buildId || !enverRef): ${buildId} || ${enverRef} check: env: ODMD_build_id`);
+            console.warn(`buildId: ${buildId}, enverRef: ${enverRef} not found, auto enver discover now ...`)
+            const repoBranch = execSync('git branch --show-current', {encoding: 'utf-8'}).trim()
+            const repoName = execSync('git remote get-url origin', {encoding: 'utf-8'}).trim()
+
+            for (const b of this.odmdBuilds) {
+                for (const e of b.envers) {
+                    if (e.targetRevision.value == repoBranch && repoName.endsWith(b.gitHubRepo.owner + '/' + b.gitHubRepo.name + '.git')) {
+                        return e
+                    }
+                }
+            }
+
+            throw new Error(`enver discover by: repo:${repoName}, branch: ${repoBranch} failed, try assign buildId/enverRef manually`)
         }
         const b = this.odmdBuilds.find(b => b.buildId == buildId)
         if (!b) {
