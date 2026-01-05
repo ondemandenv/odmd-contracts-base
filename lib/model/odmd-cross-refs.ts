@@ -88,7 +88,7 @@ export class OdmdCrossRefConsumer<C extends AnyOdmdEnVer, P extends AnyOdmdEnVer
     constructor(scope: C, id: string, producer: OdmdCrossRefProducer<P>, options: RefConsumerOption
     = {
         trigger: 'directly',
-        defaultIfAbsent: `${scope.node.path}: ${id} consuming ${producer.node.path} but default_value`
+        defaultIfAbsent: `${scope.node.path}: ${id} consuming ${producer.node.path} but default_value`//string value used in resolvEnvars/src/wflact-resolvEnvars.ts !!!
     }) {
         super(scope, id);
         if (producer.owner.owner.buildId == scope.owner.buildId) {
