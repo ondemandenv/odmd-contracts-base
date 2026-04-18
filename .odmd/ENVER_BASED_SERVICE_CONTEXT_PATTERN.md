@@ -65,22 +65,26 @@ export class OdmdEnverIdentityKk extends OdmdEnverCdk {
 ## 🎯 **PHASE-TO-ENVER MAPPING PATTERN**
 
 ### **Standard Enver Configuration:**
-Define account fields in your ContractsLib that correspond to each enver (extend `AccountsCentralView` as needed). Common patterns include `workspace1`, `workspace2`, and `workspace3`.
+Define account fields in your ContractsLib that correspond to your organization's workspace strategy (extend `AccountsCentralView` as needed). The account identifiers below are placeholders — use whatever account fields your `OndemandContracts` subclass exposes.
+
 ```typescript
 // Universal pattern for all services
 protected initializeEnvers(): void {
   this._envers = [
-    // Canonical progression/order: mock → dev → main
-    // Contract verification constellation - Isolated testing
-    new OdmdEnver[Service](this, this.contracts.accounts.workspace1, 'region',
+    // Canonical progression/order: mock → dev → main.
+    // The `accounts.<field>` targets below are organization-specific;
+    // common choices: isolated workspace for mock, shared workspace for dev+main.
+
+    // Mock enver - contract verification, isolated testing
+    new OdmdEnver[Service](this, this.contracts.accounts.<mockWorkspace>, 'region',
       new SRC_Rev_REF('b', 'mock')),
 
-    // Development constellation - MVP and testing
-    new OdmdEnver[Service](this, this.contracts.accounts.workspace2, 'region',
+    // Dev enver - MVP and integration testing
+    new OdmdEnver[Service](this, this.contracts.accounts.<devWorkspace>, 'region',
       new SRC_Rev_REF('b', 'dev')),
 
-    // Production constellation - Enterprise deployment
-    new OdmdEnver[Service](this, this.contracts.accounts.workspace3, 'region',
+    // Main enver - production deployment
+    new OdmdEnver[Service](this, this.contracts.accounts.<mainWorkspace>, 'region',
       new SRC_Rev_REF('b', 'main'))
   ];
 }
@@ -243,22 +247,22 @@ export const MASTER_MOCK_DATA = {
 
 ### **Enver Cross-Wiring Pattern:**
 ```typescript
-// Mock constellation wiring 
-const getMock = <T extends {targetRevision: any}>(arr: T[]): T => 
+// Mock-rooted constellation: wire mock consumers to mock producers
+const getMock = <T extends {targetRevision: any}>(arr: T[]): T =>
   arr.find(e => e.targetRevision.value === 'mock')!;
 
 const serviceMock = getMock(service.envers);
 serviceMock.wireUpstream(upstreamMock.apiBaseUrl);
 
-// Dev constellation wiring 
-const getDev = <T extends {targetRevision: any}>(arr: T[]): T => 
+// Dev-rooted constellation: wire dev consumers to dev producers
+const getDev = <T extends {targetRevision: any}>(arr: T[]): T =>
   arr.find(e => e.targetRevision.value === 'dev')!;
 
 const serviceDev = getDev(service.envers);
 serviceDev.wireUpstream(upstreamDev.apiBaseUrl);
 
-// Main constellation wiring 
-const getMain = <T extends {targetRevision: any}>(arr: T[]): T => 
+// Main-rooted constellation: wire main consumers to main producers
+const getMain = <T extends {targetRevision: any}>(arr: T[]): T =>
   arr.find(e => e.targetRevision.value === 'main')!;
 
 const serviceMain = getMain(service.envers);
@@ -286,27 +290,47 @@ serviceMain.wireUpstream(upstreamMain.apiBaseUrl);
 - **EXCEPTION**: Phase 0A is automatically ✅ DONE when service context is generated
 - **RULE**: All other phases require ⚠️ USER CONFIRMATION before marking ✅ COMPLETE
 
-### **WIRING CENTRALIZATION RULE**
-- Enver constructors create producers and declare consumers only (no cross-build resolution or side effects).
-- After all builds are constructed, the `OndemandContracts` root performs all cross-build/enver wiring inside `wireBuildCouplings()`.
-- Wiring is performed by calling `enver.wireCoupling(...)` and passing upstream enver instances. The enver uses those upstream envers to initialize its declared consumers internally.
+### **WIRING RULE**
+- Enver constructors must create producers (and may create consumers, if your ContractsLib uses the inline wiring style).
+- Cross-build wiring — i.e., any code that reads a producer owned by *another* build to construct a consumer — must run **after all builds exist**, never inside a build constructor before `initializeEnvers()` has finished for every build.
+- There are two valid conventions; your ContractsLib picks one. See `ONDEMANDENV_PLATFORM.md` → "Two valid wiring styles":
+  - **Style A (centralized):** a `wireBuildCouplings()` method on your `OndemandContracts` subclass that, after super-constructor returns and all builds are built, looks up envers per revision and calls a `wireCoupling()` method you define on each enver. This hook is your convention — the base class does not provide it.
+  - **Style B (inline):** enver constructors themselves look up the matching upstream enver off the scope and construct `OdmdCrossRefConsumer` instances directly. Order builds carefully in `initializeBuilds()` so upstream builds exist before downstream builds construct their envers.
+
+Example of a producer declaration (applies to both styles):
 
 ```typescript
-// In <ServiceName>Enver constructor (or an internal initializer it calls)
 this.serviceApiBaseUrl = new OdmdCrossRefProducer(this, 'serviceApiBaseUrl', {
   children: [{ pathPart: 'schema-url', s3artifact: true }]
 });
-this.identityApiBaseUrl = new OdmdCrossRefConsumer(this, 'identityApiBaseUrl', identityApi);
-this.identityApiSchemaUrl = new OdmdCrossRefConsumer(this, 'identityApiSchemaUrl', identityApi.children![0]);
-
-// In OndemandContracts.wireBuildCouplings()
-const svcMock = getMock(serviceBuild.envers);
-const identityMock = getMock(identityBuild.envers);
-svcMock.wireCoupling({ identityEnver: identityMock /* , ...other upstream envers */ });
-// Note: An enver does not assume upstream readiness; `wireCoupling` is where the enver finalizes consumer initialization using provided upstream producers.
 ```
 
-- Do not wire in build constructors or enver constructors; keep wiring centralized for clarity and to avoid cycles.
+Example of consumer wiring, Style A:
+
+```typescript
+// In your <ServiceName>Enver, define a method you will call later:
+wireCoupling(args: { identityEnver: IdentityEnver }) {
+  const identityApi = args.identityEnver.identityApiBaseUrl;
+  this.identityApiBaseUrl   = new OdmdCrossRefConsumer(this, 'identityApiBaseUrl', identityApi);
+  if (identityApi.children && identityApi.children[0]) {
+    this.identityApiSchemaUrl = new OdmdCrossRefConsumer(this, 'identityApiSchemaUrl', identityApi.children[0]);
+  }
+}
+
+// In your OndemandContracts subclass's wireBuildCouplings():
+const svcMock      = getMock(serviceBuild.envers);
+const identityMock = getMock(identityBuild.envers);
+svcMock.wireCoupling({ identityEnver: identityMock });
+```
+
+Example of consumer wiring, Style B (inline in the enver constructor, after `super()`):
+
+```typescript
+const identityEnver = owner.contracts.identityBuild.envers
+  .find(e => e.targetRevision.value === rev.value)!;
+const identityApi = identityEnver.identityApiBaseUrl;
+this.identityApiBaseUrl = new OdmdCrossRefConsumer(this, 'identityApiBaseUrl', identityApi);
+```
 
 ### **Build/Enver Location Rule**
 - OdmdBuild and OdmdEnver definitions MUST live in the organization ContractsLib.
@@ -314,24 +338,26 @@ svcMock.wireCoupling({ identityEnver: identityMock /* , ...other upstream envers
 
 ### **Build Wiring Order and Side-Effects**
 - Instantiate all build classes first; populate `_envers` only inside `initializeEnvers()`.
-- Perform cross-build wiring only in `wireBuildCouplings()` after all builds exist.
-- No cross-build consumption or side effects in build constructors.
+- No *cross-build* consumption in a build constructor before all builds exist. (Style B inline consumption inside an *enver* constructor is OK — by then all upstream builds have been instantiated.)
 - ContractsLib must not import service handler Zod or generated types; validation/codegen happen in service repos and BDD stacks only.
 
 ### **3. ENVER ISOLATION AND INTERACTION RULE:**
-- **Production Constellation (`main`):** Must be strictly isolated. Envers within this constellation can only be wired to other `main` envers.
-- **Development Constellation (`dev`):** Designed for integration testing. By default, `dev` envers are wired to other `dev` envers. **CRITICAL: Dev constellation MUST NOT contain any mock code - all implementations must be real business logic only.**
-- **Mock Constellation (`mock`):** Designed for contract verification. By default, `mock` envers are wired to other `mock` envers to provide a stable, isolated baseline.
+
+Cross-ref wiring is constrained by revision. Consumers of a given revision wire only to producers of the same revision; the resulting subgraph is that revision's constellation.
+
+- **`main` envers:** strictly isolated. A `main` consumer wires only to `main` producers. This produces the main-rooted constellation.
+- **`dev` envers:** designed for integration testing. By default `dev` consumers wire to `dev` producers (dev-rooted constellation). **CRITICAL: `dev` envers MUST NOT contain any mock code — all implementations must be real business logic only.**
+- **`mock` envers:** designed for contract verification. `mock` consumers wire to `mock` producers (mock-rooted constellation) for a stable, isolated baseline with canned responses.
 
 ### **4. MOCK CODE ELIMINATION RULE:**
-- **MANDATORY REQUIREMENT**: When transitioning from `mock` to `dev` constellation, **ALL MOCK CODE MUST BE COMPLETELY REMOVED**.
-- **NO EXCEPTIONS**: Mock handlers, mock data generators, mock responses, and any code that returns hardcoded mock data must be eliminated.
-- **REAL IMPLEMENTATION ONLY**: Dev constellation implementations must use actual business logic, real data persistence, and integrate with real upstream/downstream services.
+- **MANDATORY REQUIREMENT**: When transitioning service code from the `mock` enver to the `dev` enver, **ALL MOCK CODE MUST BE COMPLETELY REMOVED**.
+- **NO EXCEPTIONS**: Mock handlers, mock data generators, mock responses, and any code that returns hardcoded mock data must be eliminated from `dev` handlers.
+- **REAL IMPLEMENTATION ONLY**: `dev` envers must use actual business logic, real data persistence, and integrate with real upstream/downstream services over the dev-rooted constellation.
 
-### **5. CONSTELLATION MERGING RULE:**
-- **ONE-WAY PROGRESSION ONLY**: Code should never merge backward from `dev` → `mock` or `main` → `dev`. Mock constellation exists only for contract verification and should never receive production-ready code.
-- **DEV ↔ MAIN CONSISTENCY**: Dev and main constellations should maintain merge consistency, allowing forward merges from `dev` → `main` while supporting hotfixes that can merge back from `main` → `dev` when necessary.
-- **INFRASTRUCTURE DIFFERENCES ONLY**: Differences between dev and main should be limited to infrastructure (scaling, monitoring, security hardening) - business logic should be identical and mergeable.
+### **5. ENVER MERGING RULE:**
+- **ONE-WAY PROGRESSION ONLY**: Code should never merge backward from `dev` → `mock` or `main` → `dev`. The `mock` enver exists only for contract verification and must never receive production-ready code.
+- **DEV ↔ MAIN CONSISTENCY**: `dev` and `main` envers should maintain merge consistency — forward merges `dev` → `main` for promotion, reverse merges `main` → `dev` for hotfixes when necessary.
+- **INFRASTRUCTURE DIFFERENCES ONLY**: Differences between `dev` and `main` should be limited to infrastructure (scaling, monitoring, security hardening); business logic should be identical and mergeable.
 
 ### **6. CONTEXT COMPLETENESS RULE:**
 - Each enver context must be **COMPLETELY SELF-CONTAINED**.
@@ -460,7 +486,7 @@ interface UnifiedMockDataValidation {
 ```markdown
 # [Service] - [Initial] Enver Context
 
-## 🎯 **[Initial] Enver Deployment** (Part of Mock Constellation)
+## 🎯 **[Initial] Enver Deployment** (`mock` enver; part of the mock-rooted constellation)
 **Target**: Phase 0 - Contract Verification with Mock [Service] Operations
 **Focus**: Contract verification with MOCKED responses and dual BDD testing
 
@@ -786,7 +812,7 @@ Request: `mock_request_payload`|Service([Service Name])
   ```
 
 ## ✅ Checkpoint Validation
-- **List Constellations**: `npm run Odmd[ServiceName]:cdk:ls --silent`
+- **List Stacks**: `npm run Odmd[ServiceName]:cdk:ls --silent`
 - **Verify Mock Endpoint**: `curl -X [METHOD] https://<service>-api-mock.amazonaws.com/[resource] -d '{...}'`
 - **Run BDD Tests**: `cd services/web-client/vite && npm run test:bdd`
 ```

@@ -207,7 +207,7 @@ export class MyServiceEnver extends OdmdEnverCdk {
 The main contracts class orchestrates the builds and their wiring.
 
 - **Build Instantiation:** All service builds are instantiated in the `initializeBuilds()` method, which is called by the base class constructor.
-- **Dependency Wiring:** A helper method like `wireConstellation` should be used to connect the producers and consumers for each environment (`mock`, `dev`, `main`).
+- **Dependency Wiring:** After all builds exist, wire cross-build couplings. A recommended convention is a method named `wireBuildCouplings()` on your `OndemandContracts` subclass that, for each revision (`mock`, `dev`, `main`), finds the matching enver in each build and calls `enver.wireCoupling({...upstreamEnvers})`. The base class does not provide this hook — it is your subclass's method, and you control when it runs (typically at the end of your constructor, after `super()` and `initializeBuilds()` complete). Alternatively, you may wire inline inside enver constructors by passing upstream producer references directly to `new OdmdCrossRefConsumer(...)`; both styles are valid.
 
 ### 4. Contracts Library Build (`OdmdBuildContractsLib<...>`)
 
@@ -243,6 +243,8 @@ ContractsLib classes expose path strings to Markdown docs; no generators are req
   - `serviceContextMD`: implementation specs shared across all envers.
 - Enver-level docs:
   - `enverContextMD` (via `IOdmdEnver`): enver-specific deltas (mock/dev/main), BDD focus, DNS specifics.
+
+> **Defaults are fallbacks, not guidance.** The base classes default these paths to the generic platform pattern docs inside `@ondemandenv.dev/contracts-lib-base/.odmd/`. The defaults exist so validation doesn't fail on a freshly generated ContractsLib — they do not describe your service. Override every path with a service-specific location; otherwise you will ship a contract whose documentation points at the platform's generic grammar instead of your domain.
 
 Example
 ```ts

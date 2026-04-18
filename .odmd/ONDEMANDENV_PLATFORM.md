@@ -1,5 +1,50 @@
 # ONDEMANDENV.DEV PLATFORM INTERFACE
 
+## What ONDEMANDENV Is
+
+ONDEMANDENV is a contract-orchestration layer for distributed systems on AWS. The premise: most CI/CD systems version *artifacts* (container images, Lambda zips, Helm charts) and leave service *interfaces* implicit — drifting in READMEs, discovered at runtime, debugged in staging. ONDEMANDENV versions the interfaces instead, as code, and makes services prove they conform before they deploy.
+
+Concretely, you write a **ContractsLib** — a TypeScript library that declares every service (`OdmdBuild`), every deployable version of every service (`OdmdEnver`), and every producer/consumer edge between them (`OdmdCrossRefProducer` / `OdmdCrossRefConsumer`), with schema artifacts (OpenAPI 3.1, AsyncAPI 2.x) attached as children of the edges. The ContractsLib compiles; `odmdValidate()` checks the graph; service repos generate types from the declared schemas at build time; CI/CD deploys only graphs that type-check.
+
+This document describes how to use the platform to build one. Key entry points below.
+
+## ContractsLib as a Legislature, Not a Registry
+
+Think of ContractsLib as the congress of your distributed system, not as a service registry.
+
+- Every service sends **representatives** to ContractsLib: its `OdmdBuild`, its `OdmdEnver` instances, and the producers/consumers each enver declares.
+- Cross-ref edges between envers are **enacted law**: once wired, they define an obligation that each side must implement. A producer owes its consumers a stable address and a schema-valid payload; a consumer declares which producer versions it speaks to.
+- `tsc` plus `OndemandContracts.odmdValidate()` is the **constitutional court**: if the graph has a forbidden edge (same-build consumption, cross-region consumption, a ContractsLib enver trying to consume, a missing doc path), the bill fails to pass. The ContractsLib package does not publish.
+- Services are **compelled to conform**: at build time, a consumer downloads its upstream producer's schema artifact, generates types into `__generated__/`, and compiles against them. A handler that doesn't match its declared contract fails to compile — not at runtime, not in staging, at `tsc`.
+
+A service registry is passive: it records what services say about themselves. A legislature is active: it's where services negotiate, enact, and are bound. ContractsLib is the latter. Your PRs to it are legislation; its compiled output is law.
+
+## The CI/CD Inversion
+
+Conventional CI/CD versions outputs. It promotes artifact versions from one environment to the next and discovers whether the new version is compatible with its neighbors by running them together — staging is a compatibility-discovery mechanism dressed up as a QA gate.
+
+ONDEMANDENV inverts this. The ContractsLib versions the **interfaces**, and the artifacts are *derived from* them. Services do not generate contracts; contracts generate the constraints that services must satisfy.
+
+| Dimension | Linear stages | ONDEMANDENV |
+|---|---|---|
+| Unit of versioning | Service artifact (image/zip) | Interface (ContractsLib package) |
+| Unit of deployment | Whole environment bag | Single enver |
+| Unit of test | Full staging environment | A cross-ref edge |
+| Contract between services | Implicit, in READMEs | Typed `OdmdCrossRefProducer`/`Consumer` with schema artifact |
+| Compatibility discovered | At runtime in staging | At `tsc` / `odmdValidate()` — synth time |
+| Coupling to AWS accounts | 1:1 (dev acct, staging acct, prod acct) | N:M, account mapping is a deployment-time concern |
+| Phase / environment | Separate axes that drift | **Collapsed**: phase = enver = revision |
+| Promotion model | Promote a bag across stages | Add new graph nodes; consumers migrate per-edge |
+
+### What the inversion unlocks
+
+- **Real per-service blue/green.** Interface versions are graph nodes, not states of a node. A service that needs a breaking change publishes a new producer (or a new schema-url child) alongside the old one. Old consumers keep consuming the old producer; new consumers wire to the new one. Both producers run in the same account at the same time. Traffic shifts **per edge**, not per environment. Retirement is visible in the graph (the old node has no consumers).
+- **Compatibility is deductive, not observational.** If the graph validates and every service compiled against its generated types, every producer/consumer pair is provably compatible. You don't need to run them together to find out. Staging stops being an integration-test environment and becomes (optionally) a performance-test environment.
+- **Constellations coexist.** Because compatibility is per-edge, many constellations (e.g., `mock-rooted`, `dev-rooted`, `main-v1-rooted`, `main-v2-rooted`) can live in the same accounts simultaneously. Cloning a constellation for a feature branch is cheap; no new environment required.
+- **Contract errors surface early.** Wrong cross-ref, missing schema, cross-region edge → `odmdValidate()` throws at synth. You see the bug before any CloudFormation stack moves.
+
+The cost is real too: all distributed-systems complexity migrates into the ContractsLib. Designing a good ContractsLib is harder than wiring services ad hoc, and the legislature's vocabulary (build, enver, producer, consumer, constellation) has a learning curve. You are trading *runtime surprise* for *design-time rigor*.
+
 ## From‑Scratch Quickstart (Generalized)
 
 Follow this sequence to bring a new bounded context onto the platform with contract‑first discipline:
@@ -18,7 +63,7 @@ Follow this sequence to bring a new bounded context onto the platform with contr
   - Create minimal infra (e.g., HTTP API + Lambda handler).
   - Publish base URL via a single `OdmdShareOut`.
   - Generate service schema JSON in a handler npm script (Zod lives in handler code only).
-  - Call `deploySchema(this, schemaString, enver.<baseUrl>.children[0])` to publish the schema artifact.
+  - Call `deploySchema(this, schemaString, enver.<baseUrl>.children[0], artifactBucket)` to publish the schema artifact. The fourth argument is the S3 `IBucket` to upload into; typically import the artifact bucket by name using the producer's `artifactSsmPath` SSM parameter.
 
 3) Web client (optional)
 - S3/CloudFront site that reads a runtime `config.json` with upstream endpoints (resolved via `getSharedValue(...)` at deploy time).
@@ -44,7 +89,7 @@ Follow this sequence to bring a new bounded context onto the platform with contr
 
 Checklist
 - Single `OdmdShareOut` per stack; pass multiple producers in one Map.
-- No constellation (dev/main/mock) names in IDs or resource names. Use stable IDs; enver selection is driven by revision (branch/tag) and platform mapping.
+- No revision labels (dev/main/mock) in stack IDs or resource names. Use stable IDs; enver selection is driven by revision (branch/tag) and platform mapping. Revision labels are enver identity, not constellation identity — and never resource-naming input.
 - ContractsLib `aws-cdk-lib` version pinned and matched by all service repos.
 
 ## Service Architecture Structure
@@ -133,6 +178,20 @@ export class <ServiceName>Build extends OdmdBuild<<ServiceName>Enver> {
     - `OdmdShareIn` - Consumes Products from other Envers via parameter store
 - **Resolution**: Platform handles cross-account dependency resolution at deployment time
 
+#### Hard Constraints (enforced at construction / validation time)
+
+These rules are enforced by the platform and will `throw` if violated; there are no opt-outs. Knowing them up front will save you from surprise failures during `tsc` / `odmdValidate()`.
+
+1. **A build cannot consume from itself.** Constructing an `OdmdCrossRefConsumer` whose producer belongs to the same `OdmdBuild` as the consumer throws `consuming from same build is ILLEGAL!`. Cross-refs exist to model cross-service edges; intra-service coupling should be plain TypeScript, not a producer/consumer pair.
+
+2. **ContractsLib envers cannot be consumers.** The `__contracts` build has producers only (e.g., `contractsLibLatest`). Any attempt to construct an `OdmdCrossRefConsumer` inside a `ContractsLib` enver throws `OdmdBuildOdmdContracts should not consume anything!`. This prevents circular platform dependencies — the legislature cannot depend on the services whose laws it writes.
+
+3. **Cross-region consumers are forbidden.** A consumer's enver and its producer's enver must share `targetAWSRegion`. `odmdValidate()` rejects any graph with a consumer pointing at a producer in a different region. Cross-region communication is modeled as distinct producers in each region, not as a single producer consumed from elsewhere.
+
+4. **Container-image (`OdmdEnverCtnImg`) envers cannot be consumers.** Image-build envers are producer-only by design (they export an ECR image reference); they have no runtime that could consume upstream values.
+
+5. **Every build and enver must have doc paths that resolve.** `odmdValidate()` fails if `serviceOverviewMD`, `serviceContextMD`, or `enverContextMD` point to files that don't exist on disk. The platform treats docs-in-code as part of the contract.
+
 ### **Platform Service Integration**
 - **Built-in Services**:
     - `contractsLib` (code: `__contracts`) - **MANDATORY** - ContractsLib repository deployment itself
@@ -146,7 +205,7 @@ To facilitate service discovery, TLS termination, and human-readable endpoints, 
 - **Configuration**: Hosted Zone access is exposed via the Enver configuration as a typed object: `this.enver.hostedZone?: { zoneId: string; zoneName: string }`.
 
 - **Subdomain Structure**: Services can create predictable DNS records. A standard subdomain format is:
-  `<rev>.<build-id>.<central-subdomain>` where `<rev>` originates from the revision (branch/tag), not hardcoded constellation names.
+  `<rev>.<build-id>.<central-subdomain>` where `<rev>` originates from the enver's revision (branch/tag). Do not hardcode revision labels into resource names — derive them.
 
 - **Usage Example**: Construct a domain name and create Route53 records (e.g., an 'A' record for ALB or CNAME for CloudFront). Obtain TLS certificates via ACM for the chosen domain.
 
@@ -160,32 +219,35 @@ To facilitate service discovery, TLS termination, and human-readable endpoints, 
 - Orchestration: `<user-auth>/bin/user-pool.ts` wires `UserPoolStack`, `WebHostingStack`, and `WebUiStack`, then calls `buildWebUiAndDeploy()`.
 - Dependencies: Reads values from SSM Parameter Store and S3 via an assumed central role; AppSync endpoint and `/odmd-share` parameters must exist for full functionality.
 
-## Service Constellation Architecture
+## Service Constellations
 
-### **Multi-Constellation Pattern (by revision, not names in IDs)**
-- Example revisions include `SRC_Rev_REF('b', 'mock')`, `SRC_Rev_REF('b', 'dev')`, and `SRC_Rev_REF('b', 'main')` mapping to different context variants. Stack IDs remain revision-agnostic. Canonical progression is mock → dev → main (no forward references).
+### What a constellation is
 
-### **Constellation Characteristics**
-### Tip: Constellations are emergent, not code-defined
-- Do NOT encode constellation membership or service contract maps as static TypeScript types or constants.
-- Constellations emerge from Enver wiring and cross-refs (producers/consumers) in ContractsLib. They are not tied to specific AWS accounts; mapping to accounts/workspaces is a deployment-time concern, not a property of enver semantics.
-- Keep stable addresses at Layer 1 (ContractsLib), and let Layer 2 (services) publish schemas/artifacts at deploy time.
+A **constellation** is the subgraph of envers reachable by following `OdmdCrossRefProducer`/`OdmdCrossRefConsumer` edges from any starting enver. Constellations are **emergent**: they come into existence when ContractsLib wiring is enacted, not when anything is declared. They have no names, no registry, no enumeration.
 
-- ✅ **Complete implementation** of ALL services working together
-- ✅ **Full semantic contracts** and schema definitions
-- ✅ **Self-contained** - no external dependencies between constellations
-- ✅ **End-to-end functional** from input to output
-- ✅ **Independent evolution** - constellations can evolve separately
+"Mock constellation" is informal shorthand for *the constellation rooted at a mock-revision enver*. It is not a class, type, constant, directory, or stack-name token. Do not encode the word `mock`/`dev`/`main` in stack IDs, file paths, or resource names — those labels belong to the enver's `SRC_Rev_REF`, not to the constellation.
 
-### **Platform vs Application Services**
-- **Platform Services**:
-  - **MANDATORY**: `contractsLib` (code: `__contracts`) - ContractsLib repository deployment
-  - **OPTIONAL**: `__user-auth` (authentication service), `__networking` (shared networking)
-    - Shared across ALL constellations for consistency
-    - Single identity provider, shared JWT tokens
-- **Application Services** (multi-constellation): business logic services
-    - Independent per constellation for isolation
-    - Environment-specific configurations
+### How constellations form
+
+1. Each service declares one or more envers in ContractsLib (commonly `mock`, `dev`, `main`).
+2. Each enver declares producers and consumers.
+3. ContractsLib wires consumers to specific upstream producers (typically same-revision → same-revision, e.g., a `dev` consumer wires to a `dev` producer).
+4. The transitive closure of those edges *is* a constellation. Multiple constellations coexist in the same AWS accounts, distinguished only by their `SRC_Rev_REF`.
+
+Because constellations are emergent, a service can participate in many of them with different upstream versions per constellation — the graph tells you what runs together.
+
+### Rules
+
+- **Revision labels ≠ constellation names.** Treat `mock`/`dev`/`main` as enver labels. The constellation is whatever wiring connects them.
+- **No forward references.** A `mock` enver never consumes a `dev` or `main` enver; a `dev` enver never consumes a `main` enver. Canonical progression: mock → dev → main.
+- **Account-agnostic.** Constellations are not tied to AWS accounts. Revision→account mapping is a deployment-time concern configured per organization, not a property of the graph.
+- **Stable addresses at Layer 1 (ContractsLib); artifacts at Layer 2 (services).** ContractsLib declares producer/consumer identities; services publish schemas/values at deploy time.
+- **ContractsLib cannot consume.** The `__contracts` build has producers only (e.g., `contractsLibLatest`). Enforced at runtime: constructing an `OdmdCrossRefConsumer` inside a ContractsLib enver throws.
+
+### Platform vs. Application envers
+
+- **Platform envers** (`__contracts` mandatory; `__user-auth`, `__networking` optional) typically expose a single enver that every application enver consumes, regardless of which constellation the consumer belongs to. One identity provider, one networking layer, shared across all constellations.
+- **Application envers** participate per-revision. A service's `mock`, `dev`, and `main` envers belong to different constellations and evolve independently.
 
 ## Dynamic Cloning for Development
 
@@ -220,7 +282,7 @@ Each Enver provides complete Software Development Lifecycle context including:
 ## Platform Development Workflow
 ### BDD Checkpoint: Two-Layer Contract Verification
 
-After implementing the schema workflow, validate inter-service contracts via BDD against the mock constellation:
+After implementing the schema workflow, validate inter-service contracts via BDD against the mock-rooted constellation (i.e., the subgraph where every enver has `SRC_Rev_REF('b', 'mock')`):
 
 - Producer responsibilities
   - Publish stable addresses for APIs and schemas via `OdmdShareOut`
@@ -265,7 +327,7 @@ Consumers must detect the artifact kind via a single top-level discriminator `od
 
 - Purpose: Share full route information (HTTP methods and path templates) together with request/response schemas using a single artifact. No extra producers beyond the existing `schema-url` child are required.
 
-- Producer (build-time): Before deployment, a handler-scope script (e.g., `lib/handlers/scripts/schema-print.ts`) is run to convert the service's Zod schemas into a final JSON Schema or OpenAPI 3.1 document. The main CDK stack then reads this generated artifact from disk and publishes it using `deploySchema(this, openApiJsonString, enver.<baseUrl>.children[0])` during synthesis.
+- Producer (build-time): Before deployment, a handler-scope script (e.g., `lib/handlers/scripts/schema-print.ts`) is run to convert the service's Zod schemas into a final JSON Schema or OpenAPI 3.1 document. The main CDK stack then reads this generated artifact from disk and publishes it using `deploySchema(this, openApiJsonString, enver.<baseUrl>.children[0], artifactBucket)` during synthesis.
 
   Minimal structure of the uploaded artifact:
   ```json
@@ -366,7 +428,7 @@ To guarantee cross-service consistency in Phase 0, manage a single authoritative
 - Bind schema to its service endpoint by publishing it as a child of the base URL producer:
   - Example: `myApiBaseUrl` → children: `[ { pathPart: 'schema-url', s3artifact: true } ]`
 - Publishing
-  - In the app stack: `deploySchema(this, jsonSchemaString, myEnver.myApiBaseUrl.children[0])`
+  - In the app stack: `deploySchema(this, jsonSchemaString, myEnver.myApiBaseUrl.children[0], artifactBucket)`
 - Consumption
   - Downstream build step: Use `SchemaTypeLoader` to download upstream JSON schemas and convert to Zod types
   - Note: If the artifact is OpenAPI 3.1 (has `openapi`), use `components.schemas` for types and generate typed route helpers from `paths` (see OpenAPI single-artifact pattern above).
@@ -433,7 +495,7 @@ The platform uses consistent naming to indicate the **direction of data flow** a
 ### ContractsLib Enver Semantics
 - The ContractsLib build is global across regions. In its Enver list, the first entry in `initializeEnvers()` is the canonical source of truth used by all regions.
 - Any additional entries are placeholders representing other regions or deployment targets; they should not diverge in contract definitions.
-- Service constellations (mock, dev, main) consume the same canonical ContractsLib products, with mock deployed per Enver workspace mapping configuration.
+- All constellations (mock-rooted, dev-rooted, main-rooted) consume the same canonical ContractsLib products. Revision→workspace mapping is configured per-organization; the ContractsLib semantics are identical across constellations.
 
 ### ContractsLib Strong Typing and Canonical Enver Pattern
 
@@ -503,26 +565,51 @@ Guidance:
 - Instantiate all build classes first, then perform cross-build wiring. The typical flow in ContractsLib is:
   1) Construct all builds
   2) Each build populates its `_envers` strictly inside `initializeEnvers()`
-  3) After all builds exist and their `_envers` are ready, run `wireBuildCouplings()` to wire couplings (e.g., `wireKey(...)`, `wireAnonymous(...)`)
+  3) After all builds exist and their `_envers` are ready, wire cross-build couplings
 - Do not perform any cross-build consumption or side effects in build constructors. Keep constructors side-effect-free; all Enver creation belongs in `initializeEnvers()` only.
-- This guarantees that cross-build `wireX(...)` calls operate on fully initialized `_envers` for every build and prevents accidental self-consumption during construction.
 - Build auto-registration: base class constructors already register builds with the ContractsLib; do not manually push builds into internal arrays (e.g., avoid `this._builds.push(...)` in your ContractsLib implementation).
 
-> Wiring Centralization Rule
-> - Enver constructors create producers and declare consumers only (no cross-build resolution or side effects).
-> - Perform all coupling in the `OndemandContracts` root inside `wireBuildCouplings()` after all builds exist.
-> - Wire by calling `enver.wireCoupling({...upstreamEnvers})`, passing upstream enver instances. Each enver initializes its declared consumers internally using the provided upstream envers.
+#### Two valid wiring styles
 
-Example (generalized):
+The base library does not prescribe *where* cross-build wiring happens, as long as it happens after all builds exist. Two conventions are in common use; both compile, both validate, both are fine:
+
+**Style A — Central `wireBuildCouplings()` hook on your `OndemandContracts` subclass.** Recommended when you have many services and want one obvious place to read the graph. This is a *method you define on your subclass* — the base class does not provide it and does not call it for you. Call it yourself at the end of your constructor (after `super()` and after all builds are instantiated).
 
 ```ts
-protected wireBuildCouplings(): void {
-  const get = (arr: any[], v: string) => arr.find(e => e.targetRevision.value === v)!;
-  const svcMock = get(this.myServiceBuild.envers, 'mock');
-  const idMock = get(this.identityBuild.envers, 'mock');
-  svcMock.wireCoupling({ identityEnver: idMock /* , ...other upstream envers */ });
+export class MyOrgContracts extends OndemandContracts<Accounts, Repos, ContractsLib> {
+  constructor(app: App) {
+    super(app, 'MyOrgContracts');
+    // ... builds constructed, initializeEnvers() ran
+    this.wireBuildCouplings();
+  }
+
+  protected wireBuildCouplings(): void {
+    const get = (arr: any[], v: string) => arr.find(e => e.targetRevision.value === v)!;
+    const svcMock = get(this.myServiceBuild.envers, 'mock');
+    const idMock  = get(this.identityBuild.envers, 'mock');
+    svcMock.wireCoupling({ identityEnver: idMock /* , ...other upstream envers */ });
+  }
 }
 ```
+
+Note: `wireCoupling({...upstreamEnvers})` is likewise a method *you* define on your enver classes. Inside it, construct the `OdmdCrossRefConsumer` instances using the upstream producers you received.
+
+**Style B — Inline wiring inside enver constructors.** Simpler for small graphs. Since the consumer build depends on upstream builds already existing, make sure your `initializeBuilds()` constructs them in dependency order, then have the downstream enver pull the matching upstream enver off the scope when it constructs its consumers.
+
+```ts
+export class MyServiceEnver extends OdmdEnverCdk {
+  readonly identityApiBaseUrl: OdmdCrossRefConsumer<MyServiceEnver, IdentityEnver>;
+
+  constructor(owner: MyServiceBuild, acct: string, region: string, rev: SRC_Rev_REF) {
+    super(owner, acct, region, rev);
+    const identityBuild = owner.contracts.identityBuild;
+    const identityEnver = identityBuild.envers.find(e => e.targetRevision.value === rev.value)!;
+    this.identityApiBaseUrl = new OdmdCrossRefConsumer(this, 'identityApiBaseUrl', identityEnver.identityApiBaseUrl);
+  }
+}
+```
+
+Style A is easier to audit at scale (one grep shows the whole graph). Style B is easier to start with. Pick one and stick to it in your ContractsLib — mixing styles fragments the mental model.
 
 ### **Step 1: ContractsLib Definition**
 ```typescript
@@ -564,7 +651,7 @@ export class MyServiceStack extends cdk.Stack {
 
 - Always depend on the organization ContractsLib package and pin the exact same `aws-cdk-lib` version as the ContractsLib.
 - Initialize the ContractsLib in the CDK app, then resolve the target Enver selected by environment context.
-- Derive stable stack IDs from `getRevStackNames()`; do not encode constellation names in IDs.
+- Derive stable stack IDs from `getRevStackNames()`; do not encode revision labels (mock/dev/main) in IDs.
 - Read `CDK_DEFAULT_ACCOUNT` and `CDK_DEFAULT_REGION` for `env` and pass them to stacks.
 
 Example (generalized; async init):
@@ -604,7 +691,7 @@ main().catch((e) => { console.error(e); throw e })
 ```
 
 Notes:
-- Constellation selection is driven by Enver revision (branch/tag) and platform mapping; do not hardcode it in names.
+- Enver selection is driven by its revision (branch/tag) and platform mapping; do not hardcode revision labels in stack/resource names. Which constellation an enver participates in is then emergent from its cross-ref wiring.
 - Use `OdmdShareIn` to read upstream producer values and `OdmdShareOut` to publish this service’s outputs within stacks.
 - When the ContractsLib `aws-cdk-lib` version changes, update all service repos in the same commit to avoid type mismatches across `App` instances.
 - If your workspace still pulls multiple `aws-cdk-lib` copies (private property mismatch on `App`), ensure a single version is hoisted, or cast the ContractsLib constructor and `inst` access through `any` as shown above until the version alignment is fixed.
@@ -734,7 +821,7 @@ getRevStackNames(): Array<string> {
   - In CDK, set the BDD stack to depend on the app stack so it has full context (endpoints published, `/odmd-share/...` populated).
 
 - Naming rules
-  - Do not encode constellation names (dev/main/mock) in IDs.
+  - Do not encode revision labels (dev/main/mock) in IDs.
   - Appending a stable suffix like `-bdd` for a secondary stack within the same enver is acceptable.
 
 - Producers for discovery
@@ -748,10 +835,10 @@ getRevStackNames(): Array<string> {
 ### Guidance
 - Enver and constellation semantics are account-agnostic. Organizations decide how revisions map to accounts/workspaces. The platform supports cross-account resolution via roles without prescribing fixed mappings.
 
-### Rule: Do not encode constellation in stack names
+### Rule: Do not encode revision labels in stack names
 - Do NOT include `mock`/`dev`/`main` in CDK stack IDs, class names, or resource names.
-- Constellation is selected by Enver `SRC_Rev_REF` (e.g., `b..mock`) and workspace mapping, not by names.
-- Keep stack IDs stable per service; uniqueness and isolation come from Enver context and OdmdShare wiring.
+- Enver identity is selected by `SRC_Rev_REF` (e.g., `b..mock`) and workspace mapping; constellation membership emerges from cross-ref wiring. Neither is expressed in names.
+- Keep stack IDs stable per service; uniqueness and isolation come from enver context and `OdmdShare` wiring.
 
 ### Rule: CDK repos must depend on org ContractsLib and match CDK version
 - Each service CDK repo must declare a dependency on the organization contracts library package (e.g., `@<org>/<contracts-lib-pkg>`).
@@ -858,16 +945,18 @@ For detailed service development lifecycle and phase management patterns, see:
 The ultimate realization for ONDEMANDENV platform service development:
 
 **Different development phases are actually DIFFERENT ENVERS:**
-- **Phase 0** (Contract Verification) = `mock` enver (`workspace1`)
-- **Phase 1** (MVP Development) = `dev` enver (`workspace2`)  
-- **Phase 2+** (Production) = `main` enver (`workspace3`)
+- **Phase 0** (Contract Verification) = `mock` enver
+- **Phase 1** (MVP Development) = `dev` enver
+- **Phase 2+** (Production) = `main` enver
 
-This creates **perfect phase-environment alignment** with appropriate infrastructure, security, and objectives for each stage, representing the ultimate evolution of ONDEMANDENV platform service development.
+The enver → AWS account mapping is an **organizational choice**, not part of the pattern. Some teams put every enver in one workspace account; others split mock off into an isolated workspace; others fan out per-phase. Declare the mapping in your `OndemandContracts` subclass's `accounts` field and keep the pattern above free of account specifics — that way it scales whether your org has 1 workspace or 10.
+
+This collapses phase, environment, and revision onto a single axis with appropriate infrastructure, security, and objectives at each stage.
 
 ### Standard Service Phases
 
 #### Phase 0: Contract Verification with Mock Data/Code using BDD Tests
-**Constellation**: `mock` only initially
+**Enver**: `mock` only initially
 **Focus**: Verify contracts, schema validation, and mocked data responses using dual BDD tests
 
 **CRITICAL**: Phase 0 is for contract verification with MOCKED responses and BDD testing only. NO real business logic.
@@ -898,7 +987,9 @@ export class <ServiceName>Enver extends OdmdEnverCdk {
   getRevStackNames(): Array<string> { return ['Odmd<ServiceName>']; }
 }
 
-// Build wires the envers (mock/dev/main shown conceptually)
+// Build wires the envers (mock/dev/main shown conceptually).
+// Account fields (workspace0/workspace1) are illustrative; match them to
+// whatever your `OndemandContracts.accounts` exposes.
 export class <ServiceName>Build extends OdmdBuild<<ServiceName>Enver> {
   protected initializeEnvers(): void {
     this._envers = [
@@ -911,11 +1002,11 @@ export class <ServiceName>Build extends OdmdBuild<<ServiceName>Enver> {
 
 // In the service app stack (producer): publish base URL and deploy the schema artifact under the child
 // props.enver is <ServiceName>Enver; this.api is your HttpApi
-new OdmdShareOut(this, '<ServiceName>Outputs', {
-  value: JSON.stringify({ <service>ApiBaseUrl: this.api.apiEndpoint })
-});
+new OdmdShareOut(this, new Map([
+  [props.enver.<service>ApiBaseUrl, this.api.apiEndpoint]
+]));
 
-await deploySchema(this, openApiOrAsyncApiJsonString, props.enver.<service>ApiBaseUrl.children[0]);
+await deploySchema(this, openApiOrAsyncApiJsonString, props.enver.<service>ApiBaseUrl.children[0], artifactBucket);
 
 // In a consumer (another service): declare consumers for base URL and its schema child
 // identity example shown; generalize by replacing names accordingly
@@ -938,7 +1029,7 @@ const schemaUrl = schemaChild.getSharedValue(this); // s3://.../(openapi|asyncap
 
 **Phase 0B: BDD Contract Verification**
 - [ ] **Zod Schemas**: Complete request/response schemas in `lib/handlers/src/schemas/zod.ts`
-- [ ] **Schema Deployment**: `deploySchema(this, schemaString, enver.<baseUrl>.children[0])`
+- [ ] **Schema Deployment**: `deploySchema(this, schemaString, enver.<baseUrl>.children[0], artifactBucket)`
 - [ ] **Schema Consumption**: Downloads upstream schemas via `json-schema-to-zod`
 - [ ] **Mocked Handlers**: Lambda handlers returning schema-valid MOCKED responses
 - [ ] **Schema Validation**: All requests validated against Zod schemas
@@ -1016,24 +1107,25 @@ Every service must include a comprehensive `SERVICE_CONTEXT.md` with:
 
 **CRITICAL**: Each service must follow the platform's phased development approach with explicit checkpoints.
 
-### Phase 1: MVP (Essential) 
-**Focus**: [Service-specific focus]
-- [x] **Phase 1A**: [Service-specific Phase 1A tasks]
-- [x] **Phase 1B**: [Service-specific Phase 1B tasks]
+### Phase 0: Contract Verification (`mock` enver)
+**Focus**: [Service-specific contract surface and BDD]
+- [x] **Phase 0A**: [Service-specific contract surface tasks]
+- [x] **Phase 0B**: [Service-specific BDD verification tasks]
+
+### Phase 1: MVP (`dev` enver)
+**Focus**: [Service-specific MVP focus]
+- [ ] **Phase 1A**: [Service-specific Phase 1A tasks]
+- [ ] **Phase 1B**: [Service-specific Phase 1B tasks]
 
 **Key Checkpoints**:
 ```bash
 # Service-specific validation commands
 ```
 
-### Phase 2: Core Features 
-**Focus**: [Service-specific focus]
-- [x] **Phase 2A**: [Service-specific Phase 2A tasks]
-- [x] **Phase 2B**: [Service-specific Phase 2B tasks]
-
-### Phase 3: Production Ready 
-**Focus**: [Service-specific focus]
-- [x] **Phase 3A**: [Service-specific Phase 3A tasks]
+### Phase 2: Production Ready (`main` enver)
+**Focus**: [Service-specific production focus]
+- [ ] **Phase 2A**: [Service-specific Phase 2A tasks]
+- [ ] **Phase 2B**: [Service-specific Phase 2B tasks]
 
 ### Phase 4: Advanced Features (FUTURE)
 - [ ] **[Feature Category]**: [Specific planned features]
@@ -1042,11 +1134,13 @@ Every service must include a comprehensive `SERVICE_CONTEXT.md` with:
 - [ ] **[Feature Category]**: [Specific roadmap features]
 
 **Checkpoint Requirements**:
-- All Phase 1-3 checkpoints must pass
+- All Phase 0–2 checkpoints must pass
 - Performance baseline: [Service-specific metrics]
 - Security audit: [Service-specific security requirements]
 - Load testing: [Service-specific load requirements]
 ```
+
+> Phase numbering note: the platform uses Phase 0 → 1 → 2 for the canonical mock → dev → main progression. Phase 3 is intentionally unused; Phase 4 and 5 are future/optional. If you see older docs referring to "Phase 3: Production Ready", treat it as an earlier numbering of what is now Phase 2.
 
 ### Platform Integration Requirements
 
@@ -1068,17 +1162,16 @@ export interface <ServiceName>Enver extends OdmdEnverCdk {
 ```typescript
 // In CDK stack
 const deployedSchema = await deploySchema(
-  this, 
-  schemaString, 
-  props.enver.serviceApiBaseUrl.children[0]
+  this,
+  schemaString,
+  props.enver.serviceApiBaseUrl.children[0],
+  artifactBucket
 );
 
 // Publish both base URL and schema URL
-new OdmdShareOut(this, 'ServiceApiBaseUrl', {
-  enver: props.enver,
-  producer: props.enver.serviceApiBaseUrl,
-  value: this.api.apiEndpoint
-});
+new OdmdShareOut(this, new Map([
+  [props.enver.serviceApiBaseUrl, this.api.apiEndpoint]
+]));
 ```
 
 #### BDD Integration Pattern

@@ -13,9 +13,11 @@ IMPORTANT: Manually control a browser start with saved user session to go throug
 
 The BDD testing pattern aligns with the **PHASES = ENVERS** architecture:
 
-- **Mock Enver BDD** (`workspace1`): Contract verification with mocked service responses
-- **Dev Enver BDD** (`workspace0`): MVP testing with real service integrations  
-- **Main Enver BDD** (`workspace0`): Production validation and monitoring
+- **Mock Enver BDD**: Contract verification with mocked service responses (typically deployed to an isolated workspace to keep mock traffic off shared infrastructure)
+- **Dev Enver BDD**: MVP testing with real service integrations
+- **Main Enver BDD**: Production validation and monitoring
+
+The specific AWS account each enver deploys to is an organizational mapping declared in your `OndemandContracts` subclass; the BDD pattern itself is account-agnostic.
 
 This ensures BDD testing matches the appropriate infrastructure and objectives for each deployment environment.
 
@@ -402,9 +404,9 @@ export class WebClientBddStack extends Stack {
       definitionBody: sfn.DefinitionBody.fromChainable(login)
     });
 
-    new OdmdShareOut(this, 'WebClientBddOutputs', {
-      value: JSON.stringify({ bddStateMachineArn: sm.stateMachineArn })
-    });
+    new OdmdShareOut(this, new Map([
+      [props.enver.bddStateMachineArn, sm.stateMachineArn]
+    ]));
   }
 }
 ```
@@ -468,4 +470,4 @@ For each service implementing this pattern:
 ## 🔒 Cycle Prevention
 - Web client is a consumer of services. Services must not depend on `webClientUrl` in their app stacks to avoid cycles.
 - Resolve all upstream service base URLs via `/odmd-share/...` or `getSharedValue(...)` and keep OAS `servers[0].url` empty; compose route templates at runtime using generated helpers.
-- Wiring is centralized in the ContractsLib root (`OndemandContracts.wireBuildCouplings()`); enver constructors declare producers/consumers and the root wires via `enver.wireCoupling({...upstreamEnvers})`.
+- Cross-build wiring happens after all builds exist; your ContractsLib chooses between a central `wireBuildCouplings()` convention or inline wiring inside enver constructors. See `ONDEMANDENV_PLATFORM.md` → "Two valid wiring styles".

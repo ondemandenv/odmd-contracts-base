@@ -30,7 +30,9 @@ Contracts and contexts are described in code and point to Markdown files by path
 Notes
 - Provide repository-relative paths (e.g., `src/lib/repos/identity/docs/SERVICE_OVERVIEW.md`).
 - No MD generation required; reviewers/devs read these files directly.
-- Add a unit test to assert each path exists to prevent drift.
+- Add a unit test to assert each path exists to prevent drift — `odmdValidate()` also checks existence, so missing paths will fail the ContractsLib build.
+
+> Heads-up on defaults: if you forget to override these properties, the base classes fall back to the generic platform pattern docs shipped in this `.odmd/` directory (`ONDEMANDENV_PLATFORM.md`, `SERVICE_PHASE_DEVELOPMENT_PATTERN.md`, `ENVER_BASED_SERVICE_CONTEXT_PATTERN.md`). Those defaults exist so that `odmdValidate()` doesn't fail before you've written any docs — they are **not** service documentation, and shipping them to production means your service has no real docs-in-code. Always override with service-specific paths.
 
 ### **🚨 CRITICAL: GENERIC PATTERNS ONLY**
 
@@ -73,4 +75,4 @@ This separation ensures that platform patterns remain reusable across different 
 - All other phases require explicit user confirmation before marking ✅ COMPLETE.
 - Canonical progression: mock → dev → main (no forward references).
 - OdmdBuild and OdmdEnver definitions must live in the organization ContractsLib; service repos define stacks/runtime only.
-- Wiring is centralized in `OndemandContracts.wireBuildCouplings()`; enver constructors create producers and declare consumers, and the root wires via `enver.wireCoupling(...)` after all builds are created.
+- Cross-build wiring happens after all builds exist. Two valid styles: a central `wireBuildCouplings()` method on your `OndemandContracts` subclass (recommended for larger graphs), or inline wiring inside enver constructors. Neither is built into the base class — you pick and wire. See `ONDEMANDENV_PLATFORM.md` → "Two valid wiring styles".

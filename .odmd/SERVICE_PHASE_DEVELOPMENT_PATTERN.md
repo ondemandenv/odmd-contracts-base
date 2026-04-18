@@ -29,6 +29,8 @@ This document provides the complete implementation pattern for service phase dev
 > - All other phases require explicit user confirmation before marking ✅ COMPLETE.
 > - Canonical progression: mock → dev → main (no forward references).
 
+> Phase numbering: Phase 0 (`mock`) → Phase 1 (`dev`) → Phase 2 (`main`) → Phase 4 (advanced, future) → Phase 5 (enterprise, future). **Phase 3 is intentionally unused.** If you encounter older drafts with "Phase 3: Production Ready", treat it as an earlier numbering of Phase 2.
+
 ### Phase Status Indicators
 - ✅ **COMPLETE**: Phase fully implemented and validated **[USER CONFIRMED]**
 - 🟡 **PLANNED**: Phase designed but not yet implemented
@@ -102,7 +104,7 @@ curl -X POST https://<service>-api.<domain>/<endpoint> \
 #### Required Deliverables:
 ```markdown
 - [x] **Zod Schemas**: Complete request/response schemas in `lib/handlers/src/schemas/zod.ts`
-- [x] **Schema Deployment**: `deploySchema(this, schemaString, enver.<baseUrl>.children[0])`
+- [x] **Schema Deployment**: `deploySchema(this, schemaString, enver.<baseUrl>.children[0], artifactBucket)`
 - [x] **Schema Consumption**: Downloads upstream schemas via `json-schema-to-zod`
 - [x] **Mocked Handlers**: Lambda handlers returning schema-valid MOCKED responses
 - [x] **Schema Validation**: All requests validated against Zod schemas
@@ -340,7 +342,7 @@ This document provides a complete, self-contained guide for developing and maint
 
 ## 6. Development & Validation
 ### Checkpoint Commands
-- **List Constellations**: `npm run Odmd[ServiceName]:cdk:ls --silent`
+- **List Stacks**: `npm run Odmd[ServiceName]:cdk:ls --silent`
 - **Verify Mock Endpoint**: `curl -X [METHOD] https://<service>-api-mock.amazonaws.com/[resource] -d '{...}'`
 - **Run BDD Tests**: `cd services/web-client/vite && npm run test:bdd`
 
@@ -349,7 +351,7 @@ This document provides a complete, self-contained guide for developing and maint
 **CRITICAL**: Each service must follow the platform's phased development approach with explicit checkpoints.
 
 ### Phase 0: Contract Verification with Mock Data/Code using BDD Tests 🟠 IN_PROGRESS
-**Constellation**: `mock` only initially
+**Enver**: `mock` only initially (the mock-rooted constellation)
 **Focus**: Contract verification, schema validation, and MOCKED responses with dual BDD testing
 
 **CRITICAL**: Phase 0 focused on contract verification with MOCKED responses and BDD testing only.
@@ -393,18 +395,18 @@ cd services/web-client/vite && npm run test:bdd
 ```
 
 ### Phase 1: MVP (Essential) 🟡 PLANNED
-**Constellation**: `mock` → `dev` → `main`
+**Enver**: `dev` (work proceeds along the canonical progression `mock → dev → main`)
 **Focus**: Real business logic implementation (**COMPLETE REMOVAL OF ALL MOCK CODE**)
 
 #### 🚨 **MANDATORY: Mock Code Elimination**
-- **REMOVE ALL MOCK CODE**: Mock handlers, mock data generators, and mock responses must be completely eliminated from dev constellation
-- **REAL IMPLEMENTATION ONLY**: Dev constellation contains ONLY real business logic and actual service integrations
-- **NO MOCK DEPENDENCIES**: Dev services integrate with real upstream/downstream services, not mock implementations
+- **REMOVE ALL MOCK CODE**: Mock handlers, mock data generators, and mock responses must be completely eliminated from the `dev` enver
+- **REAL IMPLEMENTATION ONLY**: The `dev` enver contains ONLY real business logic and actual service integrations
+- **NO MOCK DEPENDENCIES**: Dev services integrate with real upstream/downstream services over the dev-rooted constellation, not mock implementations
 
-#### 🚨 **CRITICAL: Constellation Merging Pattern**
-- **ONE-WAY FROM MOCK**: Code never merges backward from `dev` → `mock` (mock exists only for contract verification)
-- **DEV ↔ MAIN CONSISTENCY**: Dev and main constellations maintain merge consistency for forward progression and hotfixes
-- **INFRASTRUCTURE-ONLY DIFFERENCES**: Business logic should be identical and mergeable between dev and main; differences limited to infrastructure (scaling, monitoring, security)
+#### 🚨 **CRITICAL: Enver Merging Pattern**
+- **ONE-WAY FROM MOCK**: Code never merges backward from `dev` → `mock` (the `mock` enver exists only for contract verification)
+- **DEV ↔ MAIN CONSISTENCY**: `dev` and `main` envers maintain merge consistency for forward progression and hotfixes
+- **INFRASTRUCTURE-ONLY DIFFERENCES**: Business logic should be identical and mergeable between `dev` and `main`; differences limited to infrastructure (scaling, monitoring, security)
 
 #### Phase 1A: Core Domain Logic 🟡 PLANNED
 - [ ] **Domain Operations**: [Real implementation replacing mocked responses]
@@ -413,11 +415,13 @@ cd services/web-client/vite && npm run test:bdd
 - [ ] **Event Publishing**: [Real event publishing for state changes]
 - [ ] **Error Handling**: [Comprehensive error handling and recovery]
 
-#### Phase 1B: Advanced MVP Features 🟡 PLANNED
-- [ ] **Authentication/Authorization**: [Real security implementation]
-- [ ] **Performance Optimization**: [Efficient data access and processing]
-- [ ] **Monitoring Integration**: [CloudWatch metrics and logging]
-- [ ] **Security Hardening**: [Data protection and secure communication]
+#### Phase 1B: Core Feature Implementation 🟡 PLANNED
+- [ ] **Feature Implementation**: [All primary MVP features]
+- [ ] **Business Logic**: [Main business logic complete]
+- [ ] **Use Case Coverage**: [Complex use cases and edge cases handled]
+- [ ] **Basic Observability**: [Sufficient logging/metrics for dev debugging]
+
+*(Production-grade AuthN/AuthZ, performance tuning, and security hardening move to Phase 2.)*
 
 **Checkpoint Validation**:
 ```bash
@@ -428,51 +432,29 @@ curl -X POST https://<service>-api-dev.amazonaws.com/<endpoint> \
 # Should return REAL response with actual business logic processing
 ```
 
-### Phase 2: Core Features 🟡 PLANNED
-**Focus**: Real business logic implementation - [Service-specific domain functionality]
+### Phase 2: Production Ready (`main` enver) 🟡 PLANNED
+**Focus**: Production hardening of the MVP built in Phase 1.
 
-#### Phase 2A: Core Domain Logic 🟡 PLANNED
-- [ ] **Domain Operations**: [Complete implementation of service-specific operations]
-- [ ] **Cross-Service Integration**: [Real integration with upstream/downstream services]
-- [ ] **Event Publishing**: [Real event publishing for state changes]
-- [ ] **Error Handling**: [Comprehensive error responses and recovery mechanisms]
+#### Phase 2A: Production Readiness 🟡 PLANNED
+- [ ] **Security**: [Advanced AuthN/AuthZ, hardening]
+- [ ] **Performance**: [Optimization and tuning]
+- [ ] **Observability**: [Monitoring, logging, alerting]
 - [ ] **Contract Update**: [Keep OpenAPI (HTTP) and/or AsyncAPI (events) artifacts in sync with real behavior (or update bundle references).]
 
-#### Phase 2B: Advanced Features 🟡 PLANNED
-- [ ] **Authentication/Authorization**: [Real security implementation]
-- [ ] **Performance Optimization**: [Efficient data access and processing]
-- [ ] **Security Hardening**: [Data protection and secure communication]
+#### Phase 2B: Comprehensive Testing 🟡 PLANNED
+- [ ] **End-to-end BDD**: [All use cases validated]
+- [ ] **Integration Testing**: [With all dependent services]
+- [ ] **Load / Performance Testing**: [Production-grade]
+- [ ] **Security Testing**: [Penetration, audit]
 
 **Checkpoint Validation**:
 ```bash
-# Service-specific Phase 2 validation
-curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
+# Phase 2 production-readiness validation
+curl -X POST https://<service>-api.<domain>/<endpoint> \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <real-token>" \
   -d '{<service-specific-test-payload>}'
-# Expected: [Service-specific expected response]
-```
-
-### Phase 3: Production Ready 🟡 PLANNED
-**Focus**: BDD integration, testing, and production readiness
-
-#### Phase 3A: BDD Integration & Testing 🟡 PLANNED
-- [ ] **Mock Data Enhancement**: [BDD alignment details]
-- [ ] **UC Flow Support**: [Supported use case flows]
-- [ ] **Test Data Alignment**: [Test data alignment specifics]
-- [ ] **Error Handling**: [Error handling implementation]
-- [ ] **Schema Validation**: [Schema validation details]
-
-**Checkpoint Validation**:
-```bash
-# BDD integration validation
-curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer mock_temp_token_12345" \
-  -d '{
-    "<entity_id>": "550e8400-e29b-41d4-a716-446655440001",
-    "<service_specific_data>": {...}
-  }'
-# Expected: [BDD-expected response format]
+# Expected: [Service-specific expected response with observability signals]
 ```
 
 ### Phase 4: Advanced Features (FUTURE) 🟡 PLANNED
@@ -488,7 +470,7 @@ curl -X POST https://<service>-api-mock.amazonaws.com/<endpoint> \
 - [ ] **[Advanced Feature 2]**: [Feature description]
 
 **Checkpoint Requirements**:
-- All Phase 1-3 checkpoints must pass
+- All Phase 0–2 checkpoints must pass
 - Performance baseline: [Service-specific metrics]
 - Security audit: [Service-specific security requirements]
 - Load testing: [Service-specific load requirements]
@@ -536,9 +518,10 @@ export class <ServiceName>Stack extends Stack {
     // Phase 1B: Schema deployment
     const schemaString = readFileSync('lib/handlers/src/schemas/schema.json', 'utf8');
     const deployedSchema = await deploySchema(
-      this, 
-      schemaString, 
-      props.enver.serviceApiBaseUrl.children[0]
+      this,
+      schemaString,
+      props.enver.serviceApiBaseUrl.children[0],
+      artifactBucket
     );
 
     // Contract publishing
@@ -601,26 +584,25 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
 
 ### Phase Completion Criteria
 
-#### Phase 1 Completion Requirements:
-- [ ] All Phase 1A checkpoint validations pass
-- [ ] All Phase 1B checkpoint validations pass
-- [ ] Service deploys successfully across all constellations (mock, dev, main)
-- [ ] Basic API endpoints return expected responses
+#### Phase 0 Completion Requirements (`mock` enver):
+- [ ] All Phase 0A checkpoint validations pass (contract surface deployed)
+- [ ] All Phase 0B checkpoint validations pass (BDD against mocked responses)
 - [ ] Schemas deploy and are accessible via S3
+- [ ] Service appears in the mock-rooted constellation
 
-#### Phase 2 Completion Requirements:
-- [ ] All Phase 1 requirements met
-- [ ] Core domain functionality fully implemented
-- [ ] Cross-service integration working
+#### Phase 1 Completion Requirements (`dev` enver):
+- [ ] All Phase 0 requirements met
+- [ ] All Phase 1A/1B checkpoint validations pass
+- [ ] All mock code removed; real business logic implemented
+- [ ] Cross-service integration working against real upstream/downstream envers
 - [ ] Events published correctly
-- [ ] Performance meets baseline requirements
 
-#### Phase 3 Completion Requirements:
-- [ ] All Phase 1-2 requirements met
-- [ ] BDD integration complete and validated
-- [ ] Test data perfectly aligned with centralized constants
-- [ ] All use case flows supported
-- [ ] Production readiness validated
+#### Phase 2 Completion Requirements (`main` enver):
+- [ ] All Phase 0–1 requirements met
+- [ ] All Phase 2A/2B checkpoint validations pass
+- [ ] Production-grade security, observability, hardening in place
+- [ ] End-to-end BDD passes
+- [ ] Performance and load testing meet baseline
 
 ## 🚀 Usage Instructions
 
@@ -873,11 +855,13 @@ For concrete implementation examples of these generic patterns, see:
 The ultimate realization for ONDEMANDENV platform service development:
 
 **Different development phases are actually DIFFERENT ENVERS:**
-- **Phase 0** (Contract Verification) = `mock` enver (`workspace1`)
-- **Phase 1** (MVP Development) = `dev` enver (`workspace0`)  
-- **Phase 2+** (Production) = `main` enver (`workspace0`)
+- **Phase 0** (Contract Verification) = `mock` enver
+- **Phase 1** (MVP Development) = `dev` enver
+- **Phase 2+** (Production) = `main` enver
 
-This creates **perfect phase-environment alignment** with appropriate infrastructure, security, and objectives for each stage.
+Enver → AWS account mapping is organization-specific; declare it in your `OndemandContracts` subclass (e.g., mock → an isolated workspace, dev + main → a shared workspace) and keep the revision labels themselves free of account semantics.
+
+This collapses phase, environment, and revision onto a single axis with appropriate infrastructure, security, and objectives at each stage.
 
 ### **ENVER-BASED SERVICE CONTEXT ARCHITECTURE**
 
@@ -896,4 +880,4 @@ These generic patterns are designed to be adaptable to any system architecture w
 - OdmdBuild and OdmdEnver definitions MUST live in the organization ContractsLib. Service repositories must not declare builds/envers; they define stacks and runtime/handlers only.
 - Do not import service handler Zod or generated consumer types into ContractsLib; validation and codegen happen in service repos and BDD stacks.
 - Web client is a consumer of services; services must not depend on `webClientUrl` in app stacks. BDD stacks may reference `webClientUrl` if needed.
-- Wiring is centralized in `OndemandContracts.wireBuildCouplings()` after all builds exist; enver constructors create producers and declare consumers, and wiring passes upstream enver instances into `enver.wireCoupling(...)`, where the enver initializes its consumers.
+- Cross-build wiring happens after all builds exist. Two valid styles — a centralized `wireBuildCouplings()` method on your `OndemandContracts` subclass, or inline wiring inside enver constructors. See `ONDEMANDENV_PLATFORM.md` → "Two valid wiring styles" for examples. Both are conventions you define; the base class provides neither hook.
