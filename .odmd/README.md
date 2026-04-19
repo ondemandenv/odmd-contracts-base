@@ -13,12 +13,13 @@ This directory contains **GENERIC** platform patterns and development guidelines
 
 ### **Core Platform Patterns (Ordered by Importance):**
 
-1. **`ENVER_BASED_SERVICE_CONTEXT_PATTERN.md`**: **🚀 ULTIMATE BEST PRACTICE** - Revolutionary PHASES = ENVERS architecture
-2. **`SYSTEM_SPECIFIC_INPUTS.md`**: **INPUTS REQUIRED** - List of all inputs needed to customize the platform.
-3. **`ONDEMANDENV_PLATFORM.md`**: Generic platform interface and architecture patterns with PHASES = ENVERS insight
-4. **`SERVICE_PHASE_DEVELOPMENT_PATTERN.md`**: Generic service development lifecycle and phase management
-5. **`WEB_CLIENT_BDD_PATTERN.md`**: Generic web client BDD testing patterns with enver alignment
-6. **`lib/utls/ONDEMANDENV_PLATFORM_schema.md`**: Generic platform schema and configuration patterns
+1. **`ONDEMANDENV_PLATFORM.md`**: Platform interface and architecture — start here.
+2. **`ENVER_BASED_SERVICE_CONTEXT_PATTERN.md`**: Service lifecycle (PHASES = ENVERS). The authoritative guide for what to build in each enver and how to verify it.
+3. **`ContractsLib_PROJECT_SETUP_PATTERN.md`**: TypeScript project setup conventions for your ContractsLib package.
+4. **`WEB_CLIENT_BDD_PATTERN.md`**: Dual-layer (Step Functions + Playwright) BDD testing pattern.
+5. **`SYSTEM_SPECIFIC_INPUTS.md`**: Inputs an adopter needs to collect before generating their ContractsLib.
+6. **`SERVICE_PHASE_DEVELOPMENT_PATTERN.md`**: **Bootstrap placeholder only** — the default target of `OdmdBuild.serviceContextMD`. Override it per-service with a real SERVICE_CONTEXT.md; do not treat this file as content.
+7. **`lib/utils/ONDEMANDENV_PLATFORM_schema.md`**: Platform schema and configuration details.
 
 ## 📎 Docs In Code (ContractsLib)
 

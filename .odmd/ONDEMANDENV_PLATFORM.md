@@ -936,9 +936,11 @@ Notes:
 
 **CRITICAL PLATFORM PATTERN**: Every service must follow explicit phased development with checkpoints.
 
-For detailed service development lifecycle and phase management patterns, see:
-- **[SERVICE_PHASE_DEVELOPMENT_PATTERN.md](./SERVICE_PHASE_DEVELOPMENT_PATTERN.md)** - Generic phased development approach
-- **[ENVER_BASED_SERVICE_CONTEXT_PATTERN.md](./ENVER_BASED_SERVICE_CONTEXT_PATTERN.md)** - Revolutionary PHASES = ENVERS architecture
+For the full lifecycle pattern — what belongs in each enver, deliverables and checkpoints per phase, and templates for the per-service `SERVICE_CONTEXT.md` / `MOCK_ENVER_CONTEXT.md` / `DEV_ENVER_CONTEXT.md` / `MAIN_ENVER_CONTEXT.md` — see:
+
+- **[ENVER_BASED_SERVICE_CONTEXT_PATTERN.md](./ENVER_BASED_SERVICE_CONTEXT_PATTERN.md)** — the PHASES = ENVERS lifecycle, end to end.
+
+Note: `SERVICE_PHASE_DEVELOPMENT_PATTERN.md` in this directory is a **bootstrap placeholder** (the default target of `OdmdBuild.serviceContextMD`), not a lifecycle reference. Adopters override it per-service.
 
 ## 🚀 **REVOLUTIONARY PLATFORM INSIGHT: PHASES = ENVERS**
 
