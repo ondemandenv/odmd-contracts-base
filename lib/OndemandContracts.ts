@@ -9,7 +9,7 @@ import {OdmdAspect} from "./model/odmd-aspect";
 import {execSync} from "child_process";
 import {
     AccountsCentralView,
-    AccountToOdmdHostedZoneIdName,
+    DnsConfig,
     GithubReposCentralView,
     OdmdContractsCentralView
 } from "./OdmdContractsCentralView";
@@ -65,18 +65,82 @@ export abstract class OndemandContracts<
         return this._defaultEcrEks;
     }
 
-    public getAccountName(accId: string) {
+    public getAccountName(accId: string): keyof AccountsCentralView {
         return Object.entries(this.accounts).find(([k, v]) => v == accId)![0] as keyof AccountsCentralView
     }
 
     abstract get allAccounts(): string[]
 
-    get subDomain(): string | undefined {
+    /**
+     * DNS configuration for this customer. Returns `undefined` when the customer does
+     * not manage DNS via the platform. Replaces the old `subDomain` + `accountToOdmdHostedZone`
+     * pair; all zone names are now derivable from `dnsConfig.subDomain` + account keys
+     * unless overridden inside `dnsConfig.accounts`.
+     */
+    get dnsConfig(): DnsConfig | undefined {
         return undefined
     }
 
-    get accountToOdmdHostedZone(): AccountToOdmdHostedZoneIdName | undefined {
-        return undefined
+    /**
+     * Auto-derived label (subdomain first-label) for an account name:
+     *   workspace<N> → ws<N>
+     *   central      → undefined (central has no label; it IS the parent zone)
+     *   anything else (networking, custom accounts) → the raw account name
+     */
+    private defaultAccountLabel(accountName: keyof A): string | undefined {
+        const n = String(accountName)
+        if (n === 'central') return undefined
+        const m = n.match(/^workspace(\d+)$/)
+        if (m) return `ws${m[1]}`
+        return n
+    }
+
+    /**
+     * Effective zone name for the given account, honoring explicit overrides in
+     * `dnsConfig.accounts[name]` and falling back to convention-based derivation.
+     * Returns `undefined` when DNS is not configured or when the account is
+     * explicitly opted-out (`accounts[name] === undefined` with the key present).
+     */
+    public zoneNameForAccount(accountName: keyof A): string | undefined {
+        const cfg = this.dnsConfig
+        if (!cfg) return undefined
+
+        const nStr = String(accountName)
+        if (nStr === 'central') return `${cfg.subDomain}.odmd.uk`
+
+        // Explicit opt-out: key present in `accounts` with undefined value.
+        if (cfg.accounts && Object.prototype.hasOwnProperty.call(cfg.accounts, nStr)) {
+            const override = cfg.accounts[nStr]
+            if (override === undefined) return undefined
+            const label = override.subDomain ?? this.defaultAccountLabel(accountName)
+            if (!label) return undefined
+            return `${label}.${cfg.subDomain}.odmd.uk`
+        }
+
+        const label = this.defaultAccountLabel(accountName)
+        if (!label) return undefined
+        return `${label}.${cfg.subDomain}.odmd.uk`
+    }
+
+    /** Explicit zone id if declared (reuse manual zone); undefined when auto-managed. */
+    public zoneIdForAccount(accountName: keyof A): string | undefined {
+        const cfg = this.dnsConfig
+        if (!cfg) return undefined
+        if (String(accountName) === 'central') return cfg.hostedZoneId
+        return cfg.accounts?.[String(accountName)]?.hostedZoneId
+    }
+
+    /**
+     * True when the platform is responsible for creating the account's zone
+     * (name resolves AND no explicit zone id given).
+     * NOTE: central auto-creation is future work; today returns false for 'central'
+     * so nothing attempts to create it on the center account.
+     */
+    public zoneIsAutoManaged(accountName: keyof A): boolean {
+        if (String(accountName) === 'central') return false
+        const name = this.zoneNameForAccount(accountName)
+        if (!name) return false
+        return this.zoneIdForAccount(accountName) === undefined
     }
 
     protected _contractsLibBuild: C;
@@ -310,23 +374,37 @@ export abstract class OndemandContracts<
             })
 
         })
-        if (this.accountToOdmdHostedZone && this.subDomain) {
-            for (const [account, [hzId, hzName]] of Object.entries(this.accountToOdmdHostedZone)) {
-                /*
-                account domain name is supposed to be
-                <account name like ws0,1,2...>.<central name, this.subDomain>.odmd.uk
-                ws0.kk.odmd.uk
-                */
-                if (hzName.split('.')[1] != this.subDomain) {
-                    throw new Error(`Hosted zone name "${hzName}" for account "${account}" must has subDomain "${this.subDomain}" as parent domain name.`);
-                }
-                if (hzName != hzName.toLowerCase()) {
-                    throw new Error("hzName has to be lower case")
-                }
+        const cfg = this.dnsConfig
+        if (cfg) {
+            if (cfg.subDomain !== cfg.subDomain.toLowerCase() || cfg.subDomain.length === 0) {
+                throw new Error(`dnsConfig.subDomain must be lowercase non-empty, got "${cfg.subDomain}"`)
             }
-        }
-        if (this.subDomain && this.subDomain != this.subDomain.toLowerCase()) {
-            throw new Error('contracts subDomain need to be lowercase')
+
+            // Resolve each account's zone name; enforce invariants and collision-free.
+            const byName = new Map<string, string>()
+            for (const accountName of Object.keys(this.accounts) as (keyof A)[]) {
+                const name = this.zoneNameForAccount(accountName)
+                if (!name) continue
+                if (name !== name.toLowerCase()) {
+                    throw new Error(`Zone "${name}" for account "${String(accountName)}" must be lowercase`)
+                }
+                // Non-central zones must be direct children of <subDomain>.odmd.uk.
+                if (String(accountName) !== 'central') {
+                    const labels = name.split('.')
+                    if (labels[1] !== cfg.subDomain) {
+                        throw new Error(
+                            `Zone "${name}" for account "${String(accountName)}" must have "${cfg.subDomain}" as parent label`
+                        )
+                    }
+                }
+                const prior = byName.get(name)
+                if (prior) {
+                    throw new Error(
+                        `Zone name collision: accounts "${prior}" and "${String(accountName)}" both resolve to "${name}"`
+                    )
+                }
+                byName.set(name, String(accountName))
+            }
         }
 
     }

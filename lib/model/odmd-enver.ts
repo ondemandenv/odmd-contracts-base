@@ -11,6 +11,7 @@
 
 import {Construct, IConstruct} from "constructs";
 import {OdmdBuild, SRC_Rev_REF} from "./odmd-build";
+import {OdmdHostedZoneRef} from "../OdmdContractsCentralView";
 
 export interface IOdmdEnver extends IConstruct {
 
@@ -25,7 +26,7 @@ export interface IOdmdEnver extends IConstruct {
 
     get subdomain(): string | undefined
 
-    get hostedZone(): [string, string] | undefined
+    get hostedZone(): OdmdHostedZoneRef | undefined
 
     /**
      * odmd platform will delete all resources created by this enver including stateful resources
@@ -195,12 +196,16 @@ export abstract class OdmdEnver<T extends OdmdBuild<OdmdEnver<T>>> extends Const
         return this.owner.subDomain ? this.targetRevision.toPathPartStr().replace(/[^a-zA-Z0-9-]/g, "").replace(/^-+|-+$/g, "").toLowerCase() + '.' + this.owner.subDomain : undefined
     }
 
-    get hostedZone(): [string, string] | undefined {
+    get hostedZone(): OdmdHostedZoneRef | undefined {
         const accountName = this.owner.contracts.getAccountName(this.targetAWSAccountID)
-        if (this.owner.contracts.accountToOdmdHostedZone && accountName) {
-            return this.owner.contracts.accountToOdmdHostedZone[accountName];
+        if (!accountName) return undefined
+        const name = this.owner.contracts.zoneNameForAccount(accountName)
+        if (!name) return undefined
+        return {
+            name,
+            id: this.owner.contracts.zoneIdForAccount(accountName),
+            autoManaged: this.owner.contracts.zoneIsAutoManaged(accountName),
         }
-        return undefined
     }
 
 }

@@ -86,10 +86,12 @@ export abstract class OdmdBuild<T extends OdmdEnver<OdmdBuild<T>>> extends Const
 
     get subDomain(): string | undefined {
         /*
-        lib/OndemandContracts.ts validation will make sure:
-        each account's domain name starts with central subdomain,
-        so no need to add central subdomain here*/
-        return this.contracts.subDomain ? this.buildId.toLowerCase(): undefined
+        Returns the build's label within the customer's subdomain tree.
+        OndemandContracts.odmdValidate enforces all zones are children of
+        cfg.subDomain, so returning just the buildId (lowercase) is sufficient
+        as a label — the full zone is the enver's responsibility.
+        */
+        return this.contracts.dnsConfig ? this.buildId.toLowerCase() : undefined
     }
 
     //the artifact bucket ssm path

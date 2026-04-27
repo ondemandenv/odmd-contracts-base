@@ -25,8 +25,44 @@ export type AccountsCentralView = {
     workspace0: string,
 }
 
-export type AccountToOdmdHostedZoneIdName = {
-    [k in keyof AccountsCentralView]: [ string, string ]
+/**
+ * DNS config for a customer. Replaces the old `subDomain()` + `accountToOdmdHostedZone()`
+ * pair. `undefined` at root = customer does not manage DNS via the platform.
+ *
+ * Conventions when an account entry is absent (and `accounts` is present or undefined):
+ *   - central zone name = `<subDomain>.odmd.uk`
+ *   - workspace<N> zone name = `ws<N>.<subDomain>.odmd.uk`
+ *   - networking zone name = `networking.<subDomain>.odmd.uk`
+ *   - any other account key → `<accountKey>.<subDomain>.odmd.uk`
+ *
+ * Setting `accounts[name] = undefined` explicitly opts the account out of DNS entirely.
+ * Setting `accounts[name] = { hostedZoneId: 'Z...' }` reuses an existing manually-managed zone.
+ * Setting `accounts[name] = { subDomain: 'customLabel' }` overrides the default label.
+ */
+export type DnsConfig = {
+    /** Central label under odmd.uk. Lowercase. E.g. 'seed', 'sbx', 'kk'. */
+    subDomain: string;
+    /** Reuse an existing center zone by id. Undefined → (FUTURE) platform auto-creates. */
+    hostedZoneId?: string;
+    /** Per-account overrides and explicit opt-outs. */
+    accounts?: {
+        [accountName: string]: {
+            /** Explicit zone id to reuse. Undefined → platform auto-creates for workspace-like accounts. */
+            hostedZoneId?: string;
+            /** Override the auto-derived label (default: `ws<N>` for workspace<N>, accountName otherwise). */
+            subDomain?: string;
+        } | undefined;
+    };
+};
+
+/** Structured hosted-zone reference returned by `OdmdEnver.hostedZone`. */
+export interface OdmdHostedZoneRef {
+    /** Fully-qualified zone name, always present. */
+    name: string;
+    /** Explicit zone id when reusing a manual zone; undefined when platform-managed. */
+    id?: string;
+    /** True when the platform creates/owns this zone. */
+    autoManaged: boolean;
 }
 
 export interface OdmdContractsCentralView<

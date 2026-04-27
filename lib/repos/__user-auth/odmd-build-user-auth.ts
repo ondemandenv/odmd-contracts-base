@@ -53,7 +53,7 @@ export abstract class OdmdEnverUserAuth extends OdmdEnverCdk {
     }
 
     get subdomain(): string | undefined {
-        return this.owner.contracts.subDomain ? 'auth': undefined
+        return this.owner.contracts.dnsConfig ? 'auth': undefined
     }
 
 }
