@@ -63,7 +63,7 @@ ONDEMANDENV makes a **branch/tag of a bounded context** a first-class deployable
 
 ## Where this sits among branch-as-enver's motivations
 
-The unknown unknown is **one** core motivation — the sharpest first-principles one, because it proves the mainstream model has a blind spot that *no amount of better testing or more rings can close*. Other motivations (per-service blue/green, cheap constellation cloning for feature branches, per-edge compatibility proof, eliminating staging-as-integration-discovery) are documented as platform mechanics in `ONDEMANDENV_PLATFORM.md` §"The CI/CD Inversion". Read them together: this doc is the *why-it's-necessary*; that section is the *what-and-how*.
+The unknown unknown is **one** core motivation — the sharpest first-principles one, because it proves the mainstream model has a blind spot that *no amount of better testing or more rings can close*. Other motivations in this series: `WHY_BRANCH_AS_ENVER_cheap_verification_trials.md` (#2 — why the fix was cheap real trials, not chaos-engineering discipline) and `WHY_BRANCH_AS_ENVER_parallel_exploration.md` (#3 — cheap per-branch contexts turn branch conflicts into evidence-based experiments). Further platform mechanics (per-service blue/green, cheap constellation cloning, per-edge compatibility proof) are in `ONDEMANDENV_PLATFORM.md` §"The CI/CD Inversion". Read them together: this doc is the *why-it's-necessary*; that section is the *what-and-how*.
 
 ## One-line takeaway
 

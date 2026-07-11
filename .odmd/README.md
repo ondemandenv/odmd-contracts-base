@@ -14,7 +14,10 @@ This directory contains **GENERIC** platform patterns and development guidelines
 ### **Core Platform Patterns (Ordered by Importance):**
 
 1. **`ONDEMANDENV_PLATFORM.md`**: Platform interface and architecture — start here.
-2. **`WHY_BRANCH_AS_ENVER_unknown_unknown.md`**: *Why* branch-as-enver (against the mainstream single-version pipeline) — motivation #1: unknown unknowns that only live traffic finds. Pairs with `ONDEMANDENV_PLATFORM.md` §"The CI/CD Inversion".
+2. **`WHY_BRANCH_AS_ENVER_*.md`** (series): *why* branch-as-enver, against the mainstream single-version pipeline. Three motivations, pairs with `ONDEMANDENV_PLATFORM.md` §"The CI/CD Inversion":
+   - `_unknown_unknown.md` — #1: failure modes only real traffic manufactures; staged pipelines are structurally blind to them.
+   - `_cheap_verification_trials.md` — #2: the fix was a cost curve (cheap real trials), not a discipline (chaos engineering); the missing piece for AI-scale hypothesis testing.
+   - `_parallel_exploration.md` — #3: cheap per-branch full contexts turn branch conflicts into evidence-based parallel experiments instead of forced-convergence contests.
 3. **`ENVER_BASED_SERVICE_CONTEXT_PATTERN.md`**: Service lifecycle (PHASES = ENVERS). The authoritative guide for what to build in each enver and how to verify it.
 4. **`ContractsLib_PROJECT_SETUP_PATTERN.md`**: TypeScript project setup conventions for your ContractsLib package.
 5. **`WEB_CLIENT_BDD_PATTERN.md`**: Dual-layer (Step Functions + Playwright) BDD testing pattern.
