@@ -45,6 +45,8 @@ ONDEMANDENV inverts this. The ContractsLib versions the **interfaces**, and the 
 
 The cost is real too: all distributed-systems complexity migrates into the ContractsLib. Designing a good ContractsLib is harder than wiring services ad hoc, and the legislature's vocabulary (build, enver, producer, consumer, constellation) has a learning curve. You are trading *runtime surprise* for *design-time rigor*.
 
+> Why this inversion is *necessary*, not just an option: see `WHY_BRANCH_AS_ENVER_unknown_unknown.md` — a single-version staged pipeline is structurally blind to failure modes that only real traffic manufactures (unknown unknowns), which no amount of testing or extra rings can close.
+
 ## From‑Scratch Quickstart (Generalized)
 
 Follow this sequence to bring a new bounded context onto the platform with contract‑first discipline:
