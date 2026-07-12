@@ -19,7 +19,8 @@ This directory contains **GENERIC** platform patterns and development guidelines
    - `_cheap_verification_trials.md` — #2: the fix was a cost curve (cheap real trials), not a discipline (chaos engineering); the missing piece for AI-scale hypothesis testing.
    - `_parallel_exploration.md` — #3: cheap per-branch full contexts turn branch conflicts into evidence-based parallel experiments instead of forced-convergence contests.
 3. **`ENVER_BASED_SERVICE_CONTEXT_PATTERN.md`**: Service lifecycle (PHASES = ENVERS). The authoritative guide for what to build in each enver and how to verify it.
-4. **`ContractsLib_PROJECT_SETUP_PATTERN.md`**: TypeScript project setup conventions for your ContractsLib package.
+4. **`SYSTEM_OVERVIEW_PATTERN.md`**: where the per-customer **system** big-picture lives in docs-in-code (the `__contracts` build's `docs/`) — authored by the Customer Owner, delivered to every service owner. Complements the per-service docs in #3.
+5. **`ContractsLib_PROJECT_SETUP_PATTERN.md`**: TypeScript project setup conventions for your ContractsLib package.
 5. **`WEB_CLIENT_BDD_PATTERN.md`**: Dual-layer (Step Functions + Playwright) BDD testing pattern.
 6. **`SYSTEM_SPECIFIC_INPUTS.md`**: Inputs an adopter needs to collect before generating their ContractsLib.
 7. **`SERVICE_PHASE_DEVELOPMENT_PATTERN.md`**: **Bootstrap placeholder only** — the default target of `OdmdBuild.serviceContextMD`. Override it per-service with a real SERVICE_CONTEXT.md; do not treat this file as content.
