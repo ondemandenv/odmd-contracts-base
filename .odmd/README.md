@@ -21,10 +21,12 @@ This directory contains **GENERIC** platform patterns and development guidelines
 3. **`ENVER_BASED_SERVICE_CONTEXT_PATTERN.md`**: Service lifecycle (PHASES = ENVERS). The authoritative guide for what to build in each enver and how to verify it.
 4. **`SYSTEM_OVERVIEW_PATTERN.md`**: where the per-customer **system** big-picture lives in docs-in-code (the `__contracts` build's `docs/`) — authored by the Customer Owner, delivered to every service owner. Complements the per-service docs in #3.
 5. **`ContractsLib_PROJECT_SETUP_PATTERN.md`**: TypeScript project setup conventions for your ContractsLib package.
-5. **`WEB_CLIENT_BDD_PATTERN.md`**: Dual-layer (Step Functions + Playwright) BDD testing pattern.
-6. **`SYSTEM_SPECIFIC_INPUTS.md`**: Inputs an adopter needs to collect before generating their ContractsLib.
-7. **`SERVICE_PHASE_DEVELOPMENT_PATTERN.md`**: **Bootstrap placeholder only** — the default target of `OdmdBuild.serviceContextMD`. Override it per-service with a real SERVICE_CONTEXT.md; do not treat this file as content.
-8. **`lib/utils/ONDEMANDENV_PLATFORM_schema.md`**: Platform schema and configuration details.
+6. **`SERVICE_ONBOARDING_PATTERN.md`**: Contract-first onboarding of a brand-new service (`OdmdBuild*`) through the event-driven trigger chain to a green mock build — the four-phase procedure + the package.json dependency-version gauntlet.
+7. **`CONTRACTSLIB_RELEASE_PATTERN.md`**: Releasing a new ContractsLib version — bump→build→push→CI(pack tgz + `contractsLibLatest` SSM triplet + `npm publish`)→verify propagation→consumer fan-out, and the "version MUST change" invariant + publish/consume race.
+8. **`WEB_CLIENT_BDD_PATTERN.md`**: Dual-layer (Step Functions + Playwright) BDD testing pattern.
+9. **`SYSTEM_SPECIFIC_INPUTS.md`**: Inputs an adopter needs to collect before generating their ContractsLib.
+10. **`SERVICE_PHASE_DEVELOPMENT_PATTERN.md`**: **Bootstrap placeholder only** — the default target of `OdmdBuild.serviceContextMD`. Override it per-service with a real SERVICE_CONTEXT.md; do not treat this file as content.
+11. **`lib/utils/ONDEMANDENV_PLATFORM_schema.md`**: Platform schema and configuration details.
 
 ## 📎 Docs In Code (ContractsLib)
 

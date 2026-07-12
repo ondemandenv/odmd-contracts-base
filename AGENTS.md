@@ -9,6 +9,8 @@ This is the **platform base library** — the generic ONDEMANDENV grammar every 
   - `ENVER_BASED_SERVICE_CONTEXT_PATTERN.md` — PHASES=ENVERS lifecycle (per-service overview/context/enver).
   - `SYSTEM_OVERVIEW_PATTERN.md` — per-customer system overview lives in the `__contracts` build's `docs/`.
   - `ContractsLib_PROJECT_SETUP_PATTERN.md`, `WHY_BRANCH_AS_ENVER_*` (why branch-as-enver), `SERVICE_PHASE_DEVELOPMENT_PATTERN.md` (bootstrap placeholder), `SYSTEM_SPECIFIC_INPUTS.md`.
+  - `SERVICE_ONBOARDING_PATTERN.md` — contract-first onboarding of a new service through the trigger chain to a green mock build.
+  - `CONTRACTSLIB_RELEASE_PATTERN.md` — releasing a new ContractsLib version (bump→publish→verify→consumer fan-out).
 - **Code** — `lib/model/` (core: OdmdBuild/OdmdEnver/cross-refs), `lib/repos/` (built-in platform builds: `__contracts`/`__user-auth`/`__networking`/`_default-*`), `lib/OndemandContracts.ts`.
 
 ## What you maintain here (ships to every customer)
