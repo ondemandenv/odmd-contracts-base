@@ -254,16 +254,42 @@ Because constellations are emergent, a service can participate in many of them w
 ## Dynamic Cloning for Development
 
 ### **Clone Commands**
-- **Create**: Git commit with `odmd: create@baseEnver` in message body
-- **Delete**: Git commit with `odmd: delete` in message body
+
+Commands are read from a **git commit message on push**, by the platform's GitHub App webhook handler. They are *not* PR/issue comments — no comment parser exists.
+
+```
+odmd: create <buildId>@<baseEnverPathPart>
+odmd: remove <buildId>@<baseEnverPathPart>
+```
+
+- **Create**: clone `<baseEnverPathPart>` into a new dynamic enver on the pushed branch
+- **Remove**: delete that dynamic enver (the verb is `remove`, **not** `delete`)
 - **Purpose**: Create isolated, temporary environments for feature development
 
+Syntax rules — all mandatory, all silently enforced:
+
+| Rule | Detail |
+|---|---|
+| **Space after the verb** | The prefix matched is the literal `odmd: create ` / `odmd: remove ` (trailing space). `odmd: create@…` matches nothing and returns with no log and no error. |
+| **`<baseEnverPathPart>` is a path part, not a branch name** | `b..<branch>` for a branch enver, `t..<tag>` for a tag enver. It is compared against `SRC_Rev_REF.toPathPartStr()`, so `b..main` matches, `main` does not. |
+| **`<buildId>` is optional** | Omit it (`odmd: create @b..main`) and every build mapped to the pushing repo is used. If given, it must map to the pushing repo or the command aborts. |
+| **The new enver is the pushed branch** | Taken from the push `ref`, not from the command. The command only names the *base*. |
+| **First line of the first commit** | The handler reads `commits[0].message` and only its first line — not `head_commit`. A push whose first commit lacks the command is ignored even if a later commit has it. |
+| **Base ≠ new** | Pushing the command on the base branch itself is a no-op. |
+
 ### **Clone Workflow**
-1. Developer creates feature branch
-2. Commits code with `odmd: create@dev` command
-3. Platform provisions complete isolated SDLC environment
-4. Developer tests in isolated environment with unique endpoints
-5. After testing, commits `odmd: delete` to cleanup resources
+1. Developer creates a feature branch off the base enver's branch
+2. Pushes with `odmd: create @b..dev` as the first line of the push's first commit
+3. The webhook writes a marker (`odmd-envers/<buildId>/<basePathPart>/<newPathPart>`) to the central artifact bucket + mirror SSM parameter — **this is all the webhook does; no enver exists yet**
+4. The marker change bumps a producer, which triggers the central control-plane re-synth
+5. Central synth lists the markers, resolves each base enver, and calls `orgEnver.generateDynamicEnver(rev)` (`lib/model/odmd-enver.ts`) — the actual clone. The dynamic enver's rev-ref is the composite `<base>-_<new>` (e.g. `b..dev-_b..myFeature`; `-_` is reserved and rejected inside a plain ref)
+6. Platform provisions the complete isolated SDLC environment; developer tests against unique endpoints
+7. When done, push `odmd: remove @b..dev` to delete the marker and tear the enver down
+
+**Cloning is asynchronous.** A green push does not mean the enver exists — it exists after the central pipeline re-synths.
+
+### **Alternative: PR-triggered clones (no command needed)**
+Opening a pull request creates the same marker automatically, and closing it removes the marker — provided the **head branch name starts with `odmd_`**. Base branch becomes the base enver, head branch becomes the dynamic enver. No commit-message command is involved.
 
 ### **Full SDLC Context per Enver**
 Each Enver provides complete Software Development Lifecycle context including:

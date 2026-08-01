@@ -109,10 +109,12 @@ The platform supports two layers of BDD testing to validate inter-service contra
 
 ### Dynamic Cloning for Development
 
-The platform allows you to create isolated, temporary envers for feature development using git-based commands:
+The platform allows you to create isolated, temporary envers for feature development using git-based commands. The command goes in the **first line of the first commit of a push** (not a PR/issue comment):
 
-*   **Create:** `odmd: create@baseEnver` in a commit message.
-*   **Delete:** `odmd: delete` in a commit message.
+*   **Create:** `odmd: create <buildId>@b..<baseBranch>`
+*   **Remove:** `odmd: remove <buildId>@b..<baseBranch>`
+
+The space after the verb is mandatory, `<buildId>` may be omitted (`odmd: create @b..main` → all builds mapped to the repo), and the base enver must be given in path-part form (`b..<branch>` / `t..<tag>`) — a bare branch name will not match. The new enver is the branch you pushed. Alternatively, opening a PR from a branch named `odmd_*` creates the clone with no command at all. See `.odmd/ONDEMANDENV_PLATFORM.md` → *Dynamic Cloning for Development* for the full rules and the async materialization flow.
 
 ### AI-Assisted, Doc-Driven Development
 
