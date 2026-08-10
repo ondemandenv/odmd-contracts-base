@@ -81,6 +81,7 @@ This separation ensures that platform patterns remain reusable across different 
 ## IMPORTANT — Phase Status Gating and Canonical Progression
 - Phase 0A is automatically ✅ DONE upon service context generation.
 - All other phases require explicit user confirmation before marking ✅ COMPLETE.
-- Canonical progression: mock → dev → main (no forward references).
+- Canonical progression: mock → dev → main (no forward references; backwards references such as `dev` consuming `mock` producers ARE allowed, so a constellation need not be revision-uniform — see `ONDEMANDENV_PLATFORM.md` → "Service Constellations").
+- One build resolves to exactly one enver per constellation; `odmdValidate()` enforces this by walking the closure from every enver.
 - OdmdBuild and OdmdEnver definitions must live in the organization ContractsLib; service repos define stacks/runtime only.
 - Cross-build wiring happens after all builds exist. Two valid styles: a central `wireBuildCouplings()` method on your `OndemandContracts` subclass (recommended for larger graphs), or inline wiring inside enver constructors. Neither is built into the base class — you pick and wire. See `ONDEMANDENV_PLATFORM.md` → "Two valid wiring styles".

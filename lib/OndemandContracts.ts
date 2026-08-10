@@ -1,7 +1,7 @@
 import {Construct, IConstruct} from "constructs";
 import {OdmdBuildNetworking} from "./repos/__networking/odmd-build-networking";
 import {OdmdBuildDefaultVpcRds} from "./repos/_default-vpc-rds/odmd-build-default-vpc-rds";
-import {AnyOdmdEnVer} from "./model/odmd-enver";
+import {AnyOdmdEnVer, OdmdEnver} from "./model/odmd-enver";
 import {OdmdBuild} from "./model/odmd-build";
 import {OdmdBuildDefaultKubeEks} from "./repos/_default-kube-eks/odmd-build-default-kube-eks";
 import {Aspects} from "aws-cdk-lib";
@@ -65,6 +65,11 @@ export abstract class OndemandContracts<
         return this._defaultEcrEks;
     }
 
+    // TODO: widen return type to `keyof A` so callers that have A extending AccountsCentralView
+    //       (e.g. kk's Accounts with `workspace1`) can index this.accounts[result] without a cast.
+    //       Runtime already returns the correct string; only the TS type is narrower than it
+    //       should be. Currently forces callers like zoneNameForAccount/zoneIdForAccount to
+    //       accept `keyof A` but rely on `getAccountName` returning `keyof AccountsCentralView`.
     public getAccountName(accId: string): keyof AccountsCentralView {
         return Object.entries(this.accounts).find(([k, v]) => v == accId)![0] as keyof AccountsCentralView
     }
@@ -348,6 +353,53 @@ export abstract class OndemandContracts<
             if (c.owner.targetAWSRegion != c.producer.owner.targetAWSRegion) {
                 throw new Error(` cross region is not supported: consumer ${c.owner.node.path} in region ${c.owner.targetAWSRegion}, but producer ${c.producer.node.path} is in region ${c.producer.owner.targetRevision}`)
             }
+        })
+
+        /*
+        A constellation is the closure of producer/consumer edges from any starting enver.
+        Within one constellation a build MUST resolve to exactly one enver: two envers of the
+        same build in one closure means two sources of truth for one bounded context, so
+        consumers of that build disagree about which instance is authoritative.
+
+        Uniform wiring (every consumer picking the same revision) satisfies this by
+        construction; hand-wired non-uniform constellations (e.g. a `dev` enver reusing `mock`
+        upstreams, per the backwards-only reference rule) can violate it silently -- nothing
+        else here compares revisions, and OdmdCrossRefConsumer only rejects consuming from the
+        consumer's OWN build.
+         */
+        const allEnvers = this.node.findAll().filter(n => n instanceof OdmdEnver) as AnyOdmdEnVer[]
+        const producerEnversOf = (e: AnyOdmdEnVer) => e.node.findAll()
+            .filter(n => n instanceof OdmdCrossRefConsumer)
+            .map(n => (n as OdmdCrossRefConsumer<AnyOdmdEnVer, AnyOdmdEnVer>).producer.owner)
+            .filter(p => p != undefined)
+        allEnvers.forEach(root => {
+            const closure = new Set<AnyOdmdEnVer>([root])
+            const pending = [root]
+            while (pending.length > 0) {
+                const cur = pending.pop()!
+                producerEnversOf(cur).forEach(nxt => {
+                    if (!closure.has(nxt)) {
+                        closure.add(nxt)
+                        pending.push(nxt)
+                    }
+                })
+            }
+            const byBuildId = new Map<string, AnyOdmdEnVer[]>()
+            closure.forEach(e => {
+                const buildId = e.owner.buildId
+                if (!byBuildId.has(buildId)) {
+                    byBuildId.set(buildId, [])
+                }
+                byBuildId.get(buildId)!.push(e)
+            })
+            byBuildId.forEach((envers, buildId) => {
+                if (envers.length > 1) {
+                    throw new Error(`constellation rooted at ${root.owner.buildId}/${root.targetRevision.toPathPartStr()}`
+                        + ` reaches ${envers.length} envers of build ${buildId}:`
+                        + ` ${envers.map(e => e.targetRevision.toPathPartStr()).join(', ')}`
+                        + ` -- a build must resolve to exactly one enver per constellation`)
+                }
+            })
         })
 
 

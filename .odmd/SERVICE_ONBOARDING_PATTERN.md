@@ -20,7 +20,7 @@ Nothing is wired between services outside contracts. In your ContractsLib:
    - Add docs-as-code under `docs/` (`SERVICE_OVERVIEW.md`, `SERVICE_CONTEXT.md`, `{MOCK,DEV,MAIN}_ENVER_CONTEXT.md`) and point the build's `serviceOverviewMD`/`serviceContextMD` + each enver's `enverContextMD` at them.
 2. **Register + wire** in `lib/OndemandContracts<Cust>.ts`:
    - Add the service to the `GithubRepos` type + `githubRepos` map (`name:'<service>-service'`).
-   - Import + instantiate the build in the constructor, and add it to **every** `wireConstellation('mock'|'dev'|'main', {…})` where it participates. Wire its consumers to upstream envers there. **No forward references** — a `mock` enver can't depend on a `dev`-only output.
+   - Import + instantiate the build in the constructor, and add it to **every** `wireConstellation('mock'|'dev'|'main', {…})` where it participates. Wire its consumers to upstream envers there. **No forward references** — a `mock` enver can't depend on a `dev`-only output (backwards references are fine: a `dev` enver may consume `mock` producers). **One enver per build per constellation** — never wire two consumers in the same closure at different envers of the same upstream build; `odmdValidate()` throws on it. See `ONDEMANDENV_PLATFORM.md` → "Service Constellations".
    - Export the build from `index.ts`.
 3. **Add a build test** asserting the new build is present / exposes its docs.
 4. **Bump the ContractsLib version** (see `CONTRACTSLIB_RELEASE_PATTERN.md`). Republishing the SAME version updates the SSM sha but NOT the `ver` field — consumers keyed on `ver` will NOT redeploy.

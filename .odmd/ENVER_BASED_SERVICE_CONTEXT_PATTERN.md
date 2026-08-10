@@ -14,7 +14,7 @@ The platform's core claim is **PHASES = ENVERS**: the lifecycle stages of a serv
 - **Phase 3** is intentionally unused.
 - **Phase 4+** (advanced / enterprise) are additional envers your org may define if needed.
 
-Canonical progression: `mock → dev → main`. No forward references: a `mock` enver cannot consume a `dev` producer; a `dev` enver cannot consume a `main` producer. Consumers wire within their revision, forming that revision's **constellation** (see `ONDEMANDENV_PLATFORM.md` for the strict definition).
+Canonical progression: `mock → dev → main`. References run **backwards only** along that progression. No forward references: a `mock` enver cannot consume a `dev` producer; a `dev` enver cannot consume a `main` producer. Backwards references are legal and useful: a `dev` enver MAY consume `mock` producers, and a `main` enver MAY consume `dev`/`mock` producers. The closure of those edges from any enver is a **constellation** (see `ONDEMANDENV_PLATFORM.md` for the strict definition) — a constellation is *not* required to be revision-uniform.
 
 > Phase status gating
 > - Phase 0A is automatically ✅ DONE upon service context generation (the act of writing down the contract surface).
@@ -359,11 +359,19 @@ mock  ──▶  dev  ──▶  main
 
 ### Enver isolation and constellation wiring
 
-Cross-ref wiring is constrained by revision. Consumers of a given revision wire only to producers of the same revision; the resulting subgraph is that revision's constellation.
+Cross-ref wiring is constrained by the progression above, in **one** direction only: a consumer may wire to a producer at its own revision or at an **earlier** one, never a later one. The closure of those edges from any enver is that enver's constellation.
 
-- **`main` envers**: strictly isolated — `main` consumers wire only to `main` producers (main-rooted constellation).
+**Uniform wiring (the common case).** Every consumer picks its own revision, giving one clean constellation per revision:
+
+- **`main` envers**: `main` consumers wire to `main` producers (main-rooted constellation).
 - **`dev` envers**: integration testing — `dev` consumers wire to `dev` producers (dev-rooted constellation). **No mock code.**
-- **`mock` envers**: contract verification — `mock` consumers wire to `mock` producers (mock-rooted constellation), giving a stable isolated baseline.
+- **`mock` envers**: contract verification — `mock` consumers wire to `mock` producers (mock-rooted constellation), giving a stable isolated baseline. `mock` is the foundation and can never reference a later revision.
+
+**Non-uniform wiring (legitimate, and the cheap way to grow).** Because backwards references are legal, a single service can advance while its upstreams stay put: `identity@dev` consuming `key@mock`, `chain@mock`, `jwks@mock` is a valid constellation. That is how you test one service's next revision against an already-green baseline without standing up a full `dev` row. See `ONDEMANDENV_PLATFORM.md` → "Growth: advance one coordinate at a time".
+
+**Invariant — one build, one enver per constellation.** Whichever style you use, a constellation must not reach two envers of the same build. Two envers of one build in one closure means two sources of truth for one bounded context, and consumers disagree about which instance is authoritative. Uniform wiring satisfies this for free; non-uniform wiring can violate it by accident, so `odmdValidate()` enforces it (it walks the closure from every enver and throws on a duplicate build). Note the graph is typically **cyclic** — mutual wiring like `identity ↔ webClient` is normal — so a single mis-aimed edge can pull a second enver of a *third* build into the closure via a path you did not intend.
+
+**Enforced vs convention.** `odmdValidate()` enforces the one-build-one-enver invariant, cross-region isolation, ContractsLib-has-no-consumers, and docs-path resolution. The no-forward-reference rule is a **convention, not a compile-time check**: the base library has no phase ordinal (`mock`/`dev`/`main` are customer branch-naming conventions, and other organizations use region- or customer-shaped branch names that carry no ordering), so it cannot compare maturity generically. Keep it by review.
 
 ### Enver merging rule
 

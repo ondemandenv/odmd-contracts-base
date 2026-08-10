@@ -233,18 +233,70 @@ A **constellation** is the subgraph of envers reachable by following `OdmdCrossR
 
 1. Each service declares one or more envers in ContractsLib (commonly `mock`, `dev`, `main`).
 2. Each enver declares producers and consumers.
-3. ContractsLib wires consumers to specific upstream producers (typically same-revision → same-revision, e.g., a `dev` consumer wires to a `dev` producer).
+3. ContractsLib wires consumers to specific upstream producers. Most commonly same-revision → same-revision (a `dev` consumer to a `dev` producer), but the actual constraint is weaker — see "Backwards-only references" below.
 4. The transitive closure of those edges *is* a constellation. Multiple constellations coexist in the same AWS accounts, distinguished only by their `SRC_Rev_REF`.
 
 Because constellations are emergent, a service can participate in many of them with different upstream versions per constellation — the graph tells you what runs together.
 
+### Backwards-only references
+
+References run in one direction along `mock → dev → main`:
+
+```
+mock  ──▶  dev  ──▶  main      (maturity progression)
+ ◀───────────────────────      (references point backwards, never forwards)
+```
+
+- **Forbidden (forward)**: `mock` consuming `dev` or `main`; `dev` consuming `main`. A forward reference would let churn from a moving revision leak into a more settled one — it destroys `mock`'s value as a stable baseline.
+- **Allowed (backwards)**: `dev` consuming `mock`; `main` consuming `dev` or `mock`.
+
+So a constellation is **not required to be revision-uniform**. `⟨identity@dev, key@mock, chain@mock, jwks@mock⟩` is a valid constellation.
+
+### Constellations overlap — they are not a partition
+
+Two constellations can **share** envers, and normally do:
+
+- Platform envers (`__user-auth`, `__networking`) expose a single enver that sits in *every* constellation at once.
+- Under backwards-only wiring, `key@mock` belongs both to the all-mock constellation and to any `dev` constellation that consumes it.
+
+Model a constellation as a **selection**: a partial function `build → enver`, one enver per build, partial because the closure need not reach every build. Two selections may differ in a single coordinate:
+
+```
+all-mock       ⟨mock, mock, mock, mock⟩
+identity-dev   ⟨dev,  mock, mock, mock⟩   ← one coordinate advanced, 3 envers shared
+all-dev        ⟨dev,  dev,  dev,  dev ⟩
+```
+
+### Growth: advance one coordinate at a time
+
+The intended way to evolve a system is not to stand up a whole new row of envers. Get the all-mock constellation green (contracts verified end to end), then advance **one** build to its next revision while it keeps consuming the existing baseline. Repeat per build.
+
+This is also **why cloning a constellation is O(1) rather than O(N)**: a new constellation is one new enver plus N−1 reused ones. Enver sharing is the mechanism behind "cloning a constellation is a single commit message" — see `WHY_BRANCH_AS_ENVER_cheap_verification_trials.md`.
+
+### The topology is a versioned artifact
+
+The selection — which consumer wires to which producer — is **source code in ContractsLib**, not deploy-time configuration. Consequences:
+
+- Advancing a coordinate is a git diff, a code review, a `tsc` check, and a ContractsLib version bump. The context map itself is versioned and published, and services compile against it.
+- ContractsLib does not fork per phase; its envers are keyed by **region**. So within one region a single ContractsLib version emits *all* of that region's constellations — you cannot declare `mock` on one contract version and `dev` on another. Cross-region isolation (enforced in `odmdValidate()`) is what keeps two ContractsLib envers out of one closure.
+- **Declaration is atomic; enactment is not.** Application envers are not wired to `contractsLibLatest` by cross-ref — the new version reaches them through CI, per enver, asynchronously. During propagation the deployed reality is a *mix* of contract versions while the declaration is single-valued. Inspect the `odmdDepRev` parameter on a deployed stack to see which ContractsLib version it was actually built from; `git log` will not tell you.
+- Corollary: **if you do not bump the version, the declaration advances and enactment silently does not.** Republishing the same version updates the `contractsLibLatest` SSM sha but not its `ver` triplet, so consumers keyed on `ver` never redeploy, and the declared graph diverges from the running graph with no error anywhere. See `CONTRACTSLIB_RELEASE_PATTERN.md`.
+
 ### Rules
 
 - **Revision labels ≠ constellation names.** Treat `mock`/`dev`/`main` as enver labels. The constellation is whatever wiring connects them.
-- **No forward references.** A `mock` enver never consumes a `dev` or `main` enver; a `dev` enver never consumes a `main` enver. Canonical progression: mock → dev → main.
+- **No forward references.** A `mock` enver never consumes a `dev` or `main` enver; a `dev` enver never consumes a `main` enver. Canonical progression: mock → dev → main. Backwards references are permitted.
+- **One build resolves to exactly one enver per constellation.** A constellation must not reach two envers of the same build — that is two sources of truth for one bounded context, and consumers of that build disagree about which instance is authoritative. Uniform same-revision wiring satisfies this by construction; hand-wired non-uniform constellations can violate it, so `odmdValidate()` enforces it by walking the closure from every enver. Expect cycles (mutual wiring such as `identity ↔ webClient` is normal), so one mis-aimed edge can drag a second enver of a *third* build into the closure through an unintended path.
 - **Account-agnostic.** Constellations are not tied to AWS accounts. Revision→account mapping is a deployment-time concern configured per organization, not a property of the graph.
 - **Stable addresses at Layer 1 (ContractsLib); artifacts at Layer 2 (services).** ContractsLib declares producer/consumer identities; services publish schemas/values at deploy time.
-- **ContractsLib cannot consume.** The `__contracts` build has producers only (e.g., `contractsLibLatest`). Enforced at runtime: constructing an `OdmdCrossRefConsumer` inside a ContractsLib enver throws.
+- **ContractsLib cannot consume.** The `__contracts` build has producers only (e.g., `contractsLibLatest`). Enforced at runtime: constructing an `OdmdCrossRefConsumer` inside a ContractsLib enver throws. This makes ContractsLib the single root of the dependency graph.
+
+### What `odmdValidate()` enforces (and what it does not)
+
+Enforced: one-build-one-enver per constellation; cross-region consumers rejected; ContractsLib envers contain no consumers; consuming from your own build rejected (in the `OdmdCrossRefConsumer` constructor); every build has ≥1 enver; every enver's region exists in `contractsLibBuild.envers`; all docs-in-code paths resolve on disk; DNS zone invariants.
+
+**Not** enforced: the no-forward-reference rule. It is a convention kept by review. The base library has no phase ordinal — `mock`/`dev`/`main` are a customer branch-naming convention, and other organizations use region- or customer-shaped branch names carrying no ordering — so maturity cannot be compared generically.
+
 
 ### Platform vs. Application envers
 
