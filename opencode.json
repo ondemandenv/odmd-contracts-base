@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "share": "disabled",
   "instructions": [
     "./AGENTS.md",
     "./.odmd/*.md"
