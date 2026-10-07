@@ -49,6 +49,14 @@ export interface IOdmdEnver extends IConstruct {
     readonly buildRolePath: string
     readonly buildRoleArn: string
 
+    readonly bdRoRoleName: string
+    readonly bdRoRolePath: string
+    readonly bdRoRoleArn: string
+
+    readonly ctRoRoleName: string
+    readonly ctRoRolePath: string
+    readonly ctRoRoleArn: string
+
     /*
     static local ssm param path to get the s3 object prefix for cdk app to upload artifacts with buildRole
     typical usage: app/service has a schema to share thru producer/consumer model:
@@ -174,6 +182,30 @@ export abstract class OdmdEnver<T extends OdmdBuild<OdmdEnver<T>>> extends Const
 
     public get buildRoleArn(): string {
         return `arn:aws:iam::${this.targetAWSAccountID}:role${this.buildRolePath}${this.buildRoleName}`;
+    }
+
+    public get bdRoRoleName(): string {
+        return `${this.owner.buildId}-${this.targetAWSRegion}${this.targetAWSAccountID}-bdRoRole`;
+    }
+
+    public get bdRoRolePath(): string {
+        return `/${this.owner.buildId}/`
+    }
+
+    public get bdRoRoleArn(): string {
+        return `arn:aws:iam::${this.targetAWSAccountID}:role${this.bdRoRolePath}${this.bdRoRoleName}`;
+    }
+
+    public get ctRoRoleName(): string {
+        return `${this.owner.buildId}-${this.targetAWSRegion}${this.targetAWSAccountID}-ctRoRole`
+    }
+
+    public get ctRoRolePath(): string {
+        return `/${this.owner.buildId}/`
+    }
+
+    public get ctRoRoleArn(): string {
+        return `arn:aws:iam::${this.owner.contracts.accounts.central}:role${this.ctRoRolePath}${this.ctRoRoleName}`;
     }
 
     public get artifactPrefixSsm(): string {
