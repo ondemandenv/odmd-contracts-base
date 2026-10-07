@@ -913,7 +913,24 @@ getRevStackNames(): Array<string> {
 ## Multi-Account Architecture
 
 ### Guidance
-- Enver and constellation semantics are account-agnostic. Organizations decide how revisions map to accounts/workspaces. The platform supports cross-account resolution via roles without prescribing fixed mappings.
+- Enver and constellation semantics are account-agnostic. Organizations decide how revisions map to accounts/workspaces. The platform supports cross-account resolution via roles without prescribing which account an enver runs in. Role **names** are prescribed; see below.
+
+### Enver IAM role names
+
+`OdmdEnver` computes four IAM role identities (`lib/model/odmd-enver.ts`). These getters are names only — this package does not create the roles. The platform control plane creates them with these names; callers assume them via the `Arn` getters.
+
+Path for all four is `/${buildId}/`. The role name is `${buildId}-${targetAWSRegion}${targetAWSAccountID}-<suffix>`. The 64-character IAM limit applies to the name, not the path.
+
+| Prefix | Account | Suffix | What it is |
+|---|---|---|---|
+| `buildRole` | workspace (`targetAWSAccountID`) | `-buildRole` | Deploy this enver |
+| `centralRole` | center (`contracts.accounts.central`) | `-centerRole` | Cross-account write into the center account (share SSM, producer artifacts) |
+| `bdRoRole` | workspace | `-bdRoRole` | Read this enver in the workspace account without holding `buildRole` |
+| `ctRoRole` | center | `-ctRoRole` | Read what `centralRole` writes, without holding `centralRole` |
+
+Each prefix has `Name`, `Path`, and `Arn` getters (`buildRoleArn`, `bdRoRoleArn`, `centralRoleArn`, `ctRoRoleArn`).
+
+`bdRoRole` is assumed directly in the workspace account. `ctRoRole` is assumed from `bdRoRole`, not from `buildRole`. Permissions live on the roles the control plane creates, not on these getters.
 
 ### Rule: Do not encode revision labels in stack names
 - Do NOT include `mock`/`dev`/`main` in CDK stack IDs, class names, or resource names.
