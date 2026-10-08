@@ -932,6 +932,8 @@ Each prefix has `Name`, `Path`, and `Arn` getters (`buildRoleArn`, `bdRoRoleArn`
 
 `bdRoRole` is assumed directly in the workspace account. `ctRoRole` is assumed from `bdRoRole`, not from `buildRole`. Permissions live on the roles the control plane creates, not on these getters.
 
+Do not put `bdRoRoleArn` in `ctRoRole`'s IAM `Principal`. `bdRoRole` is created in the workspace stack and `ctRoRole` in the center stack; IAM rejects a role-ARN principal that does not exist yet (`Invalid principal in policy`) and rolls the center stack back. Trust the workspace account (`arn:aws:iam::<targetAWSAccountID>:root`) and restrict with `ArnEquals` on `aws:PrincipalArn` equal to `bdRoRoleArn`. `buildRole` still cannot assume `ctRoRole`.
+
 ### Rule: Do not encode revision labels in stack names
 - Do NOT include `mock`/`dev`/`main` in CDK stack IDs, class names, or resource names.
 - Enver identity is selected by `SRC_Rev_REF` (e.g., `b..mock`) and workspace mapping; constellation membership emerges from cross-ref wiring. Neither is expressed in names.
