@@ -13,6 +13,39 @@ import {Construct, IConstruct} from "constructs";
 import {OdmdBuild, SRC_Rev_REF} from "./odmd-build";
 import {OdmdHostedZoneRef} from "../OdmdContractsCentralView";
 
+/**
+ * Per-enver opt-in for the platform's service-owner agent step (`aiAgentDev`).
+ *
+ * The platform ships the TYPE, not the switch: which enver runs an agent is a per-customer decision
+ * (usually gated on the phase, e.g. `if (targetRevision.value === 'dev')`), and `runnerLabel` names a
+ * scale set registered to one GitHub org, which the base library cannot know. A customer contractsLib
+ * sets the value on its enver; `odmd-customer-central`'s workflow generator reads it at synth time and
+ * emits the step.
+ *
+ * The optional knobs mean what the action itself implements when omitted - the defaults are stated here
+ * so a reader does not have to know the action's internals:
+ *  - `allowPush` unset = ON. A session's memory is its own commits on the enver branch; with push off
+ *    nothing lands and every run starts from zero history.
+ *  - `maxSteps` unset = the action's default (40 tool calls per run).
+ *  - `maxCostUsd` unset = no dollar cap (the wall-clock cap still applies).
+ *  - `model` / `logLevel` unset = the runner's provider config / no opencode diagnostics.
+ */
+export interface AgentOptIn {
+    readonly enabled: true
+    /** ARC scale-set label (`runs-on`) registered to the customer's GitHub org. */
+    readonly runnerLabel: string
+    /** provider/model override; unset = the `model` of the runner's provider config. */
+    readonly model?: string
+    /** May the run push its filtered commit (and so start another cycle)? Unset = ON. */
+    readonly allowPush?: boolean
+    /** Tool calls per run; unset = the action's default. */
+    readonly maxSteps?: number
+    /** Dollar ceiling for one run; unset = no cap. */
+    readonly maxCostUsd?: number
+    /** opencode diagnostics level (DEBUG/INFO/WARN/ERROR); unset = off. */
+    readonly logLevel?: string
+}
+
 export interface IOdmdEnver extends IConstruct {
 
     readonly buildScript: string
@@ -35,6 +68,12 @@ export interface IOdmdEnver extends IConstruct {
 
     //todo: developer will takeoverwrite Workflow file from odmd platform in their repo,
     readonly overwriteGhWf: boolean
+
+    /**
+     * Opt-in for the platform's service-owner agent step. Unset = no agent for this enver.
+     * Set by the customer contractsLib; the workflow generator reads it at synth time.
+     */
+    readonly agentOptIn?: AgentOptIn
 
     /**
      * path to md doc
@@ -141,6 +180,12 @@ export abstract class OdmdEnver<T extends OdmdBuild<OdmdEnver<T>>> extends Const
      * do system overwrite user changed GhWf?
      */
     readonly overwriteGhWf: boolean = false
+
+    /**
+     * Per-enver agent opt-in. Mutable rather than readonly because a customer sets it inside its own
+     * constructor, usually gated on the phase. Unset = no agent.
+     */
+    agentOptIn?: AgentOptIn
 
 
     /**
