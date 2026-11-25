@@ -221,6 +221,52 @@ To facilitate service discovery, TLS termination, and human-readable endpoints, 
 - Orchestration: `<user-auth>/bin/user-pool.ts` wires `UserPoolStack`, `WebHostingStack`, and `WebUiStack`, then calls `buildWebUiAndDeploy()`.
 - Dependencies: Reads values from SSM Parameter Store and S3 via an assumed central role; AppSync endpoint and `/odmd-share` parameters must exist for full functionality.
 
+### **AI Agent Step (`agentOptIn`)**
+
+An enver can opt into the platform's AI agent: a step appended to that enver's generated workflow, after the
+deploy, that runs an agent against the repo with the enver as its goal. The switch is a field on `OdmdEnver`:
+
+```ts
+export interface AgentOptIn {
+    readonly enabled: true        // literal: "off" is the absence of the field, not `false`
+    readonly runnerLabel: string  // required: runner label; becomes the workflow job's `runs-on`
+    readonly model?: string       // unset = the runner's provider-config model
+    readonly allowPush?: boolean  // unset = ON
+    readonly maxSteps?: number    // unset = the action's default (40 tool calls)
+    readonly maxCostUsd?: number  // unset = no dollar cap
+    readonly logLevel?: string    // DEBUG | INFO | WARN | ERROR; unset = off
+}
+```
+
+Set it per enver — normally in the constructor, so exactly one revision runs the pilot:
+
+```ts
+constructor(owner: OdmdBuild<...>, targetAWSAccountID: string, targetAWSRegion: string, targetRevision: SRC_Rev_REF) {
+    super(owner, targetAWSAccountID, targetAWSRegion, targetRevision)
+    if (targetRevision.value === 'dev') {
+        this.agentOptIn = {enabled: true, runnerLabel: '<scale-set>', allowPush: true, maxSteps: 120, maxCostUsd: 5}
+    }
+}
+```
+
+What the platform does with it, at workflow-generation time:
+
+- **The whole job moves.** The base workflow's `runs-on: ubuntu-latest` is replaced by
+  `runs-on: <runnerLabel>`; the agent step shares that runner with the enver's own steps.
+- A final `ondemandenv/wflact-aiAgentDev@<org>` step is appended with `if: always()` and receives the job
+  status, so it also runs after a failed deploy and can diagnose it.
+- The switch is written to the enver's config as `ODMD_agentEnabled`. The action treats `false` as inert;
+  `absent` is treated as run, so a pp-stack that predates the key does not disable a step that should run.
+- A malformed opt-in (missing or invalid `runnerLabel`) degrades to "not opted in" rather than failing synth.
+
+**Operator override.** `/odmd-<buildId>/b..<branch>/agent_enabled` (or `t..<tag>`) in SSM beats the contract
+switch — `true|on|1` / `false|off|0`; absent = follow the contract. It stops a session without a contracts change.
+
+**Prerequisites outside the contracts graph.** `runnerLabel` must name a runner that admits the repo — a
+self-hosted scale set whose runner group includes it. Nothing in the contracts or the generated workflow can
+grant that; an unadmitted repo queues forever. The runner must also hold the agent's provider config, which is
+what `model` defaults to.
+
 ## Service Constellations
 
 ### What a constellation is
